@@ -508,6 +508,7 @@ const QPoint delta = event->pos() - prevPos_;
                     } 
                     else 
                     {   std::cout<<"cameraFrame::mouseMoveEvent rotate around pivot "<<std::endl;
+                    std::cout<<"camPivotPoint  "<< camPivotPoint.x << " " << camPivotPoint.y << " " << camPivotPoint.z << std::endl;  
                         glm::vec3 trans = camPivotPoint;//camera->projectedCoordinatesOf(pivotPoint());
                         rot = deformedBallQuaternion(event->x(), event->y(), trans[0], trans[1]/*, camera*/);
                         

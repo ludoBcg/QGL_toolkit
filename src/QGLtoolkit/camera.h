@@ -25,7 +25,6 @@
 
 
 
-#include "frame.h"
 #include "cameraFrame.h"
 //#include "manipulatedCameraFrame.h"
 
@@ -155,11 +154,24 @@ glm::vec3 diff = glm::normalize(center_ - position());
 glm::vec3 axis = glm::normalize(frame()->orientation().axis());
 std::cout<<"(center_ - position() )  "<<diff.x<< " " << diff.y << " " << diff.z << std::endl;  
 std::cout<<"axis  "<<axis.x<< " " << axis.y << " " << axis.z << std::endl;  
-std::cout<<"quat  "<<q[0]<< " " << q[1] << " " << q[2] << std::endl;  
-glm::vec3 quatZ = glm::normalize( glm::vec3( 2.0*q[0]*q[2] + 2.0*q[1]*q[3] , 2.0*q[1]*q[2] - 2.0*q[0]*q[3] , 1.0f - 2.0*q[1]*q[1] - 2.0*q[0]*q[0] ) );
+std::cout<<"quat  "<<q[0]<< " " << q[1] << " " << q[2] << std::endl; 
+const float q00 = 2.0 * q[0] * q[0];
+const float q11 = 2.0 * q[1] * q[1];
+const float q22 = 2.0 * q[2] * q[2];
+
+const float q01 = 2.0 * q[0] * q[1];
+const float q02 = 2.0 * q[0] * q[2];
+const float q03 = 2.0 * q[0] * q[3];
+
+const float q12 = 2.0 * q[1] * q[2];
+const float q13 = 2.0 * q[1] * q[3];
+
+const float q23 = 2.0 * q[2] * q[3];
+glm::vec3 quatZ = glm::normalize( glm::vec3( q02 + q13 , q12 - q03 , 1.0f - q11 - q00 ) );
+glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 + q03 ) );
 std::cout<<"quat Z  "<< quatZ.x << " " << quatZ.y << " " << quatZ.z << std::endl;  
 
-            viewMatrix_ = glm::lookAt(position(), /*center_*/ position() - quatZ /*position() - frame()->orientation().axis()*/, /*frame()->up()*/ glm::vec3(0.0f, 1.0f, 0.0f) );
+            viewMatrix_ = glm::lookAt(position(), /*center_*/ position() - quatZ /*position() - frame()->orientation().axis()*/, /*frame()->up()*/ /*glm::vec3(0.0f, 1.0f, 0.0f)*/quatU );
 
             viewMatrixIsUpToDate_ = true; 
         }
