@@ -361,7 +361,12 @@ class QGLViewer : public QOpenGLWidget
 
 
         virtual void mouseReleaseEvent(QMouseEvent *_e){ _e->ignore(); }
-        virtual void mouseDoubleClickEvent(QMouseEvent *_e){ _e->ignore(); }
+        virtual void mouseDoubleClickEvent(QMouseEvent *_e)
+        { 
+            //_e->ignore(); 
+            camera()->frame()->mouseDoubleClickEvent(_e/*, camera()*/, camera()->position(), camera()->viewDirection(), camera()->pivotPoint() );
+            this->update();
+        }
 
         virtual void wheelEvent(QWheelEvent *_e)
         {

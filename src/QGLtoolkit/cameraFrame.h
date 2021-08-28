@@ -590,16 +590,22 @@ const QPoint delta = event->pos() - prevPos_;
         }
         
 
-        virtual void mouseDoubleClickEvent(QMouseEvent *const event/*, Camera *const camera*/) 
+        virtual void mouseDoubleClickEvent(QMouseEvent *const event/*, Camera *const camera*/, glm::vec3 camPos, glm::vec3 camViewDir, glm::vec3 camPivotPoint) 
         {
+Frame *frame = new Frame();
+frame->setTranslation(camPivotPoint);
             if (event->modifiers() == Qt::NoModifier)
                 switch (event->button()) 
                 {
                     case Qt::LeftButton:
-                        alignWithFrame(/*camera->frame()*/this);
+
+alignWithFrame(frame, true);
+                        //alignWithFrame(/*camera->frame()*/this);
+                        std::cout<<"double left ++++++++++"<<std::endl;
                         break;
                     case Qt::RightButton:
-                        projectOnLine(/*camera*/this->position(), /*camera->viewDirection()*/ this->inverseTransformOf(glm::vec3(0.0f, 0.0f, -1.0f)) );
+                        projectOnLine(/*camera*/ /*this->position()*/ camPos, /*camera->viewDirection()*/ camViewDir/*this->inverseTransformOf(glm::vec3(0.0f, 0.0f, -1.0f))*/ );
+                        std::cout<<"double right --------"<<std::endl;
                         break;
                     default:
                         break;
