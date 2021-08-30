@@ -1,27 +1,20 @@
-/****************************************************************************
+/*********************************************************************************************************************
+ *
+ * quaternion.h
+ *
+ * A Quaternion class for 3D rotations and orientations
+ * 
+ * QGL_toolkit
+ * Ludovic Blache
+ *
+ *
+ * Based on the libQGLViewer library by Gilles Debunne
+ * http://www.libqglviewer.com
+ *
+ *********************************************************************************************************************/
 
- Copyright (C) 2002-2014 Gilles Debunne. All rights reserved.
-
- This file is part of the QGLViewer library version 2.7.1.
-
- http://www.libqglviewer.com - contact@libqglviewer.com
-
- This file may be used under the terms of the GNU General Public License 
- versions 2.0 or 3.0 as published by the Free Software Foundation and
- appearing in the LICENSE file included in the packaging of this file.
- In addition, as a special exception, Gilles Debunne gives you certain 
- additional rights, described in the file GPL_EXCEPTION in this package.
-
- libQGLViewer uses dual licensing. Commercial/proprietary software must
- purchase a libQGLViewer Commercial License.
-
- This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
- WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-
-*****************************************************************************/
-
-#ifndef QGLVIEWER_QUATERNION_H
-#define QGLVIEWER_QUATERNION_H
+#ifndef QGLTOOLKIT_QUATERNION_H
+#define QGLTOOLKIT_QUATERNION_H
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -32,7 +25,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-namespace qglviewer {
+namespace qgltoolkit 
+{
 
 
 static float squaredNorm(glm::vec3 _vec) { return _vec.x * _vec.x + _vec.y * _vec.y + _vec.z * _vec.z; }
@@ -547,8 +541,8 @@ class  Quaternion
 
 };
 
-} // namespace qglviewer
+} // namespace qgltoolkit
 
 
 
-#endif // QGLVIEWER_QUATERNION_H
+#endif // QGLTOOLKIT_QUATERNION_H

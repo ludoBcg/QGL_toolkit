@@ -1,42 +1,31 @@
-/****************************************************************************
+/*********************************************************************************************************************
+ *
+ * camera.h
+ *
+ * A perspective or orthographic camera
+ * 
+ * QGL_toolkit
+ * Ludovic Blache
+ *
+ *
+ * Based on the libQGLViewer library by Gilles Debunne
+ * http://www.libqglviewer.com
+ *
+ *********************************************************************************************************************/
 
- Copyright (C) 2002-2014 Gilles Debunne. All rights reserved.
-
- This file is part of the QGLViewer library version 2.7.1.
-
- http://www.libqglviewer.com - contact@libqglviewer.com
-
- This file may be used under the terms of the GNU General Public License 
- versions 2.0 or 3.0 as published by the Free Software Foundation and
- appearing in the LICENSE file included in the packaging of this file.
- In addition, as a special exception, Gilles Debunne gives you certain 
- additional rights, described in the file GPL_EXCEPTION in this package.
-
- libQGLViewer uses dual licensing. Commercial/proprietary software must
- purchase a libQGLViewer Commercial License.
-
- This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
- WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-
-*****************************************************************************/
-
-#ifndef QGLVIEWER_CAMERA_H
-#define QGLVIEWER_CAMERA_H
+#ifndef QGLTOOLKIT_CAMERA_H
+#define QGLTOOLKIT_CAMERA_H
 
 
 
 #include "cameraFrame.h"
-//#include "manipulatedCameraFrame.h"
-
-//class QGLViewer;
-
-namespace qglviewer {
-
-//class CameraFrame;
 
 
+namespace qgltoolkit {
 
-class Camera : public QObject {
+
+class Camera : public QObject 
+{
     Q_OBJECT
 
     public:
@@ -148,13 +137,13 @@ class Camera : public QObject {
             const Quaternion q = frame()->orientation();
             const glm::vec3 t = q.inverseRotate(frame()->position());
         
-std::cout<<"center_  "<<center_.x<< " " << center_.y << " " << center_.z << std::endl;     
+//std::cout<<"center_  "<<center_.x<< " " << center_.y << " " << center_.z << std::endl;     
 
 glm::vec3 diff = glm::normalize(center_ - position());
 glm::vec3 axis = glm::normalize(frame()->orientation().axis());
-std::cout<<"(center_ - position() )  "<<diff.x<< " " << diff.y << " " << diff.z << std::endl;  
-std::cout<<"axis  "<<axis.x<< " " << axis.y << " " << axis.z << std::endl;  
-std::cout<<"quat  "<<q[0]<< " " << q[1] << " " << q[2] << std::endl; 
+//std::cout<<"(center_ - position() )  "<<diff.x<< " " << diff.y << " " << diff.z << std::endl;  
+//std::cout<<"axis  "<<axis.x<< " " << axis.y << " " << axis.z << std::endl;  
+//std::cout<<"quat  "<<q[0]<< " " << q[1] << " " << q[2] << std::endl; 
 const float q00 = 2.0 * q[0] * q[0];
 const float q11 = 2.0 * q[1] * q[1];
 const float q22 = 2.0 * q[2] * q[2];
@@ -169,9 +158,9 @@ const float q13 = 2.0 * q[1] * q[3];
 const float q23 = 2.0 * q[2] * q[3];
 glm::vec3 quatZ = glm::normalize( glm::vec3( q02 + q13 , q12 - q03 , 1.0f - q11 - q00 ) );
 glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 + q03 ) );
-std::cout<<"quat Z  "<< quatZ.x << " " << quatZ.y << " " << quatZ.z << std::endl;  
+//std::cout<<"quat Z  "<< quatZ.x << " " << quatZ.y << " " << quatZ.z << std::endl;  
 
-            viewMatrix_ = glm::lookAt(position(), /*center_*/ position() - quatZ /*position() - frame()->orientation().axis()*/, /*frame()->up()*/ /*glm::vec3(0.0f, 1.0f, 0.0f)*/quatU );
+            viewMatrix_ = glm::lookAt(position(),  position() - quatZ , quatU );
 
             viewMatrixIsUpToDate_ = true; 
         }
@@ -536,6 +525,6 @@ std::cout<<"quat Z  "<< quatZ.x << " " << quatZ.y << " " << quatZ.z << std::endl
 
 };
 
-} // namespace qglviewer
+} // namespace qgltoolkit
 
-#endif // QGLVIEWER_CAMERA_H
+#endif // QGLTOOLKIT_CAMERA_H

@@ -1,33 +1,27 @@
-/****************************************************************************
+/*********************************************************************************************************************
+ *
+ * qglviewer.h
+ *
+ * 3D OpenGL viewer based on QOpenGLWidget
+ * 
+ * QGL_toolkit
+ * Ludovic Blache
+ *
+ *
+ * Based on the libQGLViewer library by Gilles Debunne
+ * http://www.libqglviewer.com
+ *
+ *********************************************************************************************************************/
 
- Copyright (C) 2002-2014 Gilles Debunne. All rights reserved.
 
- This file is part of the QGLViewer library version 2.7.1.
-
- http://www.libqglviewer.com - contact@libqglviewer.com
-
- This file may be used under the terms of the GNU General Public License 
- versions 2.0 or 3.0 as published by the Free Software Foundation and
- appearing in the LICENSE file included in the packaging of this file.
- In addition, as a special exception, Gilles Debunne gives you certain 
- additional rights, described in the file GPL_EXCEPTION in this package.
-
- libQGLViewer uses dual licensing. Commercial/proprietary software must
- purchase a libQGLViewer Commercial License.
-
- This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
- WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-
-*****************************************************************************/
-
-#ifndef QGLVIEWER_QGLVIEWER_H
-#define QGLVIEWER_QGLVIEWER_H
+#ifndef QGLTOOLKIT_QGLVIEWER_H
+#define QGLTOOLKIT_QGLVIEWER_H
 
 
 #include <iostream>
 #include <math.h>
 
-
+// Qt includes
 #include <QTimer>
 #include <QClipboard>
 #include <QGL>
@@ -38,18 +32,20 @@
 #include <QKeyEvent>
 
 
-
 #include "camera.h"
 
-class QTabWidget;
+//class QTabWidget;
 
-/*namespace qglviewer 
-{
 
-    //class Camera;
+namespace qgltoolkit {
 
-} // namespace qglviewer*/
-
+    
+/*!
+* \class QGLViewer
+* \brief 3D OpenGL viewer based on QOpenGLWidget
+* To use a QGLViewer, derive you viewer class from the QGLViewer and 
+* overload its draw() virtual method.
+*/
 class QGLViewer : public QOpenGLWidget 
 {
     Q_OBJECT
@@ -64,8 +60,8 @@ class QGLViewer : public QOpenGLWidget
         // M o u s e   a c t i o n s
         struct MouseActionPrivate 
         {
-            qglviewer::CameraFrame::MouseHandler handler;
-            qglviewer::CameraFrame::MouseAction action;
+            qgltoolkit::CameraFrame::MouseHandler handler;
+            qgltoolkit::CameraFrame::MouseAction action;
             bool withConstraint;
         };
 
@@ -138,11 +134,11 @@ class QGLViewer : public QOpenGLWidget
 
         QMap<MouseBindingPrivate, MouseActionPrivate> mouseBinding_;
         QMap<WheelBindingPrivate, MouseActionPrivate> wheelBinding_;
-        QMap<ClickBindingPrivate, qglviewer::CameraFrame::ClickAction> clickBinding_;
+        QMap<ClickBindingPrivate, qgltoolkit::CameraFrame::ClickAction> clickBinding_;
         Qt::Key currentlyPressedKey_;
 
         // C a m e r a
-        qglviewer::Camera *camera_;
+        qgltoolkit::Camera *camera_;
 
 
 
@@ -150,7 +146,7 @@ class QGLViewer : public QOpenGLWidget
   
         // GETTERS ------------------------------------------------------------------
 
-        qglviewer::Camera  *camera() const { return camera_; }
+        qgltoolkit::Camera  *camera() const { return camera_; }
         double sceneRadius() const { return camera()->sceneRadius(); }
         glm::vec3 sceneCenter() const { return camera()->sceneCenter(); }
 
@@ -183,7 +179,7 @@ class QGLViewer : public QOpenGLWidget
     private:
 
 
-        void setCamera(qglviewer::Camera  *const camera) 
+        void setCamera(qgltoolkit::Camera  *const camera) 
         {
             if (!camera)
                 return;
@@ -206,7 +202,7 @@ class QGLViewer : public QOpenGLWidget
         { 
             setFocusPolicy(Qt::StrongFocus); 
 
-            camera_ = new qglviewer::Camera();
+            camera_ = new qgltoolkit::Camera();
             this->setSceneRadius(1.0);
             this->setSceneCenter( glm::vec3(0.0f) );
             showEntireScene();
@@ -306,11 +302,13 @@ class QGLViewer : public QOpenGLWidget
 
             MouseActionPrivate map = mouseBinding_[mbp];
 
-            map.handler =  qglviewer::CameraFrame::MouseHandler::CAMERA;
+            map.handler =  qgltoolkit::CameraFrame::MouseHandler::CAMERA;
             if( _e->button()  == Qt::RightButton)
-                map.action = qglviewer::CameraFrame::MouseAction::TRANSLATE;//SCREEN_TRANSLATE;
+                map.action = qgltoolkit::CameraFrame::MouseAction::TRANSLATE;
             else if( _e->button()  == Qt::LeftButton)
-                map.action = qglviewer::CameraFrame::MouseAction::ROTATE;
+                map.action = qgltoolkit::CameraFrame::MouseAction::ROTATE;
+            else if( _e->button()  == Qt::MiddleButton)
+                map.action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
             map.withConstraint = true;
 
             camera()->frame()->startAction(map.action, map.withConstraint);
@@ -327,34 +325,9 @@ class QGLViewer : public QOpenGLWidget
 
             if (camera()->frame()->isManipulated()) 
             {
-                //camera()->frame()->mouseMoveEvent(_e, /*camera()*/ camera()->frame()->coordinatesOf(camera()->pivotPoint()) );
                 camera()->mouseMoveEvent(_e );
-
-                /*if (camera()->frame()->action_ == ZOOM_ON_REGION)
-                    update();*/
             } 
-            //else if ((manipulatedFrame()) && (manipulatedFrame()->isManipulated()))
-            //    if (manipulatedFrameIsACamera_)
-            //        manipulatedFrame()->ManipulatedFrame::mouseMoveEvent(e, camera());
-            //    else
-            //        manipulatedFrame()->mouseMoveEvent(e, camera());
-            //else if (hasMouseTracking()) 
-            //{
-            //    Q_FOREACH (MouseGrabber *mg, MouseGrabber::MouseGrabberPool()) 
-            //    {
-            //        mg->checkIfGrabsMouse(e->x(), e->y(), camera());
-            //        if (mg->grabsMouse()) 
-            //        {
-            //            setMouseGrabber(mg);
 
-            //            if (mouseGrabber() == mg) 
-            //            {
-            //                update();
-            //                break;
-            //            }
-            //        }
-            //    }
-            //}
             this->update();
         }
 
@@ -364,7 +337,7 @@ class QGLViewer : public QOpenGLWidget
         virtual void mouseDoubleClickEvent(QMouseEvent *_e)
         { 
             //_e->ignore(); 
-            camera()->frame()->mouseDoubleClickEvent(_e/*, camera()*/, camera()->position(), camera()->viewDirection(), camera()->pivotPoint() );
+            camera()->frame()->mouseDoubleClickEvent(_e/*, camera()*/, camera()->position(), camera()->viewDirection(), camera()->pivotPoint() , camera()->sceneCenter() );
             this->update();
         }
 
@@ -374,8 +347,8 @@ class QGLViewer : public QOpenGLWidget
 
             MouseActionPrivate map = wheelBinding_[wbp];
 
-            map.handler =  qglviewer::CameraFrame::MouseHandler::CAMERA;
-            map.action = qglviewer::CameraFrame::MouseAction::ZOOM;
+            map.handler =  qgltoolkit::CameraFrame::MouseHandler::CAMERA;
+            map.action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
             map.withConstraint = true;
 
 
@@ -386,7 +359,11 @@ class QGLViewer : public QOpenGLWidget
         }
 
 
-        virtual void keyPressEvent(QKeyEvent *_e){ std::cout<<"pressed FU"<<std::endl;/*_e->ignore();*/ }
+        virtual void keyPressEvent(QKeyEvent *_e)
+        {
+            std::cout<<"pressed FU"<<std::endl;
+        }
+
         virtual void keyReleaseEvent(QKeyEvent *_e){ _e->ignore(); }
         virtual void timerEvent(QTimerEvent *_e){ _e->ignore(); }
         virtual void closeEvent(QCloseEvent *_e){ _e->ignore(); }
@@ -399,12 +376,11 @@ class QGLViewer : public QOpenGLWidget
         QGLViewer(const QGLViewer &v);
         QGLViewer &operator=(const QGLViewer &v);
 
- 
-
-
-        
-
 
 };
 
-#endif // QGLVIEWER_QGLVIEWER_H
+
+} // namespace qgltoolkit
+
+
+#endif // QGLTOOLKIT_QGLVIEWER_H

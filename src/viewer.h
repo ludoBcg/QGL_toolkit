@@ -19,7 +19,7 @@ class Mesh;
 
 
 
-class Viewer : public QGLViewer
+class Viewer : public qgltoolkit::QGLViewer
 {
     Q_OBJECT
 

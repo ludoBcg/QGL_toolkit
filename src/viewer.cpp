@@ -14,18 +14,15 @@
 
 
 
-
-
 using namespace std;
 
 
- 
 
 
-Viewer::Viewer(QWidget *parent) : QGLViewer(parent)
+Viewer::Viewer(QWidget *parent) : qgltoolkit::QGLViewer(parent)
 { }
 
-Viewer::Viewer() : QGLViewer()
+Viewer::Viewer() : qgltoolkit::QGLViewer()
 { }
 
 Viewer::~Viewer()

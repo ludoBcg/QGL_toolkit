@@ -1,27 +1,20 @@
-/****************************************************************************
+/*********************************************************************************************************************
+ *
+ * frame.h
+ *
+ * A Frame represents a coordinate system, defined by a position and an orientation
+ * 
+ * QGL_toolkit
+ * Ludovic Blache
+ *
+ *
+ * Based on the libQGLViewer library by Gilles Debunne
+ * http://www.libqglviewer.com
+ *
+ *********************************************************************************************************************/
 
- Copyright (C) 2002-2014 Gilles Debunne. All rights reserved.
-
- This file is part of the QGLViewer library version 2.7.1.
-
- http://www.libqglviewer.com - contact@libqglviewer.com
-
- This file may be used under the terms of the GNU General Public License 
- versions 2.0 or 3.0 as published by the Free Software Foundation and
- appearing in the LICENSE file included in the packaging of this file.
- In addition, as a special exception, Gilles Debunne gives you certain 
- additional rights, described in the file GPL_EXCEPTION in this package.
-
- libQGLViewer uses dual licensing. Commercial/proprietary software must
- purchase a libQGLViewer Commercial License.
-
- This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
- WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-
-*****************************************************************************/
-
-#ifndef QGLVIEWER_FRAME_H
-#define QGLVIEWER_FRAME_H
+#ifndef QGLTOOLKIT_FRAME_H
+#define QGLTOOLKIT_FRAME_H
 
 
 #include <QObject>
@@ -29,7 +22,7 @@
 
 #include "constraint.h"
 
-namespace qglviewer {
+namespace qgltoolkit {
 
 
 class Frame : public QObject 
@@ -159,7 +152,7 @@ class Frame : public QObject
         {
             glm::vec3 deltaT = translation - this->translation();
             if (constraint())
-                constraint()->constrainTranslation(deltaT/*, this*/); //@@@@@@@@@@@@@@@@@@@@@@@
+                constraint()->constrainTranslation(deltaT/*, this*/); 
 
             setTranslation(this->translation() + deltaT);
             translation = this->translation();
@@ -183,7 +176,7 @@ class Frame : public QObject
         {
             Quaternion deltaQ = this->rotation().inverse() * rotation;
             if (constraint())
-                constraint()->constrainRotation(deltaQ/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
+                constraint()->constrainRotation(deltaQ/*, this*/); 
 
             // Prevent numerical drift
             deltaQ.normalize();
@@ -833,6 +826,6 @@ center = center + trans2;
 
 };
 
-} // namespace qglviewer
+} // namespace qgltoolkit
 
-#endif // QGLVIEWER_FRAME_H
+#endif // QGLTOOLKIT_FRAME_H
