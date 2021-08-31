@@ -56,7 +56,7 @@ class Frame : public QObject
     public:
 
 
-        Frame() : constraint_(NULL), referenceFrame_(NULL) {}
+        Frame() : /*constraint_(NULL), */referenceFrame_(NULL) {}
 
         virtual ~Frame() {}
 
@@ -151,8 +151,8 @@ class Frame : public QObject
         void setTranslationWithConstraint(glm::vec3 &translation)
         {
             glm::vec3 deltaT = translation - this->translation();
-            if (constraint())
-                constraint()->constrainTranslation(deltaT/*, this*/); 
+//            if (constraint())
+//                constraint()->constrainTranslation(deltaT/*, this*/); 
 
             setTranslation(this->translation() + deltaT);
             translation = this->translation();
@@ -175,8 +175,8 @@ class Frame : public QObject
         void setRotationWithConstraint(Quaternion &rotation)
         {
             Quaternion deltaQ = this->rotation().inverse() * rotation;
-            if (constraint())
-                constraint()->constrainRotation(deltaQ/*, this*/); 
+//            if (constraint())
+//                constraint()->constrainRotation(deltaQ/*, this*/); 
 
             // Prevent numerical drift
             deltaQ.normalize();
@@ -201,11 +201,11 @@ class Frame : public QObject
             glm::vec3 deltaT = translation - this->translation();
             Quaternion deltaQ = this->rotation().inverse() * rotation;
 
-            if (constraint()) 
-            {
-                constraint()->constrainTranslation(deltaT/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
-                constraint()->constrainRotation(deltaQ/*, this*/);
-            }
+//            if (constraint()) 
+//            {
+//                constraint()->constrainTranslation(deltaT/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
+//                constraint()->constrainRotation(deltaQ/*, this*/);
+//            }
 
             // Prevent numerical drift
             deltaQ.normalize();
@@ -340,7 +340,7 @@ class Frame : public QObject
             // Automatic compiler generated version would not emit the modified() signals
             // as is done in setTranslationAndRotation.
             setTranslationAndRotation(frame.translation(), frame.rotation());
-            setConstraint(frame.constraint());
+//            setConstraint(frame.constraint());
             setReferenceFrame(frame.referenceFrame());
             return *this;
         }
@@ -355,8 +355,8 @@ class Frame : public QObject
 
         void translate(glm::vec3 &t) 
         {
-            if (constraint())
-                constraint()->constrainTranslation(t/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
+//            if (constraint())
+//                constraint()->constrainTranslation(t/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
             t_ += t;
             Q_EMIT modified();
         }
@@ -384,8 +384,8 @@ class Frame : public QObject
 
         void rotate(Quaternion &q) 
         {
-            if (constraint())
-                constraint()->constrainRotation(q/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
+//            if (constraint())
+//                constraint()->constrainRotation(q/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
             q_ *= q;
             q_.normalize(); // Prevents numerical drift
             Q_EMIT modified();
@@ -409,8 +409,8 @@ class Frame : public QObject
 
         void rotateAroundPoint(Quaternion &rotation, const glm::vec3 &point, glm::vec3 &center) 
         {
-            if (constraint())
-                constraint()->constrainRotation(rotation/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
+//            if (constraint())
+//                constraint()->constrainRotation(rotation/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
 
             q_ *= rotation;
             q_.normalize(); // Prevents numerical drift
@@ -420,8 +420,8 @@ glm::vec3 trans2 = point + Quaternion(inverseTransformOf(rotation.axis()), rotat
 center = center + trans2;
 
 
-            if (constraint())
-                constraint()->constrainTranslation(trans/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
+ //           if (constraint())
+//                constraint()->constrainTranslation(trans/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
 
             t_ += trans;
 
