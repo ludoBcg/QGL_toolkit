@@ -58,83 +58,84 @@ class QGLViewer : public QOpenGLWidget
     private :     
 
         // M o u s e   a c t i o n s
-        struct MouseActionPrivate 
-        {
-            qgltoolkit::CameraFrame::MouseHandler handler;
-            qgltoolkit::CameraFrame::MouseAction action;
-            bool withConstraint;
-        };
+        //struct MouseActionPrivate 
+        //{
+        //    qgltoolkit::CameraFrame::MouseHandler handler;
+        //    qgltoolkit::CameraFrame::MouseAction action;
+        //    bool withConstraint;
+        //};
 
-        // M o u s e   b i n d i n g s
-        struct MouseBindingPrivate 
-        {
-            const Qt::KeyboardModifiers modifiers;
-            const Qt::MouseButton button;
-            const Qt::Key key;
+        //// M o u s e   b i n d i n g s
+        //struct MouseBindingPrivate 
+        //{
+        //    const Qt::KeyboardModifiers modifiers;
+        //    const Qt::MouseButton button;
+        //    const Qt::Key key;
 
-            MouseBindingPrivate(Qt::KeyboardModifiers m, Qt::MouseButton b, Qt::Key k)
-            : modifiers(m), button(b), key(k) {}
+        //    MouseBindingPrivate(Qt::KeyboardModifiers m, Qt::MouseButton b, Qt::Key k)
+        //    : modifiers(m), button(b), key(k) {}
 
-            // This sort order is used in mouseString() to display sorted mouse bindings
-            bool operator<(const MouseBindingPrivate &mbp) const 
-            {
-                if (key != mbp.key)
-                    return key < mbp.key;
-                if (modifiers != mbp.modifiers)
-                    return modifiers < mbp.modifiers;
-                return button < mbp.button;
-            }
-        };
+        //    // This sort order is used in mouseString() to display sorted mouse bindings
+        //    bool operator<(const MouseBindingPrivate &mbp) const 
+        //    {
+        //        if (key != mbp.key)
+        //            return key < mbp.key;
+        //        if (modifiers != mbp.modifiers)
+        //            return modifiers < mbp.modifiers;
+        //        return button < mbp.button;
+        //    }
+        //};
 
-        // W h e e l   b i n d i n g s
-        struct WheelBindingPrivate 
-        {
-            const Qt::KeyboardModifiers modifiers;
-            const Qt::Key key;
+        //// W h e e l   b i n d i n g s
+        //struct WheelBindingPrivate 
+        //{
+        //    const Qt::KeyboardModifiers modifiers;
+        //    const Qt::Key key;
 
-            WheelBindingPrivate(Qt::KeyboardModifiers m, Qt::Key k)
-            : modifiers(m), key(k) {}
+        //    WheelBindingPrivate(Qt::KeyboardModifiers m, Qt::Key k)
+        //    : modifiers(m), key(k) {}
 
-            // This sort order is used in mouseString() to display sorted wheel bindings
-            bool operator<(const WheelBindingPrivate &wbp) const 
-            {
-                if (key != wbp.key)
-                    return key < wbp.key;
-                return modifiers < wbp.modifiers;
-            }
-        };
+        //    // This sort order is used in mouseString() to display sorted wheel bindings
+        //    bool operator<(const WheelBindingPrivate &wbp) const 
+        //    {
+        //        if (key != wbp.key)
+        //            return key < wbp.key;
+        //        return modifiers < wbp.modifiers;
+        //    }
+        //};
 
-        // C l i c k   b i n d i n g s
-        struct ClickBindingPrivate 
-        {
-            const Qt::KeyboardModifiers modifiers;
-            const Qt::MouseButton button;
-            const bool doubleClick;
-            const Qt::MouseButtons
-            buttonsBefore; // only defined when doubleClick is true
-            const Qt::Key key;
+        //// C l i c k   b i n d i n g s
+        //struct ClickBindingPrivate 
+        //{
+        //    const Qt::KeyboardModifiers modifiers;
+        //    const Qt::MouseButton button;
+        //    const bool doubleClick;
+        //    const Qt::MouseButtons
+        //    buttonsBefore; // only defined when doubleClick is true
+        //    const Qt::Key key;
 
-            ClickBindingPrivate(Qt::KeyboardModifiers m, Qt::MouseButton b, bool dc, Qt::MouseButtons bb, Qt::Key k)
-            : modifiers(m), button(b), doubleClick(dc), buttonsBefore(bb), key(k) {}
+        //    ClickBindingPrivate(Qt::KeyboardModifiers m, Qt::MouseButton b, bool dc, Qt::MouseButtons bb, Qt::Key k)
+        //    : modifiers(m), button(b), doubleClick(dc), buttonsBefore(bb), key(k) {}
 
-            // This sort order is used in mouseString() to display sorted mouse bindings
-            bool operator<(const ClickBindingPrivate &cbp) const 
-            {
-                if (key != cbp.key)
-                    return key < cbp.key;
-                if (buttonsBefore != cbp.buttonsBefore)
-                    return buttonsBefore < cbp.buttonsBefore;
-                if (modifiers != cbp.modifiers)
-                    return modifiers < cbp.modifiers;
-                if (button != cbp.button)
-                    return button < cbp.button;
-                return doubleClick != cbp.doubleClick;
-            }
-        };
+        //    // This sort order is used in mouseString() to display sorted mouse bindings
+        //    bool operator<(const ClickBindingPrivate &cbp) const 
+        //    {
+        //        if (key != cbp.key)
+        //            return key < cbp.key;
+        //        if (buttonsBefore != cbp.buttonsBefore)
+        //            return buttonsBefore < cbp.buttonsBefore;
+        //        if (modifiers != cbp.modifiers)
+        //            return modifiers < cbp.modifiers;
+        //        if (button != cbp.button)
+        //            return button < cbp.button;
+        //        return doubleClick != cbp.doubleClick;
+        //    }
+        //};
 
-        QMap<MouseBindingPrivate, MouseActionPrivate> mouseBinding_;
-        QMap<WheelBindingPrivate, MouseActionPrivate> wheelBinding_;
-        QMap<ClickBindingPrivate, qgltoolkit::CameraFrame::ClickAction> clickBinding_;
+        //QMap<MouseBindingPrivate, MouseActionPrivate> mouseBinding_;
+        //QMap<WheelBindingPrivate, MouseActionPrivate> wheelBinding_;
+        //QMap<ClickBindingPrivate, qgltoolkit::CameraFrame::ClickAction> clickBinding_;
+
         Qt::Key currentlyPressedKey_;
 
         // C a m e r a
@@ -296,22 +297,41 @@ class QGLViewer : public QOpenGLWidget
  
     protected:
 
+        //virtual void mousePressEvent(QMouseEvent * _e)
+        //{
+        //    const MouseBindingPrivate mbp(_e->modifiers(), _e->button(), currentlyPressedKey_);
+
+        //    MouseActionPrivate map = mouseBinding_[mbp];
+
+        //    map.handler =  qgltoolkit::CameraFrame::MouseHandler::CAMERA;
+        //    if( _e->button()  == Qt::RightButton)
+        //        map.action = qgltoolkit::CameraFrame::MouseAction::TRANSLATE;
+        //    else if( _e->button()  == Qt::LeftButton)
+        //        map.action = qgltoolkit::CameraFrame::MouseAction::ROTATE;
+        //    else if( _e->button()  == Qt::MiddleButton)
+        //        map.action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
+        //    map.withConstraint = true;
+
+        //    camera()->frame()->startAction(map.action, map.withConstraint);
+        //    camera()->frame()->mousePressEvent(_e/*, camera()*/ );
+
+        //    update();
+
+        //}
+
+
         virtual void mousePressEvent(QMouseEvent * _e)
         {
-            const MouseBindingPrivate mbp(_e->modifiers(), _e->button(), currentlyPressedKey_);
+            qgltoolkit::CameraFrame::MouseAction action;
 
-            MouseActionPrivate map = mouseBinding_[mbp];
-
-            map.handler =  qgltoolkit::CameraFrame::MouseHandler::CAMERA;
             if( _e->button()  == Qt::RightButton)
-                map.action = qgltoolkit::CameraFrame::MouseAction::TRANSLATE;
+                action = qgltoolkit::CameraFrame::MouseAction::TRANSLATE;
             else if( _e->button()  == Qt::LeftButton)
-                map.action = qgltoolkit::CameraFrame::MouseAction::ROTATE;
+                action = qgltoolkit::CameraFrame::MouseAction::ROTATE;
             else if( _e->button()  == Qt::MiddleButton)
-                map.action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
-            map.withConstraint = true;
+                action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
 
-            camera()->frame()->startAction(map.action, map.withConstraint);
+            camera()->frame()->startAction(action, true);
             camera()->frame()->mousePressEvent(_e/*, camera()*/ );
 
             update();
@@ -341,18 +361,33 @@ class QGLViewer : public QOpenGLWidget
             this->update();
         }
 
+        //virtual void wheelEvent(QWheelEvent *_e)
+        //{
+        //    WheelBindingPrivate wbp(_e->modifiers(), currentlyPressedKey_);
+
+        //    MouseActionPrivate map = wheelBinding_[wbp];
+
+        //    map.handler =  qgltoolkit::CameraFrame::MouseHandler::CAMERA;
+        //    map.action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
+        //    map.withConstraint = true;
+
+
+        //    camera()->frame()->startAction(map.action, map.withConstraint);
+        //    camera()->frame()->wheelEvent(_e,  camera()->frame()->coordinatesOf(camera()->pivotPoint())  );
+   
+        //    this->update();
+        //}
+
         virtual void wheelEvent(QWheelEvent *_e)
         {
-            WheelBindingPrivate wbp(_e->modifiers(), currentlyPressedKey_);
+            //WheelBindingPrivate wbp(_e->modifiers(), currentlyPressedKey_);
 
-            MouseActionPrivate map = wheelBinding_[wbp];
+            //MouseActionPrivate map = wheelBinding_[wbp];
 
-            map.handler =  qgltoolkit::CameraFrame::MouseHandler::CAMERA;
-            map.action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
-            map.withConstraint = true;
+            //map.handler =  qgltoolkit::CameraFrame::MouseHandler::CAMERA;
+            qgltoolkit::CameraFrame::MouseAction action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
 
-
-            camera()->frame()->startAction(map.action, map.withConstraint);
+            camera()->frame()->startAction(action, true);
             camera()->frame()->wheelEvent(_e,  camera()->frame()->coordinatesOf(camera()->pivotPoint())  );
    
             this->update();
@@ -361,7 +396,7 @@ class QGLViewer : public QOpenGLWidget
 
         virtual void keyPressEvent(QKeyEvent *_e)
         {
-            std::cout<<"pressed FU"<<std::endl;
+            std::cout<<"pressed Key"<<std::endl;
         }
 
         virtual void keyReleaseEvent(QKeyEvent *_e){ _e->ignore(); }

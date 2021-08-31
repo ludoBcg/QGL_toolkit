@@ -24,7 +24,7 @@ namespace qgltoolkit {
 
 
 
-class  Constraint 
+class Constraint 
 {
     public:
 

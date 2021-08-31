@@ -49,7 +49,7 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
     public:
         enum ProjectionType { PERSPECTIVE, ORTHOGRAPHIC };
 
-         enum KeyboardAction {
+         /*enum KeyboardAction {
             DRAW_AXIS,
             DRAW_GRID,
             DISPLAY_FPS,
@@ -87,21 +87,21 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
             ALIGN_FRAME,
             ALIGN_CAMERA
             };
-
+            */
 
         enum MouseAction {
             NO_MOUSE_ACTION,
             ROTATE,
             ZOOM,
-            TRANSLATE,
-            MOVE_FORWARD,
-            LOOK_AROUND,
-            MOVE_BACKWARD,
-            SCREEN_ROTATE,
-            ROLL,
-            DRIVE,
-            SCREEN_TRANSLATE,
-            ZOOM_ON_REGION
+            TRANSLATE//,
+//            MOVE_FORWARD,
+//            LOOK_AROUND,
+//            MOVE_BACKWARD,
+//            SCREEN_ROTATE,
+//            ROLL,
+//            DRIVE,
+//            SCREEN_TRANSLATE,
+//            ZOOM_ON_REGION
             };
 
 
@@ -435,7 +435,6 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
         
         virtual void mouseMoveEvent(QMouseEvent *const event, /*Camera *const camera*/ glm::vec3 camPivotPoint, glm::vec3 &center )
         {
-            std::cout<<"cameraFrame::mouseMoveEvent action = "<< action_ <<std::endl;
             switch (action_) 
             {
                 case /*QGLViewer::*/TRANSLATE: 
@@ -493,7 +492,7 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
                         glm::vec3 trans = camPivotPoint;//camera->projectedCoordinatesOf(pivotPoint());
                         rot = deformedBallQuaternion(event->x(), event->y(), trans[0], trans[1]/*, camera*/);
                         
-                        rotateAroundPoint(rot, pivotPoint(), center); // 27.07 @@@@@@@@
+                        rotateAroundPoint(rot, pivotPoint(), center); 
                     }
                     
                     computeMouseSpeed(event);
@@ -503,56 +502,56 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
                     break;
                 }
 
-                case /*QGLViewer::*/SCREEN_ROTATE: 
-                {
-                    /*glm::vec3 trans = camera->projectedCoordinatesOf(pivotPoint());
+            //    case /*QGLViewer::*/SCREEN_ROTATE: 
+            //    {
+            //        /*glm::vec3 trans = camera->projectedCoordinatesOf(pivotPoint());
 
-                    const double angle = atan2(event->y() - trans[1], event->x() - trans[0]) - atan2(prevPos_.y() - trans[1], prevPos_.x() - trans[0]);
+            //        const double angle = atan2(event->y() - trans[1], event->x() - trans[0]) - atan2(prevPos_.y() - trans[1], prevPos_.x() - trans[0]);
 
-                    Quaternion rot( glm::vec3(0.0, 0.0, 1.0), angle);
+            //        Quaternion rot( glm::vec3(0.0, 0.0, 1.0), angle);
 
-                    computeMouseSpeed(event);
+            //        computeMouseSpeed(event);
 
-                    updateSceneUpVector();*/
-                    break;
-                }
+            //        updateSceneUpVector();*/
+            //        break;
+            //    }
 
-                case /*QGLViewer::*/ROLL: 
-                {
-                    const double angle = M_PI * (event->x() - prevPos_.x()) / screenWidth_ /*camera->screenWidth()*/;
-                    Quaternion rot(glm::vec3(0.0, 0.0, 1.0), angle);
-                    rotate(rot);
-                    updateSceneUpVector();
-                    break;
-                }
+            //    case /*QGLViewer::*/ROLL: 
+            //    {
+            //        const double angle = M_PI * (event->x() - prevPos_.x()) / screenWidth_ /*camera->screenWidth()*/;
+            //        Quaternion rot(glm::vec3(0.0, 0.0, 1.0), angle);
+            //        rotate(rot);
+            //        updateSceneUpVector();
+            //        break;
+            //    }
 
-                case /*QGLViewer::*/SCREEN_TRANSLATE: 
-                {
-                    glm::vec3 trans;
-                    int dir = mouseOriginalDirection(event);
-                    if (dir == 1)
-                        trans = glm::vec3(prevPos_.x() - event->x(), 0.0, 0.0);
-                    else if (dir == -1)
-                        trans = glm::vec3(0.0, event->y() - prevPos_.y(), 0.0);
+            //    case /*QGLViewer::*/SCREEN_TRANSLATE: 
+            //    {
+            //        glm::vec3 trans;
+            //        int dir = mouseOriginalDirection(event);
+            //        if (dir == 1)
+            //            trans = glm::vec3(prevPos_.x() - event->x(), 0.0, 0.0);
+            //        else if (dir == -1)
+            //            trans = glm::vec3(0.0, event->y() - prevPos_.y(), 0.0);
 
-                    switch (/*camera->projType()*/projType_) 
-                    {
-                        case /*Camera::*/PERSPECTIVE:
-                            trans *= 2.0 * tan(/*camera->fieldOfView()*/ fieldOfView_ / 2.0) * std::abs((/*camera->frame()*/this->coordinatesOf(pivotPoint())).z) / screenHeight_/*camera->screenHeight()*/;
-                            break;
-                        case /*Camera::*/ORTHOGRAPHIC: 
-                        {
-                            /*double w, h;
-                            camera->getOrthoWidthHeight(w, h);
-                            trans[0] *= 2.0 * w / camera->screenWidth();
-                            trans[1] *= 2.0 * h / camera->screenHeight();*/
-                            break;
-                        }
-                    }
+            //        switch (/*camera->projType()*/projType_) 
+            //        {
+            //            case /*Camera::*/PERSPECTIVE:
+            //                trans *= 2.0 * tan(/*camera->fieldOfView()*/ fieldOfView_ / 2.0) * std::abs((/*camera->frame()*/this->coordinatesOf(pivotPoint())).z) / screenHeight_/*camera->screenHeight()*/;
+            //                break;
+            //            case /*Camera::*/ORTHOGRAPHIC: 
+            //            {
+            //                /*double w, h;
+            //                camera->getOrthoWidthHeight(w, h);
+            //                trans[0] *= 2.0 * w / camera->screenWidth();
+            //                trans[1] *= 2.0 * h / camera->screenHeight();*/
+            //                break;
+            //            }
+            //        }
 
-                    translate(inverseTransformOf( (float)translationSensitivity() * trans));
-                    break;
-                }
+            //        translate(inverseTransformOf( (float)translationSensitivity() * trans));
+            //        break;
+            //    }
 
                 case /*QGLViewer::*/NO_MOUSE_ACTION:
                     break;
@@ -561,7 +560,7 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
             if (action_ != /*QGLViewer::*/NO_MOUSE_ACTION) 
             {
                 prevPos_ = event->pos();
-                if (action_ != /*QGLViewer::*/ZOOM_ON_REGION)
+//                if (action_ != /*QGLViewer::*/ZOOM_ON_REGION)
                 {
                     // ZOOM_ON_REGION should not emit manipulated().
                     // prevPos_ is used to draw rectangle feedback.
@@ -625,13 +624,13 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
             switch (action_) 
             {
                
-                case /*QGLViewer::*/SCREEN_ROTATE:
-                    mouseSpeed_ = 0.0;
-                    break;
+                //case /*QGLViewer::*/SCREEN_ROTATE:
+                //    mouseSpeed_ = 0.0;
+                //    break;
 
-                case /*QGLViewer::*/SCREEN_TRANSLATE:
-                    dirIsFixed_ = false;
-                    break;
+                //case /*QGLViewer::*/SCREEN_TRANSLATE:
+                //    dirIsFixed_ = false;
+                //    break;
 
                 case /*QGLViewer::*/ROTATE:
                     constrainedRotationIsReversed_ = transformOf(sceneUpVector_).y < 0.0;
