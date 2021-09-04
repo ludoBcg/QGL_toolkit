@@ -22,7 +22,6 @@ set(HEADERS
 	src/QGLtoolkit/camera.h
 	src/QGLtoolkit/cameraFrame.h
 	src/QGLtoolkit/frame.h
-	src/QGLtoolkit/mouseGrabber.h
 	src/QGLtoolkit/qglviewer.h
 	src/QGLtoolkit/quaternion.h
     )
