@@ -129,12 +129,8 @@ void Viewer::draw()
 
     // get camera position
     glm::vec3 cam_pos(this->camera()->position().x, this->camera()->position().y, this->camera()->position().z);
-//std::cout<<"cam position = " << cam_pos.x << " "<< cam_pos.y << " "<< cam_pos.z<< std::endl;
-//std::cout<<"mvp = " << mvp[0][0] << " "<<  mvp[0][1] << " "<<  mvp[0][2]<< " "<<  mvp[0][3]<< 
-//                " " << mvp[1][0] << " "<<  mvp[1][1] << " "<<  mvp[1][2]<< " "<<  mvp[1][3]<<
-//                " " << mvp[2][0] << " "<<  mvp[2][1] << " "<<  mvp[2][2]<< " "<<  mvp[2][3]<< 
-//                " " << mvp[3][0] << " "<<  mvp[3][1] << " "<<  mvp[3][2]<< " "<<  mvp[3][3]<< std::endl;
-    m_drawMesh->draw(mv, mvp, /*cam_pos*/glm::vec3(0,0,4), m_lightCol);
+
+    m_drawMesh->draw(mv, mvp, cam_pos /*glm::vec3(0,0,4)*/, m_lightCol);
 
     //update();
 }

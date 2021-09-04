@@ -1,17 +1,7 @@
 
-//#include <iostream>
-//#include <cstdlib>
-//#include <algorithm>
-
-
-
-
 
 #include "QGLtoolkit/qglviewer.h"
 
-
-//#include <QGLViewer/qglviewer.h>
-//#include <QGLViewer/manipulatedCameraFrame.h>
 
 class DrawableMesh;
 class Trimeshsoup;
@@ -54,11 +44,5 @@ class Viewer : public qgltoolkit::QGLViewer
         void keyPressEvent(QKeyEvent *e);
 
 
-      
-
-
-    //public slots:
-
-      
 
 };
