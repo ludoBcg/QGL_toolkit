@@ -21,7 +21,6 @@ set(HEADERS
 	src/trimeshsoup.h
 	src/QGLtoolkit/camera.h
 	src/QGLtoolkit/cameraFrame.h
-	src/QGLtoolkit/constraint.h
 	src/QGLtoolkit/frame.h
 	src/QGLtoolkit/mouseGrabber.h
 	src/QGLtoolkit/qglviewer.h

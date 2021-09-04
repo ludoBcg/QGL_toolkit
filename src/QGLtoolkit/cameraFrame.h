@@ -151,7 +151,7 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
     protected:
             
         /*QGLViewer::*/MouseAction action_;
-        Constraint *previousConstraint_; 
+//        Constraint *previousConstraint_; 
         QPoint prevPos_, pressPos_;
 
     public:
@@ -177,7 +177,7 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
 
             setCamParam(0, 0, 0, PERSPECTIVE, 0, glm::vec3(0.0) );
 
-            previousConstraint_ = nullptr;
+//            previousConstraint_ = nullptr;
             grabsMouse_ = false;
         }
 
@@ -414,7 +414,6 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
 
             prevPos_ = pressPos_ = event->pos();
 
-            std::cout<<"mouse pressed"<<std::endl;
         }
 
         
@@ -425,8 +424,8 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
 
             keepsGrabbingMouse_ = false;
 
-            if (previousConstraint_)
-                setConstraint(previousConstraint_);
+//            if (previousConstraint_)
+//                setConstraint(previousConstraint_);
 
             action_ = /*QGLViewer::*/NO_MOUSE_ACTION;
         }
@@ -600,8 +599,8 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
                 Q_EMIT manipulated();
             }
 
-            if (previousConstraint_)
-                setConstraint(previousConstraint_);
+//            if (previousConstraint_)
+//                setConstraint(previousConstraint_);
 
             action_ = /*QGLViewer::*/NO_MOUSE_ACTION;
         }
@@ -613,14 +612,14 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
 
             action_ = (/*QGLViewer::*/MouseAction)(ma);
 
-            if (withConstraint)
+/*            if (withConstraint)
                 previousConstraint_ = nullptr;
             else 
             {
                 previousConstraint_ = constraint();
                 setConstraint(nullptr);
             }
-
+*/
             switch (action_) 
             {
                

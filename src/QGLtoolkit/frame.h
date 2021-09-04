@@ -20,7 +20,9 @@
 #include <QObject>
 #include <QString>
 
-#include "constraint.h"
+//#include "constraint.h"
+#include "quaternion.h"
+
 
 namespace qgltoolkit {
 
@@ -39,7 +41,7 @@ class Frame : public QObject
         Quaternion q_;
 
         // C o n s t r a i n t s
-        Constraint *constraint_;
+//        Constraint *constraint_;
 
         // F r a m e   c o m p o s i t i o n
         const Frame *referenceFrame_;
@@ -63,14 +65,14 @@ class Frame : public QObject
         Frame(const Frame &frame) : QObject() { (*this) = frame; }
 
         Frame(const glm::vec3 &position, const Quaternion &orientation)
-        : t_(position), q_(orientation), constraint_(nullptr), referenceFrame_(nullptr) 
+        : t_(position), q_(orientation), /*constraint_(nullptr), */referenceFrame_(nullptr) 
         {}
 
 
 
         // GETTERS
 
-        Constraint *constraint() const { return constraint_; }
+//        Constraint *constraint() const { return constraint_; }
 
         const Frame *referenceFrame() const { return referenceFrame_; }
 
@@ -304,7 +306,7 @@ class Frame : public QObject
 
         // SET CONSTRAINT AND REF FRAME
 
-        void setConstraint(Constraint *const constraint) { constraint_ = constraint; }
+//        void setConstraint(Constraint *const constraint) { constraint_ = constraint; }
 
         bool settingAsReferenceFrameWillCreateALoop(const Frame *const frame) 
         {
