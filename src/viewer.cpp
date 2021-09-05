@@ -58,11 +58,6 @@ void Viewer::init()
         glGenVertexArrays(1, &m_defaultVAO);
     glBindVertexArray(m_defaultVAO);
 
-      glEnable(GL_LIGHT0);
-  glEnable(GL_LIGHTING);
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_COLOR_MATERIAL);
-
 
   glViewport(0, 0, width(), height());
 
@@ -78,7 +73,7 @@ void Viewer::init()
     // scene setup
     glm::vec3 bBoxMin = m_triMesh->getBBoxMin();
     glm::vec3 bBoxMax = m_triMesh->getBBoxMax();
-    std::cout << "00" << std::endl;
+
     if(bBoxMin != bBoxMax)
     {
         // scene setup
@@ -86,9 +81,9 @@ void Viewer::init()
         glm::vec3 max(bBoxMax.x, bBoxMax.y, bBoxMax.z);
         glm::vec3 centerCoords( (bBoxMin.x + bBoxMax.x) * 0.5f, (bBoxMin.y + bBoxMax.y) * 0.5f, (bBoxMin.z + bBoxMax.z) * 0.5f );
 std::cout<<"center = "<<centerCoords.x<<" "<<centerCoords.y<<" "<<centerCoords.z<<std::endl;
-        std::cout << "0" << std::endl;
+
         this->setSceneBoundingBox(min, max);
-        std::cout << "1" << std::endl;
+
         // camera setup
         this->camera()->setPosition( centerCoords + glm::vec3(0.0f, 0.0f, this->sceneRadius()*2.5f) );
         this->camera()->setViewDirection(centerCoords - this->camera()->position() );
@@ -96,7 +91,7 @@ std::cout<<"center = "<<centerCoords.x<<" "<<centerCoords.y<<" "<<centerCoords.z
 
         //update();
     }
-    std::cout << "11" << std::endl;
+
 
     m_lightCol = glm::vec3(1.0f, 1.0f, 1.0f);
 }

@@ -25,45 +25,85 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+
+
 namespace qgltoolkit 
 {
 
 
+/*!
+* \fn squaredNorm
+* \brief Squared norm of a glm::vec3
+*/
 static float squaredNorm(glm::vec3 _vec) { return _vec.x * _vec.x + _vec.y * _vec.y + _vec.z * _vec.z; }
 
+/*!
+* \fn projectOnAxis
+* \brief Project a glm::vec3 on a given axis
+*/
 static glm::vec3 projectOnAxis(glm::vec3 _vec, const glm::vec3 &direction) 
 {
 
     if ( squaredNorm(direction) < 1.0E-10)
         std::cout << "Vec::projectOnAxis: axis direction is not normalized " <<std::endl;
 
-
     return  (  glm::dot(_vec , direction)  / squaredNorm(direction) ) * direction;
 }
 
 
 
+/*!
+* \class Quaternion
+* \brief Represents 3D rotations and orientations.
+*
+* You can apply the rotation represented by the Quaternion to 3D points 
+* using rotate() and inverseRotate().
+*
+* The internal representation of a Quaternion corresponding to a rotation 
+* around an axis, with an angle alpha is made of four reals:  
+* {q[0],q[1],q[2]} = sin(alpha/2) * {axis[0],axis[1],axis[2]} 
+* q[3] = cos(alpha/2)
+*
+* Note that certain implementations place the cosine term in first 
+* position (instead of last here).
+*
+* The Quaternion is always normalized, so that its inverse() is actually its conjugate.
+*/
 class  Quaternion 
 {
 
     private:
 
-        double q[4];
+        double q[4];    /*!< quaternion */
 
 
     public:
 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                          CONSTRUCTORS / SETTERS                                             |
+        +------------------------------------------------------------------------------------------------------------*/
+
+        /*!
+        * \fn Quaternion
+        * \brief Default constructor of Quaternion.
+        * Creates an identity Quaternion(0,0,0,1).
+        */
         Quaternion() 
         {
             q[0] = q[1] = q[2] = 0.0;
             q[3] = 1.0;
         }
 
-        
-        void setAxisAngle(const glm::vec3 &axis, double angle) 
+        /*!
+        * \fn setAxisAngle
+        * \brief Build a Quaternion from rotation axis (non null) and angle (in radians).
+        * \param _axis : 3D axis vector
+        * \param _angle : angle in radians
+        */
+        void setAxisAngle(const glm::vec3 _axis, double _angle) 
         {
-            const double norm = glm::length(axis);
-            if (axis == glm::vec3(0.0f) ) 
+            const double norm = glm::length(_axis);
+            if (_axis == glm::vec3(0.0f) ) 
             {
                 // Null rotation
                 q[0] = 0.0;
@@ -73,155 +113,167 @@ class  Quaternion
             } 
             else 
             {
-                const double sin_half_angle = sin(angle / 2.0);
-                q[0] = sin_half_angle * axis[0] / norm;
-                q[1] = sin_half_angle * axis[1] / norm;
-                q[2] = sin_half_angle * axis[2] / norm;
-                q[3] = cos(angle / 2.0);
+                const double sin_half_angle = sin(_angle / 2.0);
+                q[0] = sin_half_angle * _axis[0] / norm;
+                q[1] = sin_half_angle * _axis[1] / norm;
+                q[2] = sin_half_angle * _axis[2] / norm;
+                q[3] = cos(_angle / 2.0);
             }
         }
 
-        Quaternion(const glm::vec3 &axis, double angle) { setAxisAngle(axis, angle); }
+        /*!
+        * \fn Quaternion
+        * \brief Constructor of Quaternion from rotation axis (non null) and angle (in radians).
+        * \param _axis : 3D axis vector
+        * \param _angle : angle in radians
+        */
+        Quaternion(const glm::vec3 &_axis, double _angle) { setAxisAngle(_axis, _angle); }
 
-        /*Quaternion(const glm::vec3 &from, const glm::vec3 &to)
+        /*!
+        * \fn setValue
+        * \brief Set four values of a Quaternion. 
+        * First three values are axis*sin(angle/2) and last one is cos(angle/2).
+        * The identity Quaternion is Quaternion(0,0,0,1).
+        * \param _q0, _q1, _q2, _q3 : quaternion values
+        */
+        void setValue(double _q0, double _q1, double _q2, double _q3) 
         {
-            const double epsilon = 1E-10;
-
-            const double fromSqNorm = from.squaredNorm(); // @@
-            const double toSqNorm = to.squaredNorm();  // @@
-            // Identity Quaternion when one vector is null
-            if ((fromSqNorm < epsilon) || (toSqNorm < epsilon)) 
-            {
-                q[0] = q[1] = q[2] = 0.0;
-                q[3] = 1.0;
-            } 
-            else 
-            {
-                glm::vec3 axis = cross(from, to);
-                const double axisSqNorm = axis.squaredNorm();
-
-                // Aligned vectors, pick any axis, not aligned with from or to
-                if (axisSqNorm < epsilon)
-                    axis = from.orthogonalVec(); // @@
-
-                double angle = asin(sqrt(axisSqNorm / (fromSqNorm * toSqNorm)));
-
-                if (from * to < 0.0)
-                    angle = M_PI - angle;
-
-                setAxisAngle(axis, angle);
-            }
-        }*/
-
-
-        Quaternion(double q0, double q1, double q2, double q3) 
-        {
-            q[0] = q0;
-            q[1] = q1;
-            q[2] = q2;
-            q[3] = q3;
+            q[0] = _q0;
+            q[1] = _q1;
+            q[2] = _q2;
+            q[3] = _q3;
         }
 
+        /*!
+        * \fn Quaternion
+        * \brief Constructor of Quaternion from the four values of a Quaternion. 
+        * First three values are axis*sin(angle/2) and last one is cos(angle/2).
+        * The identity Quaternion is Quaternion(0,0,0,1).
+        * \param _q0, _q1, _q2, _q3 : quaternion values
+        */
+        Quaternion(double _q0, double _q1, double _q2, double _q3) { setValue(_q0, _q1, _q2, _q3); }
 
-        Quaternion(const Quaternion &Q) 
+        /*!
+        * \fn Quaternion
+        * \brief Copy constructor of Quaternion.
+        */
+        Quaternion(const Quaternion &_Q) 
         {
             for (int i = 0; i < 4; ++i)
-                q[i] = Q.q[i];
+                q[i] = _Q.q[i];
         }
 
-
-        Quaternion &operator=(const Quaternion &Q) 
+        /*!
+        * \fn operator=
+        * \brief Equal operator.
+        */
+        Quaternion &operator=(const Quaternion &_Q) 
         {
             for (int i = 0; i < 4; ++i)
-                q[i] = Q.q[i];
+                q[i] = _Q.q[i];
 
             return (*this);
         }
 
-
-        void setValue(double q0, double q1, double q2, double q3) 
-        {
-            q[0] = q0;
-            q[1] = q1;
-            q[2] = q2;
-            q[3] = q3;
-        }
-
-
-
-        void setFromRotationMatrix(const glm::mat3 m)
+        /*!
+        * \fn setFromRotationMatrix
+        * \brief Set the Quaternion from a (supposedly correct) 3x3 rotation matrix. 
+        * 
+        * The matrix is expressed in European format: its three columns are the
+        * images by the rotation of the three vectors of an orthogonal basis. Note that
+        * OpenGL uses a symmetric representation for its matrices.
+        *
+        * setFromRotatedBasis() sets a Quaternion from the three axis of a rotated
+        * frame. It actually fills the three columns of a matrix with these rotated
+        * basis vectors and calls this method.
+        *
+        * \param _m : glm 3x3 matrix
+        */
+        void setFromRotationMatrix(const glm::mat3 _m)
         {
             // Compute one plus the trace of the matrix
-            const double onePlusTrace = 1.0 + m[0][0] + m[1][1] + m[2][2];
+            const double onePlusTrace = 1.0 + _m[0][0] + _m[1][1] + _m[2][2];
 
             if (onePlusTrace > 1E-5) 
             {
                 // Direct computation
                 const double s = sqrt(onePlusTrace) * 2.0;
-                q[0] = (m[2][1] - m[1][2]) / s;
-                q[1] = (m[0][2] - m[2][0]) / s;
-                q[2] = (m[1][0] - m[0][1]) / s;
+                q[0] = (_m[2][1] - _m[1][2]) / s;
+                q[1] = (_m[0][2] - _m[2][0]) / s;
+                q[2] = (_m[1][0] - _m[0][1]) / s;
                 q[3] = 0.25 * s;
             } 
             else 
             {
                 // Computation depends on major diagonal term
-                if ((m[0][0] > m[1][1]) & (m[0][0] > m[2][2])) 
+                if ((_m[0][0] > _m[1][1]) & (_m[0][0] > _m[2][2])) 
                 {
-                    const double s = sqrt(1.0 + m[0][0] - m[1][1] - m[2][2]) * 2.0;
+                    const double s = sqrt(1.0 + _m[0][0] - _m[1][1] - _m[2][2]) * 2.0;
                     q[0] = 0.25 * s;
-                    q[1] = (m[0][1] + m[1][0]) / s;
-                    q[2] = (m[0][2] + m[2][0]) / s;
-                    q[3] = (m[1][2] - m[2][1]) / s;
+                    q[1] = (_m[0][1] + _m[1][0]) / s;
+                    q[2] = (_m[0][2] + _m[2][0]) / s;
+                    q[3] = (_m[1][2] - _m[2][1]) / s;
                 } 
-                else if (m[1][1] > m[2][2]) 
+                else if (_m[1][1] > _m[2][2]) 
                 {
-                    const double s = sqrt(1.0 + m[1][1] - m[0][0] - m[2][2]) * 2.0;
-                    q[0] = (m[0][1] + m[1][0]) / s;
+                    const double s = sqrt(1.0 + _m[1][1] - _m[0][0] - _m[2][2]) * 2.0;
+                    q[0] = (_m[0][1] + _m[1][0]) / s;
                     q[1] = 0.25 * s;
-                    q[2] = (m[1][2] + m[2][1]) / s;
-                    q[3] = (m[0][2] - m[2][0]) / s;
+                    q[2] = (_m[1][2] + _m[2][1]) / s;
+                    q[3] = (_m[0][2] - _m[2][0]) / s;
                 } 
                 else 
                 {
-                    const double s = sqrt(1.0 + m[2][2] - m[0][0] - m[1][1]) * 2.0;
-                    q[0] = (m[0][2] + m[2][0]) / s;
-                    q[1] = (m[1][2] + m[2][1]) / s;
+                    const double s = sqrt(1.0 + _m[2][2] - _m[0][0] - _m[1][1]) * 2.0;
+                    q[0] = (_m[0][2] + _m[2][0]) / s;
+                    q[1] = (_m[1][2] + _m[2][1]) / s;
                     q[2] = 0.25 * s;
-                    q[3] = (m[0][1] - m[1][0]) / s;
+                    q[3] = (_m[0][1] - _m[1][0]) / s;
                 }
             }
             normalize();
         }
 
-
-
-        void setFromRotatedBasis(const glm::vec3 &X, const glm::vec3 &Y, const glm::vec3 &Z)
+        /*!
+        * \fn setFromRotatedBasis
+        * \brief Sets the Quaternion from the three rotated vectors of an orthogonal basis.
+        *
+        * The three vectors do not have to be normalized but must be orthogonal and
+        * direct (X^Y=k*Z, with k>0).
+        *
+        * As a result, q.rotate(Vec(1,0,0)) == X and q.inverseRotate(X) == Vec(1,0,0).
+        * Same goes for Y and Z with Vec(0,1,0) and Vec(0,0,1).
+        *
+        * \param _X, _Y, _Z : three vectors of orthognonal basis
+        */
+        void setFromRotatedBasis(const glm::vec3 &_X, const glm::vec3 &_Y, const glm::vec3 &_Z)
         {
             glm::mat3 m(0.0f);
-            double normX = glm::length(X);
-            double normY = glm::length(Y);
-            double normZ = glm::length(Z);
+            double normX = glm::length(_X);
+            double normY = glm::length(_Y);
+            double normZ = glm::length(_Z);
 
             for (int i = 0; i < 3; ++i) 
             {
-                m[i][0] = X[i] / normX;
-                m[i][1] = Y[i] / normY;
-                m[i][2] = Z[i] / normZ;
+                m[i][0] = _X[i] / normX;
+                m[i][1] = _Y[i] / normY;
+                m[i][2] = _Z[i] / normZ;
             }
 
             setFromRotationMatrix(m);
         }
 
 
-        void setFromRotatedBase(const glm::vec3 &X, const glm::vec3 &Y, const glm::vec3 &Z)
-        {
-            std::cerr << "setFromRotatedBase is deprecated, use setFromRotatedBasis instead" << std::endl;
-            setFromRotatedBasis(X, Y, Z);
-        }
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                  GETTERS                                                    |
+        +-------------------------------------------------------------------------------------------------------------*/
 
-
-
+        /*!
+        * \fn axis
+        * \brief Returns the normalized axis direction of the rotation represented 
+        * by the Quaternion.
+        * It is null for an identity Quaternion. 
+        */
         glm::vec3 axis() const
         {
             glm::vec3 res = glm::vec3(q[0], q[1], q[2]);
@@ -231,59 +283,102 @@ class  Quaternion
             return (acos(q[3]) <= M_PI / 2.0) ? res : -res;
         }
 
-
+        /*!
+        * \fn angle
+        * \brief Returns the angle (in radians) of the rotation represented 
+        * by the Quaternion.
+        * This value is always in the range [0-pi]. Larger rotational angles are obtained
+        * by inverting the axis() direction.
+        */
         double angle() const
         {
             const double angle = 2.0 * acos(q[3]);
             return (angle <= M_PI) ? angle : 2.0 * M_PI - angle;
         }
 
-
-        void getAxisAngle(glm::vec3 &axis, double &angle) const
+        /*!
+        * \fn getAxisAngle
+        * \brief Returns the axis vector and the angle (in radians) of the rotation
+        * represented by the Quaternion.
+        * \param _axis : reference to axis vector to return
+        * \param _angle : reference to angle to return
+        */
+        void getAxisAngle(glm::vec3 &_axis, double &_angle) const
         {
-            angle = 2.0 * acos(q[3]);
-            axis = glm::vec3 (q[0], q[1], q[2]);
-            const double sinus = glm::length(axis);
+            _angle = 2.0 * acos(q[3]);
+            _axis = glm::vec3 (q[0], q[1], q[2]);
+            const double sinus = glm::length(_axis);
             if (sinus > 1E-8)
-            axis /= sinus;
+            _axis /= sinus;
 
-            if (angle > M_PI)
+            if (_angle > M_PI)
             {
-                angle = 2.0 * double(M_PI) - angle;
-                axis = -axis;
+                _angle = 2.0 * double(M_PI) - _angle;
+                _axis = -_axis;
             }
         }
 
 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                 OPERATORS                                                   |
+        +-------------------------------------------------------------------------------------------------------------*/
 
-        double operator[](int i) const { return q[i]; }
+        /*!
+        * \fn operator[]
+        * \brief Bracket operator, with a constant return value. 
+        * _i must range in [0..3].
+        */
+        double operator[](int _i) const { return q[_i]; }
 
-
-        double &operator[](int i) { return q[i]; }
+        /*!
+        * \fn &operator[]
+        * \brief Bracket operator returning an l-value.
+        * _i must range in [0..3].
+        */
+        double &operator[](int _i) { return q[_i]; }
   
-        friend Quaternion operator*(const Quaternion &a, const Quaternion &b) 
+        /*!
+        * \fn operator*
+        * \brief Rotation computations.
+        * Returns the composition of the _a and _b rotations.
+        * The order is important. Tthe resulting Quaternion acts as if _b was applied 
+        * first and then _a.
+        * Note that _a * _b usually differs from _b * _a.
+        * For efficiency reasons, the resulting Quaternion is not normalized. 
+        * Use normalize() in case of numerical drift with small rotation composition.
+        * \param _a, _b : quaternions to multiply
+        * \return result as a new quaternion
+        */
+        friend Quaternion operator*(const Quaternion &_a, const Quaternion &_b) 
         {
-            return Quaternion(  a.q[3] * b.q[0] + b.q[3] * a.q[0] + a.q[1] * b.q[2] - a.q[2] * b.q[1],
-                                a.q[3] * b.q[1] + b.q[3] * a.q[1] + a.q[2] * b.q[0] - a.q[0] * b.q[2],
-                                a.q[3] * b.q[2] + b.q[3] * a.q[2] + a.q[0] * b.q[1] - a.q[1] * b.q[0],
-                                a.q[3] * b.q[3] - b.q[0] * a.q[0] - a.q[1] * b.q[1] - a.q[2] * b.q[2]);
+            return Quaternion(  _a.q[3] * _b.q[0] + _b.q[3] * _a.q[0] + _a.q[1] * _b.q[2] - _a.q[2] * _b.q[1],
+                                _a.q[3] * _b.q[1] + _b.q[3] * _a.q[1] + _a.q[2] * _b.q[0] - _a.q[0] * _b.q[2],
+                                _a.q[3] * _b.q[2] + _b.q[3] * _a.q[2] + _a.q[0] * _b.q[1] - _a.q[1] * _b.q[0],
+                                _a.q[3] * _b.q[3] - _b.q[0] * _a.q[0] - _a.q[1] * _b.q[1] - _a.q[2] * _b.q[2]);
         }
 
-  
-        Quaternion &operator*=(const Quaternion &q) 
+        /*!
+        * \fn &operator*=
+        * \brief Quaternion rotation is composed with _q
+        */
+        Quaternion &operator*=(const Quaternion &_q) 
         {
-            *this = (*this) * q;
+            *this = (*this) * _q;
             return *this;
         }
 
- 
-        friend glm::vec3 operator*(const Quaternion &q, const glm::vec3 &v) 
-        {
-            return q.rotate(v);
-        }
 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                              MATH OPERATIONS                                                |
+        +-------------------------------------------------------------------------------------------------------------*/
 
-        glm::vec3 rotate(const glm::vec3 &v) const
+        /*!
+        * \fn operator*
+        * \brief Returns the image of _v by the current Quaternion rotation.
+        * \param _v: 3D vector to rotate
+        * \return new rotated vector
+        */
+        glm::vec3 rotate(const glm::vec3 &_v) const
         {
             const double q00 = 2.0 * q[0] * q[0];
             const double q11 = 2.0 * q[1] * q[1];
@@ -298,15 +393,39 @@ class  Quaternion
 
             const double q23 = 2.0 * q[2] * q[3];
 
-            return glm::vec3( (1.0 - q11 - q22) * v[0] + (q01 - q23) * v[1] + (q02 + q13) * v[2],
-                              (q01 + q23) * v[0] + (1.0 - q22 - q00) * v[1] + (q12 - q03) * v[2],
-                              (q02 - q13) * v[0] + (q12 + q03) * v[1] + (1.0 - q11 - q00) * v[2] );
+            return glm::vec3( (1.0 - q11 - q22) * _v[0] + (q01 - q23) * _v[1] + (q02 + q13) * _v[2],
+                              (q01 + q23) * _v[0] + (1.0 - q22 - q00) * _v[1] + (q12 - q03) * _v[2],
+                              (q02 - q13) * _v[0] + (q12 + q03) * _v[1] + (1.0 - q11 - q00) * _v[2] );
         }
 
+        /*!
+        * \fn operator*
+        * \brief Returns the image of _v by the rotation _q.
+        * Same as q.rotate(v).
+        * \param _q: rotation quaternion
+        * \param _v: 3D vector to rotate
+        * \return new rotated vector
+        */
+        friend glm::vec3 operator*(const Quaternion &_q, const glm::vec3 &_v) 
+        {
+            return _q.rotate(_v);
+        }
 
+        /*!
+        * \fn inverse
+        * \brief Returns the inverse Quaternion (inverse rotation).
+        * Result has a negated axis() direction and the same angle(). 
+        * A composition (see operator*()) of a Quaternion and its inverse() results in
+        * an identity function.
+        * Use invert() to actually modify the Quaternion.
+        * \return copy of inverse Quaternion 
+        */
         Quaternion inverse() const { return Quaternion(-q[0], -q[1], -q[2], q[3]); }
 
-
+        /*!
+        * \fn invert
+        * \brief Inverses the Quaternion (same rotation angle(), but negated axis()).
+        */
         void invert() 
         {
             q[0] = -q[0];
@@ -314,22 +433,44 @@ class  Quaternion
             q[2] = -q[2];
         }
 
-
-
-        glm::vec3 inverseRotate(const glm::vec3 &v) const
+        /*!
+        * \fn inverseRotate
+        * \brief Returns the image of _v by the Quaternion inverse() rotation.
+        * rotate() performs an inverse transformation. Same as inverse().rotate(v).
+        * \param _v: 3D vector to transform 
+        * \return result 3D vector 
+        */
+        glm::vec3 inverseRotate(const glm::vec3 &_v) const
         {
-            return inverse().rotate(v);
+            return inverse().rotate(_v);
         }
   
-
-
+        /*!
+        * \fn negate
+        * \brief Negates all the coefficients of the Quaternion.
+        *
+        * This results in an other representation of the same rotation
+        * (opposite rotation angle, but with a negated axis direction: the two cancel out). 
+        * However, note that the results of axis() and angle() are unchanged
+        * after a call to this method since angle() always returns a value in [0,pi].
+        *
+        * This method is mainly useful for Quaternion interpolation, so that the
+        * spherical interpolation takes the shortest path on the unit sphere. See
+        * slerp() for details.
+        */
         void negate() 
         {
             invert();
             q[3] = -q[3];
         }
 
-
+        /*!
+        * \fn normalize
+        * \brief Normalizes the Quaternion coefficients.
+        * This method should not need to be called since we only deal with unit
+        * Quaternions. This is however useful to prevent numerical drifts, especially
+        * with small rotational increments.
+        */
         double normalize() 
         {
             const double norm =  sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
@@ -338,7 +479,11 @@ class  Quaternion
             return norm;
         }
 
-
+        /*!
+        * \fn normalized
+        * \brief Returns a normalized version of the Quaternion.
+        * See also normalize().
+        */
         Quaternion normalized() const 
         {
             double Q[4];
@@ -348,7 +493,28 @@ class  Quaternion
             return Quaternion(Q[0], Q[1], Q[2], Q[3]);
         }
 
+        /*!
+        * \fn dot
+        * \brief Returns the "dot" product of _a and _b: 
+        * _a[0] * _b[0] + _a[1] * _b[1] + _a[2] * _b[2] + _a[3] * _b[3].
+        * \param _a, _b: Quaternions to multiply using dot product 
+        * \return result of dot product as a real number 
+        */
+        static double dot(const Quaternion &_a, const Quaternion &_b) 
+        {
+            return _a[0] * _b[0] + _a[1] * _b[1] + _a[2] * _b[2] + _a[3] * _b[3];
+        }
 
+
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                               BUILD MATRIX                                                  |
+        +-------------------------------------------------------------------------------------------------------------*/
+
+        /*!
+        * \fn getMatrix
+        * \brief Build a 4x4 matrix representation of the Quaternion rotation.
+        * \return rotation as a glm 4x4 matrix
+        */
         glm::mat4 getMatrix() const
         {
             glm::mat4 m(0.0f);
@@ -390,13 +556,12 @@ class  Quaternion
             return m;
         }
 
-        const glm::mat4 matrix() const
-        {
-            static glm::mat4 m = getMatrix();
-            return m;
-        }
-
-
+        // to fix @@@@@@@@@@@@@@@
+        /*!
+        * \fn getRotationMatrix
+        * \brief Build a 3x3 matrix representation of the Quaternion rotation.
+        * \return rotation as a glm 3x3 matrix
+        */
         glm::mat3 getRotationMatrix() const
         {
             glm::mat3 m(0.0f);
@@ -411,21 +576,23 @@ class  Quaternion
             return m;
         }
 
-
+        /*!
+        * \fn getInverseMatrix
+        * \brief Returns the inverse() rotation matrix.
+        * \return inverse matrix as a glm 4x4 matrix
+        */
         glm::mat4 getInverseMatrix() const
         {
             return inverse().getMatrix();
         }
 
-        const glm::mat4 inverseMatrix() const
-        {
-            static glm::mat4 m = getInverseMatrix();
-            return m;
-        }
-
-
-
-        glm::mat3  getInverseRotationMatrix() const
+        // to fix @@@@@@@@@@@@@@@
+        /*!
+        * \fn getInverseRotationMatrix
+        * \brief Returns the inverse() rotation matrix.
+        * \return inverse matrix as a glm 3x3 matrix
+        */
+        glm::mat3 getInverseRotationMatrix() const
         {
             glm::mat3 m(0.0f);
             glm::mat4 mat(0.0f);
@@ -440,51 +607,71 @@ class  Quaternion
         }
 
 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                   MISC.                                                     |
+        +-------------------------------------------------------------------------------------------------------------*/
 
-        static Quaternion slerp(const Quaternion &a, const Quaternion &b, double t, bool allowFlip = true)
+        /*!
+        * \fn slerp
+        * \brief Returns the slerp interpolation of Quaternions _a and _b, at time _t.
+        * _t should range in [0,1]. Result is _a when _t=0 and _b when _t=1.
+        * When _allowFlip is true (default) the slerp interpolation will always use
+        * the "shortest path" between the Quaternions' orientations, by "flipping" the
+        * source Quaternion if needed (see negate()).
+        * \param _a, _b: Quaternions to interpolate between
+        * \param _t: interpolation factor in [0,1]
+        * \param _allowFlip: return shortest path if true
+        * \return result of interpolation as a new Quaternion
+        */
+        static Quaternion slerp(const Quaternion &_a, const Quaternion &_b, double _t, bool _allowFlip = true)
         {
-            double cosAngle = Quaternion::dot(a, b);
+            double cosAngle = Quaternion::dot(_a, _b);
 
             double c1, c2;
             // Linear interpolation for close orientations
             if ((1.0 - fabs(cosAngle)) < 0.01)
             {
-                c1 = 1.0 - t;
-                c2 = t;
+                c1 = 1.0 - _t;
+                c2 = _t;
             } 
             else 
             {
                 // Spherical interpolation
                 double angle = acos(fabs(cosAngle));
                 double sinAngle = sin(angle);
-                c1 = sin(angle * (1.0 - t)) / sinAngle;
-                c2 = sin(angle * t) / sinAngle;
+                c1 = sin(angle * (1.0 - _t)) / sinAngle;
+                c2 = sin(angle * _t) / sinAngle;
             }
 
             // Use the shortest path
-            if (allowFlip && (cosAngle < 0.0))
+            if (_allowFlip && (cosAngle < 0.0))
                 c1 = -c1;
 
-            return Quaternion(c1 * a[0] + c2 * b[0], c1 * a[1] + c2 * b[1], c1 * a[2] + c2 * b[2], c1 * a[3] + c2 * b[3]);
+            return Quaternion(c1 * _a[0] + c2 * _b[0], c1 * _a[1] + c2 * _b[1], c1 * _a[2] + c2 * _b[2], c1 * _a[3] + c2 * _b[3]);
         }
 
-
-
-        static Quaternion squad(const Quaternion &a, const Quaternion &tgA, const Quaternion &tgB, const Quaternion &b, double t)
+        /*!
+        * \fn squad
+        * \brief  Returns the slerp interpolation of the two Quaternions _a and _b, 
+        * at time _t, using tangents _tgA and _tgB.
+        * The resulting Quaternion is "between" \p a and \p b (result is _a when _t=0 and _b for _t=1).
+        * Use squadTangent() to define the Quaternion tangents _tgA and _tgB.
+        * \param _a, _b: Quaternions to interpolate between
+        * \param _tgA, _tgB: tangents
+        * \param _t: interpolation factor in [0,1]
+        * \return result of interpolation as a new Quaternion
+        */
+        static Quaternion squad(const Quaternion &_a, const Quaternion &_tgA, const Quaternion &_tgB, const Quaternion &_b, double _t)
         {
-            Quaternion ab = Quaternion::slerp(a, b, t);
-            Quaternion tg = Quaternion::slerp(tgA, tgB, t, false);
-            return Quaternion::slerp(ab, tg, 2.0 * t * (1.0 - t), false);
+            Quaternion ab = Quaternion::slerp(_a, _b, _t);
+            Quaternion tg = Quaternion::slerp(_tgA, _tgB, _t, false);
+            return Quaternion::slerp(ab, tg, 2.0 * _t * (1.0 - _t), false);
         }
 
-
-
-        static double dot(const Quaternion &a, const Quaternion &b) 
-        {
-            return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
-        }
-
-
+        /*!
+        * \fn log
+        * \brief Returns the logarithm of the Quaternion. See also exp().
+        */
         Quaternion log()
         {
             double len = sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2]);
@@ -498,6 +685,10 @@ class  Quaternion
             }
         }
 
+        /*!
+        * \fn exp
+        * \brief Returns the exponential of the Quaternion. See also log().
+        */
         Quaternion exp()
         {
             double theta = sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2]);
@@ -511,31 +702,38 @@ class  Quaternion
             }
         }
 
-        static Quaternion lnDif(const Quaternion &a, const Quaternion &b)
+        /*!
+        * \fn lnDif
+        * \brief Returns log(_a. inverse() * _b). Useful for squadTangent().
+        */
+        static Quaternion lnDif(const Quaternion &_a, const Quaternion &_b)
         {
-            Quaternion dif = a.inverse() * b;
+            Quaternion dif = _a.inverse() * _b;
             dif.normalize();
             return dif.log();
         }
 
-        static Quaternion squadTangent(const Quaternion &before, const Quaternion &center, const Quaternion &after)
+        /*!
+        * \fn squadTangent
+        * \brief Returns a tangent Quaternion for _center, defined by _before and _after Quaternions.
+        * Useful for smooth spline interpolation of Quaternion with squad() and slerp().
+        */
+        static Quaternion squadTangent(const Quaternion &_before, const Quaternion &_center, const Quaternion &_after)
         {
-            Quaternion l1 = Quaternion::lnDif(center, before);
-            Quaternion l2 = Quaternion::lnDif(center, after);
+            Quaternion l1 = Quaternion::lnDif(_center, _before);
+            Quaternion l2 = Quaternion::lnDif(_center, _after);
             Quaternion e;
-            for (int i = 0; i < 4; ++i)
+
+            for (unsigned int i = 0; i < 4; ++i)
                 e.q[i] = -0.25 * (l1.q[i] + l2.q[i]);
-            e = center * (e.exp());
+
+            e = _center * (e.exp());
 
             // if (Quaternion::dot(e,b) < 0.0)
             // e.negate();
 
             return e;
         }
-
-
-
-
 
 
 
