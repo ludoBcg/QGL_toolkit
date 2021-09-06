@@ -297,19 +297,19 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
         }
 
 
-        Quaternion turnQuaternion(int x/*, const Camera *const camera*/)
-        {
-            return Quaternion( glm::vec3(0.0, 1.0, 0.0), rotationSensitivity() * (prevPos_.x() - x) / screenWidth_/*camera->screenWidth()*/);
-        }
+        //Quaternion turnQuaternion(int x/*, const Camera *const camera*/)
+        //{
+        //    return Quaternion( glm::vec3(0.0, 1.0, 0.0), rotationSensitivity() * (prevPos_.x() - x) / screenWidth_/*camera->screenWidth()*/);
+        //}
 
 
-        Quaternion pitchYawQuaternion(int x, int y/*, const Camera *const camera*/)
-        {
-            const Quaternion rotX( glm::vec3(1.0, 0.0, 0.0), rotationSensitivity() * (prevPos_.y() - y) / screenHeight_ /*camera->screenHeight()*/);
-            const Quaternion rotY(transformOf(sceneUpVector()), rotationSensitivity() * (prevPos_.x() - x) / screenWidth_ /*camera->screenWidth()*/);
-            return rotY * rotX;
-        }
-        
+        //Quaternion pitchYawQuaternion(int x, int y/*, const Camera *const camera*/)
+        //{
+        //    const Quaternion rotX( glm::vec3(1.0, 0.0, 0.0), rotationSensitivity() * (prevPos_.y() - y) / screenHeight_ /*camera->screenHeight()*/);
+        //    const Quaternion rotY(transformOf(sceneUpVector()), rotationSensitivity() * (prevPos_.x() - x) / screenWidth_ /*camera->screenWidth()*/);
+        //    return rotY * rotX;
+        //}
+        //
 
 
     protected:
@@ -358,27 +358,27 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
         }
 
 
-        int mouseOriginalDirection(const QMouseEvent *const e)
-        {
-            static bool horiz = true; // Two simultaneous manipulatedFrame require two mice !
+        //int mouseOriginalDirection(const QMouseEvent *const e)
+        //{
+        //    static bool horiz = true; // Two simultaneous manipulatedFrame require two mice !
 
-            if (!dirIsFixed_) 
-            {
-                const QPoint delta = e->pos() - pressPos_;
-                dirIsFixed_ = abs(delta.x()) != abs(delta.y());
-                horiz = abs(delta.x()) > abs(delta.y());
-            }
+        //    if (!dirIsFixed_) 
+        //    {
+        //        const QPoint delta = e->pos() - pressPos_;
+        //        dirIsFixed_ = abs(delta.x()) != abs(delta.y());
+        //        horiz = abs(delta.x()) > abs(delta.y());
+        //    }
 
-            if (dirIsFixed_)
-            {
-                if (horiz)
-                    return 1;
-                else
-                    return -1;
-            }
-            else
-                return 0;
-        }
+        //    if (dirIsFixed_)
+        //    {
+        //        if (horiz)
+        //            return 1;
+        //        else
+        //            return -1;
+        //    }
+        //    else
+        //        return 0;
+        //}
 
 
 
@@ -484,6 +484,7 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
                             dx = -dx;
                         glm::vec3 verticalAxis = transformOf(sceneUpVector_);
                         rot = Quaternion(verticalAxis, dx) * Quaternion( glm::vec3(1.0, 0.0, 0.0), dy);
+                        rotate(rot);
                     } 
                     else 
                     {   
