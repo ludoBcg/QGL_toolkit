@@ -20,649 +20,489 @@
 #include <QObject>
 #include <QString>
 
-//#include "constraint.h"
+
 #include "quaternion.h"
 
 
-namespace qgltoolkit {
+namespace qgltoolkit 
+{
 
 
+/*!
+* \class Frame
+* \brief a coordinate system, defined by a position and an orientation.
+*
+* A Frame is a 3D coordinate system, represented by a position() and an
+* orientation(). The order of these transformations is important: 
+* the Frame is first translated and  then rotated around the new translated origin.
+*/
 class Frame : public QObject 
 {
 
     Q_OBJECT
 
 
-    
     private:
 
-        // P o s i t i o n   a n d   o r i e n t a t i o n
-        glm::vec3 t_;
-        Quaternion q_;
-
-        // C o n s t r a i n t s
-//        Constraint *constraint_;
-
-        // F r a m e   c o m p o s i t i o n
-        const Frame *referenceFrame_;
+        glm::vec3 m_t;   /*!< position (i.e., translation vector) */
+        Quaternion m_q;  /*!< orientation (i.e., quaternion rotation) */
 
 
     Q_SIGNALS:
   
+        /*!
+        * \fn modified
+        * \brief Signal to send when Frame is modified.
+        */
         void modified();
-  
-        void interpolated();
 
 
 
     public:
 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                CONSTRUCTORS                                                 |
+        +------------------------------------------------------------------------------------------------------------*/
 
-        Frame() : /*constraint_(NULL), */referenceFrame_(NULL) {}
+        /*!
+        * \fn Frame
+        * \brief Destructor of Frame.
+        */
+        Frame() {}
 
-        virtual ~Frame() {}
+        /*!
+        * \fn ~Frame
+        * \brief Destructor of Frame.
+        */
+        ~Frame() {}
 
-        Frame(const Frame &frame) : QObject() { (*this) = frame; }
-
-        Frame(const glm::vec3 &position, const Quaternion &orientation)
-        : t_(position), q_(orientation), /*constraint_(nullptr), */referenceFrame_(nullptr) 
+        /*!
+        * \fn Frame
+        * \brief Constructor of Frame from position and orientation.
+        * \param _position : position as 3D vector
+        * \param _orientation : orientation as quaternion
+        */
+        Frame(const glm::vec3 &_position, const Quaternion &_orientation)
+        : m_t(_position), m_q(_orientation)
         {}
 
+        /*!
+        * \fn Frame
+        * \brief Copy constructor of Quaternion.
+        */
+        Frame(const Frame &_frame) : QObject() { (*this) = _frame; }
 
+
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                  GETTERS                                                    |
+        +------------------------------------------------------------------------------------------------------------*/
 
         // GETTERS
 
-//        Constraint *constraint() const { return constraint_; }
+        /*!
+        * \fn translation
+        * \brief Returns the Frame translation.
+        * Similar to position().
+        */
+        glm::vec3 translation() const { return m_t; }
 
-        const Frame *referenceFrame() const { return referenceFrame_; }
+        /*!
+        * \fn position
+        * \brief Returns the Frame translation.
+        * Similar to translation().
+        */
+        glm::vec3 position() const { return translation(); }
 
-        Quaternion rotation() const { return q_; }
+        /*!
+        * \fn rotation
+        * \brief Returns the Frame rotation.
+        * Similar to orientation().
+        */
+        Quaternion rotation() const { return m_q; }
 
-        glm::vec3 translation() const { return t_; }
+        /*!
+        * \fn orientation
+        * \brief Returns the Frame orientation.
+        * Similar to rotation().
+        */
+        Quaternion orientation() const { return rotation(); }
 
-        glm::vec3 position() const
+
+
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                  SETTERS                                                    |
+        +------------------------------------------------------------------------------------------------------------*/
+
+        /*!
+        * \fn setTranslation
+        * \brief Sets the translation of the frame.
+        * Similar to setPosition()
+        * \param _translation: translation 3D vector.
+        */
+        void setTranslation(const glm::vec3 _translation) 
         {
-            if (referenceFrame_)
-                return inverseCoordinatesOf( glm::vec3(0.0, 0.0, 0.0) );
-            else
-                return t_;
-        }
-
-        Quaternion orientation() const
-        {
-            Quaternion res = rotation();
-            const Frame *fr = referenceFrame();
-            while (fr != NULL) 
-            {
-                res = fr->rotation() * res;
-                fr = fr->referenceFrame();
-            }
-            return res;
-        }
-
-        void getPosition(double &x, double &y, double &z) const
-        {
-            glm::vec3 p = position();
-            x = p.x;
-            y = p.y;
-            z = p.z;
-        }
-
-        void getOrientation(double &q0, double &q1, double &q2, double &q3) const
-        {
-            Quaternion o = orientation();
-            q0 = o[0];
-            q1 = o[1];
-            q2 = o[2];
-            q3 = o[3];
-        }
-
-
-        void getTranslation(double &x, double &y, double &z) const
-        {
-            const glm::vec3 t = translation();
-            x = t[0];
-            y = t[1];
-            z = t[2];
-        }
-
-        void getRotation(double &q0, double &q1, double &q2, double &q3) const
-        {
-            const Quaternion q = rotation();
-            q0 = q[0];
-            q1 = q[1];
-            q2 = q[2];
-            q3 = q[3];
-        }
-
-
-
-        // SET TRANSLATION
-
-        void setTranslation(const glm::vec3 &translation) 
-        {
-            t_ = translation;
+            m_t = _translation;
             Q_EMIT modified();
         }
 
-        void setTranslation(double x, double y, double z)
+        /*!
+        * \fn setTranslation
+        * \brief Sets the translation of the frame.
+        * Similar to setPosition()
+        * \param _x, _y, _z: coordinates of 3D translation vector.
+        */
+        void setTranslation(double _x, double _y, double _z)
         {
-            setTranslation( glm::vec3(x, y, z) );
+            setTranslation( glm::vec3(_x, _y, _z) );
         }
 
-        void setTranslationWithConstraint(glm::vec3 &translation)
+//        void setTranslationWithConstraint(glm::vec3 &translation) //@@@
+//        {
+//            glm::vec3 deltaT = translation - this->translation();
+////            if (constraint())
+////                constraint()->constrainTranslation(deltaT/*, this*/); 
+//
+//            setTranslation(this->translation() + deltaT);
+//            translation = this->translation();
+//        }
+
+        /*!
+        * \fn setRotation
+        * \brief Sets the rotation of the frame.
+        * Similar to setOrientation().
+        * \param _rotation: rotation quaternion.
+        */
+        void setRotation(const Quaternion &_rotation) 
         {
-            glm::vec3 deltaT = translation - this->translation();
-//            if (constraint())
-//                constraint()->constrainTranslation(deltaT/*, this*/); 
-
-            setTranslation(this->translation() + deltaT);
-            translation = this->translation();
-        }
-
-
-        // SET ROTATION
-
-        void setRotation(const Quaternion &rotation) 
-        {
-            q_ = rotation;
+            m_q = _rotation;
             Q_EMIT modified();
         }
 
-        void setRotation(double q0, double q1, double q2, double q3)
+        /*!
+        * \fn setRotation
+        * \brief Sets the rotation of the frame.
+        * Similar to setOrientation().
+        * \param _q0, _q1, _q2, _q3: coordinates of rotation quaternion.
+        */
+        void setRotation(double _q0, double _q1, double _q2, double _q3)
         {
-            setRotation(Quaternion(q0, q1, q2, q3));
+            setRotation(Quaternion(_q0, _q1, _q2, _q3));
         }
 
-        void setRotationWithConstraint(Quaternion &rotation)
+//        void setRotationWithConstraint(Quaternion &rotation) //@@@
+//        {
+//            Quaternion deltaQ = this->rotation().inverse() * rotation;
+////            if (constraint())
+////                constraint()->constrainRotation(deltaQ/*, this*/); 
+//
+//            // Prevent numerical drift
+//            deltaQ.normalize();
+//
+//            setRotation(this->rotation() * deltaQ);
+//            m_q.normalize();
+//            rotation = this->rotation();
+//        }
+
+
+        /*!
+        * \fn setTranslationAndRotation
+        * \brief Sets translation and rotation of the frame.
+        * Similar to setPositionAndOrientation().
+        * \param _translation: translation 3D vector.
+        * \param _rotation: rotation quaternion.
+        */
+        void setTranslationAndRotation(const glm::vec3 &_translation, const Quaternion &_rotation)
         {
-            Quaternion deltaQ = this->rotation().inverse() * rotation;
-//            if (constraint())
-//                constraint()->constrainRotation(deltaQ/*, this*/); 
-
-            // Prevent numerical drift
-            deltaQ.normalize();
-
-            setRotation(this->rotation() * deltaQ);
-            q_.normalize();
-            rotation = this->rotation();
-        }
-
-
-        // SET TRANSLATION AND ROTATION
-
-        void setTranslationAndRotation(const glm::vec3 &translation, const Quaternion &rotation)
-        {
-            t_ = translation;
-            q_ = rotation;
+            m_t = _translation;
+            m_q = _rotation;
             Q_EMIT modified();
         }
 
-        void setTranslationAndRotationWithConstraint(glm::vec3 &translation, Quaternion &rotation)
+//        void setTranslationAndRotationWithConstraint(glm::vec3 &translation, Quaternion &rotation) //@@@
+//        {
+//            glm::vec3 deltaT = translation - this->translation();
+//            Quaternion deltaQ = this->rotation().inverse() * rotation;
+//
+//            // Prevent numerical drift
+//            deltaQ.normalize();
+//
+//            m_t += deltaT;
+//            m_q *= deltaQ;
+//            m_q.normalize();
+//
+//            translation = this->translation();
+//            rotation = this->rotation();
+//
+//            Q_EMIT modified();
+//        }
+
+
+        /*!
+        * \fn setPosition
+        * \brief Sets the position of the frame.
+        * Similar to setTranslation().
+        * \param _position: position 3D vector.
+        */
+        void setPosition(const glm::vec3 &_position) 
         {
-            glm::vec3 deltaT = translation - this->translation();
-            Quaternion deltaQ = this->rotation().inverse() * rotation;
+            setTranslation(_position);
+        }
 
-//            if (constraint()) 
-//            {
-//                constraint()->constrainTranslation(deltaT/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
-//                constraint()->constrainRotation(deltaQ/*, this*/);
-//            }
+        /*!
+        * \fn setPosition
+        * \brief Sets the position of the frame.
+        * Similar to setTranslation().
+        * \param _x, _y, _z: coordinates of 3position 3D vector.
+        */
+        void setPosition(double _x, double _y, double _z)
+        {
+            setPosition( glm::vec3(_x, _y, _z) );
+        }
 
-            // Prevent numerical drift
-            deltaQ.normalize();
+        //void Frame::setPositionWithConstraint(glm::vec3 &position)  //@@@
+        //{
+        //    if (referenceFrame())
+        //        position = referenceFrame()->coordinatesOf(position);
 
-            t_ += deltaT;
-            q_ *= deltaQ;
-            q_.normalize();
+        //    setTranslationWithConstraint(position);
+        //}
 
-            translation = this->translation();
-            rotation = this->rotation();
+        /*!
+        * \fn setOrientation
+        * \brief Sets the orientation of the frame.
+        * Similar to setRotation().
+        * \param _rotation: orientation quaternion.
+        */
+        void setOrientation(const Quaternion &_orientation)
+        {
+            setRotation(_orientation);
+        }
+
+        /*!
+        * \fn setOrientation
+        * \brief Sets the orientation of the frame.
+        * Similar to setRotation().
+        * \param _q0, _q1, _q2, _q3: coordinates of orientation quaternion.
+        */
+        void setOrientation(double _q0, double _q1, double _q2, double _q3)
+        {
+            setOrientation(Quaternion(_q0, _q1, _q2, _q3));
+        }
+
+        //void setOrientationWithConstraint(Quaternion &orientation) //@@@
+        //{
+        //    if (referenceFrame())
+        //        orientation = referenceFrame()->orientation().inverse() * orientation;
+
+        //    setRotationWithConstraint(orientation);
+        //}
+
+        /*!
+        * \fn setPositionAndOrientation
+        * \brief Sets position and orientation of the frame.
+        * Similar to setTranslationAndRotation().
+        * \param _position: position 3D vector.
+        * \param _orientation: orientation quaternion.
+        */
+        void setPositionAndOrientation(const glm::vec3 &_position, const Quaternion &_orientation)
+        {
+
+            m_t = _position;
+            m_q = _orientation;
 
             Q_EMIT modified();
         }
 
-
-        // SET POSITION
-
-        void setPosition(const glm::vec3 &position) 
-        {
-            if (referenceFrame())
-                setTranslation(referenceFrame()->coordinatesOf(position));
-            else
-                setTranslation(position);
-        }
-
-
-        void setPosition(double x, double y, double z)
-        {
-            setPosition( glm::vec3(x, y, z) );
-        }
+        //void setPositionAndOrientationWithConstraint(glm::vec3 &position, Quaternion &orientation) //@@@
+        //{
+        //    if (referenceFrame()) 
+        //    {
+        //        position = referenceFrame()->coordinatesOf(position);
+        //        orientation = referenceFrame()->orientation().inverse() * orientation;
+        //    }
+        //    setTranslationAndRotationWithConstraint(position, orientation);
+        //}
 
 
-        void Frame::setPositionWithConstraint(glm::vec3 &position) 
-        {
-            if (referenceFrame())
-                position = referenceFrame()->coordinatesOf(position);
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                 OPERATORS                                                   |
+        +------------------------------------------------------------------------------------------------------------*/
 
-            setTranslationWithConstraint(position);
-        }
-
-
-        // SET ORIENTATION
-
-        void setOrientation(const Quaternion &orientation)
-        {
-            if (referenceFrame())
-                setRotation(referenceFrame()->orientation().inverse() * orientation);
-            else
-                setRotation(orientation);
-        }
-
-        void setOrientation(double q0, double q1, double q2, double q3)
-        {
-            setOrientation(Quaternion(q0, q1, q2, q3));
-        }
-
-        void setOrientationWithConstraint(Quaternion &orientation)
-        {
-            if (referenceFrame())
-                orientation = referenceFrame()->orientation().inverse() * orientation;
-
-            setRotationWithConstraint(orientation);
-        }
-
-
-
-        // SET POSITION AND ORIENTATION
-
-        void setPositionAndOrientation(const glm::vec3 &position, const Quaternion &orientation)
-        {
-            if (referenceFrame()) 
-            {
-                t_ = referenceFrame()->coordinatesOf(position);
-                q_ = referenceFrame()->orientation().inverse() * orientation;
-            } 
-            else 
-            {
-                t_ = position;
-                q_ = orientation;
-            }
-            Q_EMIT modified();
-        }
-
-
-        void setPositionAndOrientationWithConstraint(glm::vec3 &position, Quaternion &orientation)
-        {
-            if (referenceFrame()) 
-            {
-                position = referenceFrame()->coordinatesOf(position);
-                orientation = referenceFrame()->orientation().inverse() * orientation;
-            }
-            setTranslationAndRotationWithConstraint(position, orientation);
-        }
-
-
-
-        // SET CONSTRAINT AND REF FRAME
-
-//        void setConstraint(Constraint *const constraint) { constraint_ = constraint; }
-
-        bool settingAsReferenceFrameWillCreateALoop(const Frame *const frame) 
-        {
-            const Frame *f = frame;
-            while (f != NULL) 
-            {
-                if (f == this)
-                    return true;
-                f = f->referenceFrame();
-            }
-            return false;
-        }
-
-        void setReferenceFrame(const Frame *const refFrame)
-        {
-            if (settingAsReferenceFrameWillCreateALoop(refFrame))
-                std::cerr << "Frame::setReferenceFrame would create a loop in Frame hierarchy" <<std::endl;
-            else 
-            {
-                bool identical = (referenceFrame_ == refFrame);
-                referenceFrame_ = refFrame;
-                if (!identical)
-                Q_EMIT modified();
-            }
-        }
-
-
-
-        // OPERATOR
-
+        /*!
+        * \fn operator=
+        * \brief Equal operator.
+        */
         Frame &operator=(const Frame &frame)
         {
             // Automatic compiler generated version would not emit the modified() signals
             // as is done in setTranslationAndRotation.
             setTranslationAndRotation(frame.translation(), frame.rotation());
-//            setConstraint(frame.constraint());
-            setReferenceFrame(frame.referenceFrame());
+
             return *this;
         }
 
-        // TRANSLATE / ROTATE
 
-        void translate(const glm::vec3 &t) 
-        {
-            glm::vec3 tbis = t;
-            translate(tbis);
-        }
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                              TRANSFORMATIONS                                                |
+        +------------------------------------------------------------------------------------------------------------*/
 
-        void translate(glm::vec3 &t) 
+        /*!
+        * \fn translate
+        * \brief Translates frame by a given vector.
+        * \param _t: translation vector
+        */
+        void translate(glm::vec3 &_t) 
         {
-//            if (constraint())
-//                constraint()->constrainTranslation(t/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
-            t_ += t;
+            m_t += _t;
             Q_EMIT modified();
         }
 
-        void translate(double x, double y, double z) 
+        /*!
+        * \fn translate
+        * \brief Translates frame by a given vector.
+        * \param _x, _y, _z: coordinates of translation vector
+        */
+        void translate(double _x, double _y, double _z) 
         {
-            glm::vec3 t(x, y, z);
+            glm::vec3 t(_x, _y, _z);
             translate(t);
         }
 
-        void translate(double &x, double &y, double &z) 
+        /*!
+        * \fn rotate
+        * \brief Rotates frame by a given quaternion.
+        * \param _q: rotation quaternion
+        */
+        void rotate(Quaternion &_q) 
         {
-            glm::vec3 t(x, y, z);
-            translate(t);
-            x = t[0];
-            y = t[1];
-            z = t[2];
-        }
-
-        void rotate(const Quaternion &q) 
-        {
-            Quaternion qbis = q;
-            rotate(qbis);
-        }
-
-        void rotate(Quaternion &q) 
-        {
-//            if (constraint())
-//                constraint()->constrainRotation(q/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
-            q_ *= q;
-            q_.normalize(); // Prevents numerical drift
+            m_q *= _q;
+            m_q.normalize(); // Prevents numerical drift
             Q_EMIT modified();
         }
 
-        void rotate(double &q0, double &q1, double &q2, double &q3) 
+        /*!
+        * \fn rotate
+        * \brief Rotates frame by a given quaternion.
+        * \param _q0, _q1, _q2, _q3: coordinates of rotation quaternion.
+        */
+        void rotate(double _q0, double _q1, double _q2, double _q3) 
         {
-            Quaternion q(q0, q1, q2, q3);
-            rotate(q);
-            q0 = q[0];
-            q1 = q[1];
-            q2 = q[2];
-            q3 = q[3];
-        }
-
-        void rotate(double q0, double q1, double q2, double q3) 
-        {
-            Quaternion q(q0, q1, q2, q3);
+            Quaternion q(_q0, _q1, _q2, _q3);
             rotate(q);
         }
 
-        void rotateAroundPoint(Quaternion &rotation, const glm::vec3 &point, glm::vec3 &center) 
+        /*!
+        * \fn transformOf
+        * \brief Returns the Frame transform of a vector _src defined in the world
+        * coordinate system (converts vectors from world to Frame).
+        * inverseTransformOf() performs the inverse transformation. 
+        * coordinatesOf() converts 3D coordinates instead of 3D vectors 
+        * (here only the rotational part of the transformation is taken into account).
+        */
+        glm::vec3 transformOf(const glm::vec3 _src) const
         {
-//            if (constraint())
-//                constraint()->constrainRotation(rotation/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
+            return rotation().inverseRotate(_src);
+        }
 
-            q_ *= rotation;
-            q_.normalize(); // Prevents numerical drift
-            glm::vec3 trans = point + Quaternion(inverseTransformOf(rotation.axis()), rotation.angle()).rotate(position() - point) - t_;
+        /*!
+        * \fn inverseTransformOf
+        * \brief Returns the world transform of the vector whose coordinates in the Frame
+        * coordinate system is _src (converts vectors from Frame to world).
+        * transformOf() performs the inverse transformation. 
+        * Use inverseCoordinatesOf() to transform 3D coordinates instead of 3D vectors.
+        */
+        glm::vec3 inverseTransformOf(const glm::vec3 _src) const
+        {
+            return rotation().rotate(_src);
+        }
 
-glm::vec3 trans2 = point + Quaternion(inverseTransformOf(rotation.axis()), rotation.angle()).rotate(center - point) - center;
-center = center + trans2;
+        /*!
+        * \fn coordinatesOf
+        * \brief Returns the Frame coordinates of a point _src defined in the world
+        * coordinate system (converts from world to Frame).
+        * inverseCoordinatesOf() performs the inverse convertion. 
+        * transformOf() converts 3D vectors instead of 3D coordinates.
+        */
+        glm::vec3 coordinatesOf(const glm::vec3 &_src) const 
+        {
+            return rotation().inverseRotate(_src - translation());
+        }
+
+        /*!
+        * \fn inverseCoordinatesOf
+        * \brief Returns the world coordinates of the point whose position in the Frame
+        * coordinate system is _src (converts from Frame to world).
+        * coordinatesOf() performs the inverse convertion. 
+        * Use inverseTransformOf() to transform 3D vectors instead of 3D coordinates.
+        */
+        glm::vec3 inverseCoordinatesOf(const glm::vec3 &_src) const 
+        {
+            return rotation().rotate(_src) + translation();
+        }
+
+        /*!
+        * \fn rotateAroundPoint
+        * \brief Rotates frame around a given point.
+        * _point is defined in the world coordinate system, while the _rotation axis
+        * is defined in the Frame coordinate system.
+        * \param _rotation: rotation quaternion
+        * \param _point: rotation quaternion
+        * \param _center: rotation quaternion
+        */
+        void rotateAroundPoint(Quaternion &_rotation, const glm::vec3 &_point, glm::vec3 &_center) // @@@ center ?
+        {
+            m_q *= _rotation;
+            m_q.normalize(); // Prevents numerical drift
+            glm::vec3 trans = _point + Quaternion(inverseTransformOf(_rotation.axis()), _rotation.angle()).rotate(position() - _point) - m_t;
+
+glm::vec3 trans2 = _point + Quaternion(inverseTransformOf(_rotation.axis()), _rotation.angle()).rotate(_center - _point) - _center;
+_center = _center + trans2;
 
 
- //           if (constraint())
-//                constraint()->constrainTranslation(trans/*, this*/);  //@@@@@@@@@@@@@@@@@@@@@@@
-
-            t_ += trans;
+            m_t += trans;
 
             
             Q_EMIT modified();
         }
 
-        void rotateAroundPoint(const Quaternion &rotation, const glm::vec3 &point) 
-        {
-            Quaternion rot = rotation;
-            rotateAroundPoint(rot, point);
-        }
 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                   MISC.                                                     |
+        +------------------------------------------------------------------------------------------------------------*/
 
-
-        // COORDS TRANSFORM
-
-        glm::vec3 coordinatesOf(const glm::vec3 &src) const 
-        {
-            if (referenceFrame())
-            {
-                return localCoordinatesOf(referenceFrame()->coordinatesOf(src));
-            }
-            else
-            {
-                return localCoordinatesOf(src);
-            }
-        }
-
-        glm::vec3 inverseCoordinatesOf(const glm::vec3 &src) const 
-        {
-            const Frame *fr = this;
-            glm::vec3 res = src;
-            while (fr != nullptr) 
-            {
-                res = fr->localInverseCoordinatesOf(res);
-                fr = fr->referenceFrame();
-            }
-            return res;
-        }
-
-        glm::vec3 localCoordinatesOf(const glm::vec3 &src) const
-        {
-            return rotation().inverseRotate(src - translation());
-        }
-
-        glm::vec3 localInverseCoordinatesOf(const glm::vec3 &src) const 
-        {
-            return rotation().rotate(src) + translation();
-        }
-
-        glm::vec3 coordinatesOfIn(const glm::vec3 &src, const Frame *const in) const 
-        {
-            const Frame *fr = this;
-            glm::vec3 res = src;
-            while ((fr != nullptr) && (fr != in)) 
-            {
-                res = fr->localInverseCoordinatesOf(res);
-                fr = fr->referenceFrame();
-            }
-
-            if (fr != in)
-            {
-                // in was not found in the branch of this, res is now expressed in the world
-                // coordinate system. Simply convert to in coordinate system.
-                res = in->coordinatesOf(res);
-            }
-
-            return res;
-        }
-
-        glm::vec3 coordinatesOfFrom(const glm::vec3 &src, const Frame *const from) const 
-        {
-            if (this == from)
-                return src;
-            else if (referenceFrame())
-                return localCoordinatesOf(referenceFrame()->coordinatesOfFrom(src, from));
-            else
-                return localCoordinatesOf(from->inverseCoordinatesOf(src));
-        }
-
-        void getCoordinatesOf(const glm::vec3 src, glm::vec3 &res) const 
-        {
-            const glm::vec3 r = coordinatesOf(glm::vec3(src));
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
-
-        void getInverseCoordinatesOf(const glm::vec3 src, glm::vec3 &res) const 
-        {
-            const glm::vec3 r = inverseCoordinatesOf(glm::vec3(src));
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
-
-        void getLocalCoordinatesOf(const glm::vec3 src, glm::vec3 &res) const 
-        {
-            const glm::vec3 r = localCoordinatesOf(glm::vec3(src));
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
-
-        void getLocalInverseCoordinatesOf(const glm::vec3 src, glm::vec3 &res) const 
-        {
-            const glm::vec3 r = localInverseCoordinatesOf(glm::vec3(src));
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
-
-        void getCoordinatesOfIn(const glm::vec3 src, glm::vec3 &res, const Frame *const in) const 
-        {
-            const glm::vec3 r = coordinatesOfIn(glm::vec3(src), in);
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
-
-        void getCoordinatesOfFrom(const glm::vec3 src, glm::vec3 &res, const Frame *const from) const 
-        {
-            const glm::vec3 r = coordinatesOfFrom(glm::vec3(src), from);
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
-  
-
-
-        glm::vec3 transformOf(const glm::vec3 src) const 
-        {
-            if (referenceFrame())
-                return localTransformOf(referenceFrame()->transformOf(src));
-            else
-                return localTransformOf(src);
-        }
-
-        glm::vec3 inverseTransformOf(const glm::vec3 src) const 
-        {
-            const Frame *fr = this;
-            glm::vec3 res = src;
-            while (fr != nullptr) 
-            {
-                res = fr->localInverseTransformOf(res);
-                fr = fr->referenceFrame();
-            }
-            return res;
-        }
-
-        glm::vec3 localTransformOf(const glm::vec3 src) const 
-        {
-            return rotation().inverseRotate(src);
-        }
-
-        glm::vec3 localInverseTransformOf(const glm::vec3 src) const 
-        {
-            return rotation().rotate(src);
-        }
-
-        glm::vec3 transformOfIn(const glm::vec3 src, const Frame *const in) const 
-        {
-            const Frame *fr = this;
-            glm::vec3 res = src;
-            while ((fr != nullptr) && (fr != in)) 
-            {
-                res = fr->localInverseTransformOf(res);
-                fr = fr->referenceFrame();
-            }
-
-            if (fr != in)
-            {
-                // in was not found in the branch of this, res is now expressed in the world
-                // coordinate system. Simply convert to in coordinate system.
-                res = in->transformOf(res);
-            }
-
-            return res;
-        }
-
-        glm::vec3 transformOfFrom(const glm::vec3 src, const Frame *const from) const 
-        {
-            if (this == from)
-                return src;
-            else if (referenceFrame())
-                return localTransformOf(referenceFrame()->transformOfFrom(src, from));
-            else
-                return localTransformOf(from->inverseTransformOf(src));
-        }
-
-        void getTransformOf(const glm::vec3 src, glm::vec3 &res) const 
-        {
-            glm::vec3 r = transformOf(glm::vec3(src));
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
-
-        void getInverseTransformOf(const glm::vec3 src, glm::vec3 &res) const 
-        {
-            glm::vec3 r = inverseTransformOf(glm::vec3(src));
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
-
-        void getLocalTransformOf(const glm::vec3 src , glm::vec3 &res) const 
-        {
-            glm::vec3 r = localTransformOf(glm::vec3(src));
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
-
-        void getLocalInverseTransformOf(const glm::vec3 src, glm::vec3 &res) const 
-        {
-            glm::vec3 r = localInverseTransformOf(glm::vec3(src));
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
-
-        void getTransformOfIn(const glm::vec3 src , glm::vec3 &res, const Frame *const in) const 
-        {
-            glm::vec3 r = transformOfIn(glm::vec3(src), in);
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
-
-        void getTransformOfFrom(const glm::vec3 src, glm::vec3 &res, const Frame *const from) const 
-        {
-            glm::vec3 r = transformOfFrom(glm::vec3(src), from);
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
-
-
-        // MISC
-
-
-        void alignWithFrame(const Frame *const frame, bool move = false, double threshold = 0.0)
+        /*!
+        * \fn alignWithFrame
+        * \brief Aligns the Frame with _frame, so that two of their axis are parallel.
+        *
+        * If one of the X, Y and Z axis of the Frame is almost parallel to any of the X,
+        * Y, or Z axis of _frame, the Frame is rotated so that these two axis actually
+        * become parallel.
+        * If, after this first rotation, two other axis are also almost parallel, 
+        * a second alignment is performed. The two frames then have identical orientations, 
+        * up to 90 degrees rotations.
+        *
+        * _threshold measures how close two axis must be to be considered parallel. 
+        * It is compared with the absolute values of the dot product of the normalized axis.
+        * As a result, useful range is sqrt(2)/2 (systematic alignment) to 1 (no alignment).
+        *
+        * When _move is set to true, the Frame position() is also affected by the alignment. 
+        * The new Frame's position() is such that the _frame position (computed with coordinatesOf(), 
+        * in the Frame coordinates system) does not change.
+        *
+        * _frame may be NULL and then represents the world coordinate system 
+        *
+        * \param _frame: frame to align with
+        * \param _move: defines if frame position is affected or not
+        * \param _threshold: compared with dot product to define when vectors are considered close
+        */
+        void alignWithFrame(const Frame *const _frame, bool _move = false, double _threshold = 0.0)
         {
             glm::vec3 directions[2][3];
             for (unsigned short d = 0; d < 3; ++d) 
             {
                 glm::vec3 dir((d == 0) ? 1.0 : 0.0, (d == 1) ? 1.0 : 0.0, (d == 2) ? 1.0 : 0.0);
-                if (frame)
-                    directions[0][d] = frame->inverseTransformOf(dir);
+                if (_frame)
+                    directions[0][d] = _frame->inverseTransformOf(dir);
                 else
                     directions[0][d] = dir;
                 directions[1][d] = inverseTransformOf(dir);
@@ -688,7 +528,7 @@ center = center + trans2;
             old = *this;
 
             double coef = glm::dot( directions[0][index[0]] , directions[1][index[1]] );
-            if (std::abs(coef) >= threshold) 
+            if (std::abs(coef) >= _threshold) 
             {
                 const glm::vec3 axis = glm::cross(directions[0][index[0]], directions[1][index[1]]);
                 double angle = asin(glm::length(axis));
@@ -712,7 +552,7 @@ center = center + trans2;
                     }
                 }
 
-                if (max >= threshold) 
+                if (max >= _threshold) 
                 {
                     const glm::vec3 axis = glm::cross(directions[0][index[0]], dir);
                     double angle = asin(glm::length(axis));
@@ -722,111 +562,60 @@ center = center + trans2;
                 }
             }
 
-            if (move) 
+            if (_move) 
             {
                 glm::vec3 center;
-                if (frame)
-                    center = frame->position();
+                if (_frame)
+                    center = _frame->position();
 
                 translate(center - orientation().rotate(old.coordinatesOf(center)) - translation());
             }
         }
 
-
-
-        void projectOnLine(const glm::vec3 &origin, const glm::vec3 &direction) 
+        /*!
+        * \fn projectOnLine
+        * \brief Translates the Frame so that its position() lies on the line defined 
+        * by _origin and _direction (defined in the world coordinate system).
+        * Simply uses an orthogonal projection. 
+        * _direction does not need to be normalized.
+        * \param _origin: origin point of line
+        * \param _direction: direction vector of line
+        */
+        void projectOnLine(const glm::vec3 &_origin, const glm::vec3 &_direction) 
         {
-            const glm::vec3 shift = origin - position();
+            const glm::vec3 shift = _origin - position();
             glm::vec3 proj = shift;
-            proj = projectOnAxis(proj, direction);
+            proj = projectOnAxis(proj, _direction);
             translate(shift - proj);
         }
 
 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                  MATRICES                                                   |
+        +------------------------------------------------------------------------------------------------------------*/
 
-        // MATRICES
+        //glm::mat4 getMatrix() const 
+        //{
+        //    glm::mat4 m = m_q.getMatrix();
+        //    m[3][0] = m_t[0];
+        //    m[3][1] = m_t[1];
+        //    m[3][2] = m_t[2];
 
-        glm::mat4 getMatrix() const 
-        {
-            glm::mat4 m = q_.getMatrix();
-
-            m[3][0] = t_[0];
-            m[3][1] = t_[1];
-            m[3][2] = t_[2];
-            /*m[12] = t_[0];
-            m[13] = t_[1];
-            m[14] = t_[2];*/
-            return m;
-        }
-
-
-        const glm::mat4 matrix() const 
-        {
-            static glm::mat4 m = getMatrix();
-            return m;
-        }
-
-        const glm::mat4 worldMatrix() const
-        {
-            // This test is done for efficiency reasons (creates lots of temp objects
-            // otherwise).
-            if (referenceFrame()) 
-            {
-                static Frame fr;
-                fr.setTranslation(position());
-                fr.setRotation(orientation());
-                return fr.matrix();
-            } 
-            else
-                return matrix();
-        }
-
-        glm::mat4 getWorldMatrix() const
-        {
-            glm::mat4 mat = worldMatrix();
-            return mat;
-        }
+        //    /*m[12] = m_t[0];
+        //    m[13] = m_t[1];
+        //    m[14] = m_t[2];*/
+        //    return m;
+        //}
 
 
-        void setFromMatrix(const glm::mat4 m)
-        {
-            if (std::abs(m[3][3]) < 1E-8) 
-            {
-                std::cerr << "Frame::setFromMatrix: Null homogeneous coefficient" <<std::endl;
-                return;
-            }
-
-            glm::mat3 rot;
-            for (int i = 0; i < 3; ++i) 
-            {
-                t_[i] = m[3][i] / m[3][3];
-                for (int j = 0; j < 3; ++j)
-                {
-                    // Beware of the transposition (OpenGL to European math)
-                    rot[i][j] = m[j][i] / m[3][3];
-                }
-            }
-            q_.setFromRotationMatrix(rot);
-            Q_EMIT modified();
-        }
-
-  
-        Frame inverse() const
-        {
-            Frame fr(-(q_.inverseRotate(t_)), q_.inverse());
-            fr.setReferenceFrame(referenceFrame());
-            return fr;
-        }
- 
-        Frame worldInverse() const 
-        {
-            return Frame(-(orientation().inverseRotate(position())), orientation().inverse());
-        }
- 
-  
-
+        //const glm::mat4 matrix() const 
+        //{
+        //    static glm::mat4 m = getMatrix();
+        //    return m;
+        //}
 
 };
+
 
 } // namespace qgltoolkit
 

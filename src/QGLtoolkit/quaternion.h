@@ -61,8 +61,8 @@ static glm::vec3 projectOnAxis(glm::vec3 _vec, const glm::vec3 &direction)
 *
 * The internal representation of a Quaternion corresponding to a rotation 
 * around an axis, with an angle alpha is made of four reals:  
-* {q[0],q[1],q[2]} = sin(alpha/2) * {axis[0],axis[1],axis[2]} 
-* q[3] = cos(alpha/2)
+* {m_q[0],m_q[1],m_q[2]} = sin(alpha/2) * {axis[0],axis[1],axis[2]} 
+* m_q[3] = cos(alpha/2)
 *
 * Note that certain implementations place the cosine term in first 
 * position (instead of last here).
@@ -74,7 +74,7 @@ class  Quaternion
 
     private:
 
-        double q[4];    /*!< quaternion */
+        double m_q[4];    /*!< quaternion */
 
 
     public:
@@ -90,9 +90,15 @@ class  Quaternion
         */
         Quaternion() 
         {
-            q[0] = q[1] = q[2] = 0.0;
-            q[3] = 1.0;
+            m_q[0] = m_q[1] = m_q[2] = 0.0;
+            m_q[3] = 1.0;
         }
+
+        /*!
+        * \fn ~Quaternion
+        * \brief Destructor of Quaternion.
+        */
+        ~Quaternion() {}
 
         /*!
         * \fn setAxisAngle
@@ -106,18 +112,18 @@ class  Quaternion
             if (_axis == glm::vec3(0.0f) ) 
             {
                 // Null rotation
-                q[0] = 0.0;
-                q[1] = 0.0;
-                q[2] = 0.0;
-                q[3] = 1.0;
+                m_q[0] = 0.0;
+                m_q[1] = 0.0;
+                m_q[2] = 0.0;
+                m_q[3] = 1.0;
             } 
             else 
             {
                 const double sin_half_angle = sin(_angle / 2.0);
-                q[0] = sin_half_angle * _axis[0] / norm;
-                q[1] = sin_half_angle * _axis[1] / norm;
-                q[2] = sin_half_angle * _axis[2] / norm;
-                q[3] = cos(_angle / 2.0);
+                m_q[0] = sin_half_angle * _axis[0] / norm;
+                m_q[1] = sin_half_angle * _axis[1] / norm;
+                m_q[2] = sin_half_angle * _axis[2] / norm;
+                m_q[3] = cos(_angle / 2.0);
             }
         }
 
@@ -138,10 +144,10 @@ class  Quaternion
         */
         void setValue(double _q0, double _q1, double _q2, double _q3) 
         {
-            q[0] = _q0;
-            q[1] = _q1;
-            q[2] = _q2;
-            q[3] = _q3;
+            m_q[0] = _q0;
+            m_q[1] = _q1;
+            m_q[2] = _q2;
+            m_q[3] = _q3;
         }
 
         /*!
@@ -160,7 +166,7 @@ class  Quaternion
         Quaternion(const Quaternion &_Q) 
         {
             for (int i = 0; i < 4; ++i)
-                q[i] = _Q.q[i];
+                m_q[i] = _Q.m_q[i];
         }
 
         /*!
@@ -170,7 +176,7 @@ class  Quaternion
         Quaternion &operator=(const Quaternion &_Q) 
         {
             for (int i = 0; i < 4; ++i)
-                q[i] = _Q.q[i];
+                m_q[i] = _Q.m_q[i];
 
             return (*this);
         }
@@ -198,10 +204,10 @@ class  Quaternion
             {
                 // Direct computation
                 const double s = sqrt(onePlusTrace) * 2.0;
-                q[0] = (_m[2][1] - _m[1][2]) / s;
-                q[1] = (_m[0][2] - _m[2][0]) / s;
-                q[2] = (_m[1][0] - _m[0][1]) / s;
-                q[3] = 0.25 * s;
+                m_q[0] = (_m[2][1] - _m[1][2]) / s;
+                m_q[1] = (_m[0][2] - _m[2][0]) / s;
+                m_q[2] = (_m[1][0] - _m[0][1]) / s;
+                m_q[3] = 0.25 * s;
             } 
             else 
             {
@@ -209,26 +215,26 @@ class  Quaternion
                 if ((_m[0][0] > _m[1][1]) & (_m[0][0] > _m[2][2])) 
                 {
                     const double s = sqrt(1.0 + _m[0][0] - _m[1][1] - _m[2][2]) * 2.0;
-                    q[0] = 0.25 * s;
-                    q[1] = (_m[0][1] + _m[1][0]) / s;
-                    q[2] = (_m[0][2] + _m[2][0]) / s;
-                    q[3] = (_m[1][2] - _m[2][1]) / s;
+                    m_q[0] = 0.25 * s;
+                    m_q[1] = (_m[0][1] + _m[1][0]) / s;
+                    m_q[2] = (_m[0][2] + _m[2][0]) / s;
+                    m_q[3] = (_m[1][2] - _m[2][1]) / s;
                 } 
                 else if (_m[1][1] > _m[2][2]) 
                 {
                     const double s = sqrt(1.0 + _m[1][1] - _m[0][0] - _m[2][2]) * 2.0;
-                    q[0] = (_m[0][1] + _m[1][0]) / s;
-                    q[1] = 0.25 * s;
-                    q[2] = (_m[1][2] + _m[2][1]) / s;
-                    q[3] = (_m[0][2] - _m[2][0]) / s;
+                    m_q[0] = (_m[0][1] + _m[1][0]) / s;
+                    m_q[1] = 0.25 * s;
+                    m_q[2] = (_m[1][2] + _m[2][1]) / s;
+                    m_q[3] = (_m[0][2] - _m[2][0]) / s;
                 } 
                 else 
                 {
                     const double s = sqrt(1.0 + _m[2][2] - _m[0][0] - _m[1][1]) * 2.0;
-                    q[0] = (_m[0][2] + _m[2][0]) / s;
-                    q[1] = (_m[1][2] + _m[2][1]) / s;
-                    q[2] = 0.25 * s;
-                    q[3] = (_m[0][1] - _m[1][0]) / s;
+                    m_q[0] = (_m[0][2] + _m[2][0]) / s;
+                    m_q[1] = (_m[1][2] + _m[2][1]) / s;
+                    m_q[2] = 0.25 * s;
+                    m_q[3] = (_m[0][1] - _m[1][0]) / s;
                 }
             }
             normalize();
@@ -276,11 +282,11 @@ class  Quaternion
         */
         glm::vec3 axis() const
         {
-            glm::vec3 res = glm::vec3(q[0], q[1], q[2]);
+            glm::vec3 res = glm::vec3(m_q[0], m_q[1], m_q[2]);
             const double sinus = glm::length(res);
             if (sinus > 1E-8)
                 res /= sinus;
-            return (acos(q[3]) <= M_PI / 2.0) ? res : -res;
+            return (acos(m_q[3]) <= M_PI / 2.0) ? res : -res;
         }
 
         /*!
@@ -292,7 +298,7 @@ class  Quaternion
         */
         double angle() const
         {
-            const double angle = 2.0 * acos(q[3]);
+            const double angle = 2.0 * acos(m_q[3]);
             return (angle <= M_PI) ? angle : 2.0 * M_PI - angle;
         }
 
@@ -305,8 +311,8 @@ class  Quaternion
         */
         void getAxisAngle(glm::vec3 &_axis, double &_angle) const
         {
-            _angle = 2.0 * acos(q[3]);
-            _axis = glm::vec3 (q[0], q[1], q[2]);
+            _angle = 2.0 * acos(m_q[3]);
+            _axis = glm::vec3 (m_q[0], m_q[1], m_q[2]);
             const double sinus = glm::length(_axis);
             if (sinus > 1E-8)
             _axis /= sinus;
@@ -328,14 +334,14 @@ class  Quaternion
         * \brief Bracket operator, with a constant return value. 
         * _i must range in [0..3].
         */
-        double operator[](int _i) const { return q[_i]; }
+        double operator[](int _i) const { return m_q[_i]; }
 
         /*!
         * \fn &operator[]
         * \brief Bracket operator returning an l-value.
         * _i must range in [0..3].
         */
-        double &operator[](int _i) { return q[_i]; }
+        double &operator[](int _i) { return m_q[_i]; }
   
         /*!
         * \fn operator*
@@ -351,10 +357,10 @@ class  Quaternion
         */
         friend Quaternion operator*(const Quaternion &_a, const Quaternion &_b) 
         {
-            return Quaternion(  _a.q[3] * _b.q[0] + _b.q[3] * _a.q[0] + _a.q[1] * _b.q[2] - _a.q[2] * _b.q[1],
-                                _a.q[3] * _b.q[1] + _b.q[3] * _a.q[1] + _a.q[2] * _b.q[0] - _a.q[0] * _b.q[2],
-                                _a.q[3] * _b.q[2] + _b.q[3] * _a.q[2] + _a.q[0] * _b.q[1] - _a.q[1] * _b.q[0],
-                                _a.q[3] * _b.q[3] - _b.q[0] * _a.q[0] - _a.q[1] * _b.q[1] - _a.q[2] * _b.q[2]);
+            return Quaternion(  _a.m_q[3] * _b.m_q[0] + _b.m_q[3] * _a.m_q[0] + _a.m_q[1] * _b.m_q[2] - _a.m_q[2] * _b.m_q[1],
+                                _a.m_q[3] * _b.m_q[1] + _b.m_q[3] * _a.m_q[1] + _a.m_q[2] * _b.m_q[0] - _a.m_q[0] * _b.m_q[2],
+                                _a.m_q[3] * _b.m_q[2] + _b.m_q[3] * _a.m_q[2] + _a.m_q[0] * _b.m_q[1] - _a.m_q[1] * _b.m_q[0],
+                                _a.m_q[3] * _b.m_q[3] - _b.m_q[0] * _a.m_q[0] - _a.m_q[1] * _b.m_q[1] - _a.m_q[2] * _b.m_q[2]);
         }
 
         /*!
@@ -380,18 +386,18 @@ class  Quaternion
         */
         glm::vec3 rotate(const glm::vec3 &_v) const
         {
-            const double q00 = 2.0 * q[0] * q[0];
-            const double q11 = 2.0 * q[1] * q[1];
-            const double q22 = 2.0 * q[2] * q[2];
+            const double q00 = 2.0 * m_q[0] * m_q[0];
+            const double q11 = 2.0 * m_q[1] * m_q[1];
+            const double q22 = 2.0 * m_q[2] * m_q[2];
 
-            const double q01 = 2.0 * q[0] * q[1];
-            const double q02 = 2.0 * q[0] * q[2];
-            const double q03 = 2.0 * q[0] * q[3];
+            const double q01 = 2.0 * m_q[0] * m_q[1];
+            const double q02 = 2.0 * m_q[0] * m_q[2];
+            const double q03 = 2.0 * m_q[0] * m_q[3];
 
-            const double q12 = 2.0 * q[1] * q[2];
-            const double q13 = 2.0 * q[1] * q[3];
+            const double q12 = 2.0 * m_q[1] * m_q[2];
+            const double q13 = 2.0 * m_q[1] * m_q[3];
 
-            const double q23 = 2.0 * q[2] * q[3];
+            const double q23 = 2.0 * m_q[2] * m_q[3];
 
             return glm::vec3( (1.0 - q11 - q22) * _v[0] + (q01 - q23) * _v[1] + (q02 + q13) * _v[2],
                               (q01 + q23) * _v[0] + (1.0 - q22 - q00) * _v[1] + (q12 - q03) * _v[2],
@@ -420,7 +426,7 @@ class  Quaternion
         * Use invert() to actually modify the Quaternion.
         * \return copy of inverse Quaternion 
         */
-        Quaternion inverse() const { return Quaternion(-q[0], -q[1], -q[2], q[3]); }
+        Quaternion inverse() const { return Quaternion(-m_q[0], -m_q[1], -m_q[2], m_q[3]); }
 
         /*!
         * \fn invert
@@ -428,9 +434,9 @@ class  Quaternion
         */
         void invert() 
         {
-            q[0] = -q[0];
-            q[1] = -q[1];
-            q[2] = -q[2];
+            m_q[0] = -m_q[0];
+            m_q[1] = -m_q[1];
+            m_q[2] = -m_q[2];
         }
 
         /*!
@@ -461,7 +467,7 @@ class  Quaternion
         void negate() 
         {
             invert();
-            q[3] = -q[3];
+            m_q[3] = -m_q[3];
         }
 
         /*!
@@ -473,9 +479,9 @@ class  Quaternion
         */
         double normalize() 
         {
-            const double norm =  sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
+            const double norm =  sqrt(m_q[0] * m_q[0] + m_q[1] * m_q[1] + m_q[2] * m_q[2] + m_q[3] * m_q[3]);
             for (int i = 0; i < 4; ++i)
-                q[i] /= norm;
+                m_q[i] /= norm;
             return norm;
         }
 
@@ -487,9 +493,9 @@ class  Quaternion
         Quaternion normalized() const 
         {
             double Q[4];
-            const double norm = sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
+            const double norm = sqrt(m_q[0] * m_q[0] + m_q[1] * m_q[1] + m_q[2] * m_q[2] + m_q[3] * m_q[3]);
             for (int i = 0; i < 4; ++i)
-                Q[i] = q[i] / norm;
+                Q[i] = m_q[i] / norm;
             return Quaternion(Q[0], Q[1], Q[2], Q[3]);
         }
 
@@ -519,18 +525,18 @@ class  Quaternion
         {
             glm::mat4 m(0.0f);
 
-            const double q00 = 2.0 * q[0] * q[0];
-            const double q11 = 2.0 * q[1] * q[1];
-            const double q22 = 2.0 * q[2] * q[2];
+            const double q00 = 2.0 * m_q[0] * m_q[0];
+            const double q11 = 2.0 * m_q[1] * m_q[1];
+            const double q22 = 2.0 * m_q[2] * m_q[2];
 
-            const double q01 = 2.0 * q[0] * q[1];
-            const double q02 = 2.0 * q[0] * q[2];
-            const double q03 = 2.0 * q[0] * q[3];
+            const double q01 = 2.0 * m_q[0] * m_q[1];
+            const double q02 = 2.0 * m_q[0] * m_q[2];
+            const double q03 = 2.0 * m_q[0] * m_q[3];
 
-            const double q12 = 2.0 * q[1] * q[2];
-            const double q13 = 2.0 * q[1] * q[3];
+            const double q12 = 2.0 * m_q[1] * m_q[2];
+            const double q13 = 2.0 * m_q[1] * m_q[3];
 
-            const double q23 = 2.0 * q[2] * q[3];
+            const double q23 = 2.0 * m_q[2] * m_q[3];
 
             m[0][0] = 1.0 - q11 - q22;
             m[1][0] = q01 - q23;
@@ -556,26 +562,6 @@ class  Quaternion
             return m;
         }
 
-        // to fix @@@@@@@@@@@@@@@
-        /*!
-        * \fn getRotationMatrix
-        * \brief Build a 3x3 matrix representation of the Quaternion rotation.
-        * \return rotation as a glm 3x3 matrix
-        */
-        glm::mat3 getRotationMatrix() const
-        {
-            glm::mat3 m(0.0f);
-            glm::mat4 mat(0.0f);
-            mat = getMatrix();
-            for (int i = 0; i < 3; ++i)
-                for (int j = 0; j < 3; ++j)
-                {
-                    // Beware of transposition
-                    m[i][j] = double(mat[j][i]);
-                }
-            return m;
-        }
-
         /*!
         * \fn getInverseMatrix
         * \brief Returns the inverse() rotation matrix.
@@ -584,26 +570,6 @@ class  Quaternion
         glm::mat4 getInverseMatrix() const
         {
             return inverse().getMatrix();
-        }
-
-        // to fix @@@@@@@@@@@@@@@
-        /*!
-        * \fn getInverseRotationMatrix
-        * \brief Returns the inverse() rotation matrix.
-        * \return inverse matrix as a glm 3x3 matrix
-        */
-        glm::mat3 getInverseRotationMatrix() const
-        {
-            glm::mat3 m(0.0f);
-            glm::mat4 mat(0.0f);
-            mat = getInverseMatrix();
-            for (int i = 0; i < 3; ++i)
-                for (int j = 0; j < 3; ++j)
-                {
-                    // Beware of transposition
-                    m[i][j] = double(mat[j][i]);
-                }
-            return m;
         }
 
 
@@ -654,7 +620,7 @@ class  Quaternion
         * \fn squad
         * \brief  Returns the slerp interpolation of the two Quaternions _a and _b, 
         * at time _t, using tangents _tgA and _tgB.
-        * The resulting Quaternion is "between" \p a and \p b (result is _a when _t=0 and _b for _t=1).
+        * The resulting Quaternion is "between" _a and _b (result is _a when _t=0 and _b for _t=1).
         * Use squadTangent() to define the Quaternion tangents _tgA and _tgB.
         * \param _a, _b: Quaternions to interpolate between
         * \param _tgA, _tgB: tangents
@@ -674,14 +640,14 @@ class  Quaternion
         */
         Quaternion log()
         {
-            double len = sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2]);
+            double len = sqrt(m_q[0] * m_q[0] + m_q[1] * m_q[1] + m_q[2] * m_q[2]);
 
             if (len < 1E-6)
-                return Quaternion(q[0], q[1], q[2], 0.0);
+                return Quaternion(m_q[0], m_q[1], m_q[2], 0.0);
             else 
             {
-                double coef = acos(q[3]) / len;
-                return Quaternion(q[0] * coef, q[1] * coef, q[2] * coef, 0.0);
+                double coef = acos(m_q[3]) / len;
+                return Quaternion(m_q[0] * coef, m_q[1] * coef, m_q[2] * coef, 0.0);
             }
         }
 
@@ -691,14 +657,14 @@ class  Quaternion
         */
         Quaternion exp()
         {
-            double theta = sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2]);
+            double theta = sqrt(m_q[0] * m_q[0] + m_q[1] * m_q[1] + m_q[2] * m_q[2]);
 
             if (theta < 1E-6)
-                return Quaternion(q[0], q[1], q[2], cos(theta));
+                return Quaternion(m_q[0], m_q[1], m_q[2], cos(theta));
             else 
             {
                 double coef = sin(theta) / theta;
-                return Quaternion(q[0] * coef, q[1] * coef, q[2] * coef, cos(theta));
+                return Quaternion(m_q[0] * coef, m_q[1] * coef, m_q[2] * coef, cos(theta));
             }
         }
 
@@ -725,7 +691,7 @@ class  Quaternion
             Quaternion e;
 
             for (unsigned int i = 0; i < 4; ++i)
-                e.q[i] = -0.25 * (l1.q[i] + l2.q[i]);
+                e.m_q[i] = -0.25 * (l1.m_q[i] + l2.m_q[i]);
 
             e = _center * (e.exp());
 
@@ -734,7 +700,6 @@ class  Quaternion
 
             return e;
         }
-
 
 
 };

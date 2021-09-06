@@ -194,7 +194,8 @@ glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 +
 
             Quaternion q;
             q.setFromRotatedBasis(xAxis, glm::cross(xAxis, direction), -direction);
-            frame()->setOrientationWithConstraint(q);
+            //frame()->setOrientationWithConstraint(q);
+            frame()->setOrientation(q);
         }
 
         void lookAt(const glm::vec3 &target)
@@ -439,7 +440,8 @@ glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 +
                 }
             }
             glm::vec3 newPos(center - (viewDirection() * distance) );
-            frame()->setPositionWithConstraint(newPos);
+            //frame()->setPositionWithConstraint(newPos);
+            frame()->setPosition(newPos);
         }
 
         void showEntireScene() { fitSphere(sceneCenter(), sceneRadius()); }
@@ -509,7 +511,7 @@ glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 +
             projectionMatrixIsUpToDate_ = false;
 
             // frame_ and interpolationKfi_ pointers are not shared.
-            frame_->setReferenceFrame(nullptr);
+            //frame_->setReferenceFrame(nullptr);
             frame_->setPosition(camera.position());
             frame_->setOrientation(camera.orientation());
 
