@@ -4,8 +4,7 @@
 
 
 class DrawableMesh;
-class Trimeshsoup;
-class Mesh;
+class TriMesh;
 
 
 
@@ -25,7 +24,7 @@ class Viewer : public qgltoolkit::QGLViewer
 
     protected:
         GLuint m_defaultVAO; 
-        Mesh* m_triMesh;
+        TriMesh* m_triMesh;
         DrawableMesh* m_drawMesh;
 
         glm::vec3 m_backCol;

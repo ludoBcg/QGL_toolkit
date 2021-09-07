@@ -8,7 +8,7 @@
 //#include <GL/glew.h>
 
 #include "drawablemesh.h"
-#include "trimeshsoup.h"
+#include "trimesh.h"
 
 #include "viewer.h"
 
@@ -61,12 +61,12 @@ void Viewer::init()
 
   glViewport(0, 0, width(), height());
 
-    m_triMesh = new TriMeshSoup(true, false, false);
+    m_triMesh = new TriMesh(true, false, false);
     m_triMesh->readFile("../../models/misc/teapot.obj");
     m_triMesh->computeAABB();
 
     m_drawMesh = new DrawableMesh;
-    m_drawMesh->setProgram("../../src/shaders/phong_2.vert", "../../src/shaders/phong_2.frag");
+    m_drawMesh->setProgram("../../src/shaders/phong.vert", "../../src/shaders/phong.frag");
     m_drawMesh->createVAO(m_triMesh);
 
 
@@ -107,7 +107,7 @@ void Viewer::draw()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glEnable(GL_DEPTH_TEST); // ensures that polygons overlap correctly
+    glEnable(GL_DEPTH_TEST); 
     //glDepthFunc(GL_LESS); 
 
     
@@ -143,17 +143,8 @@ QString Viewer::helpString() const
     QString text("<h2>S i m p l e V i e w e r</h2>");
     text += "Use the mouse to move the camera around the object. ";
     text += "You can respectively revolve around, zoom and translate with the three mouse buttons. ";
-    text += "Left and middle buttons pressed together rotate around the camera view direction axis<br><br>";
-    text += "Pressing <b>Alt</b> and one of the function keys (<b>F1</b>..<b>F12</b>) defines a camera keyFrame. ";
-    text += "Simply press the function key again to restore it. Several keyFrames define a ";
-    text += "camera path. Paths are saved when you quit the application and restored at next start.<br><br>";
-    text += "Press <b>F</b> to display the frame rate, <b>A</b> for the world axis, ";
-    text += "<b>Alt+Return</b> for full screen mode and <b>Control+S</b> to save a snapshot. ";
-    text += "See the <b>Keyboard</b> tab in this window for a complete shortcut list.<br><br>";
     text += "Double clicks automates single click actions: A left button double click aligns the closer axis with the camera (if close enough). ";
     text += "A middle button double click fits the zoom of the camera and the right button re-centers the scene.<br><br>";
-    text += "A left button double click while holding right button pressed defines the camera <i>Revolve Around Point</i>. ";
-    text += "See the <b>Mouse</b> tab and the documentation web pages for details.<br><br>";
     text += "Press <b>Escape</b> to exit the viewer.";
     return text;
 }

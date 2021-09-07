@@ -10,15 +10,14 @@ set(SRCS
 	src/viewer.cpp
 	src/window.cpp
 	src/drawablemesh.cpp
-	src/trimeshsoup.cpp
+	src/trimesh.cpp
     )
     
 set(HEADERS
 	src/viewer.h
 	src/window.h
-	src/mesh.h
 	src/drawablemesh.h
-	src/trimeshsoup.h
+	src/trimesh.h
 	src/QGLtoolkit/camera.h
 	src/QGLtoolkit/cameraFrame.h
 	src/QGLtoolkit/frame.h
