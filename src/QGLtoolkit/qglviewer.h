@@ -190,6 +190,12 @@ class QGLViewer : public QOpenGLWidget
             std::cout<<" --------------------- screenWidth_ = "<< width() <<" screenHeight_ "<< height() <<std::endl; // wrong here
             camera->setScreenWidthAndHeight(width(), height());
 
+            //// Disconnect current camera from this viewer.
+            //disconnect(this->camera()->frame(), SIGNAL(manipulated()), this, SLOT(update()));
+
+            //// Connect camera frame to this viewer.
+            //connect(camera->frame(), SIGNAL(manipulated()), SLOT(update()));
+
             camera_ = camera;
 
         }

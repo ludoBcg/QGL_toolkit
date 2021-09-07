@@ -110,8 +110,6 @@ class Frame : public QObject
         |                                                  GETTERS                                                    |
         +------------------------------------------------------------------------------------------------------------*/
 
-        // GETTERS
-
         /*!
         * \fn translation
         * \brief Returns the Frame translation.

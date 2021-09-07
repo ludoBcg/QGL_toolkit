@@ -116,8 +116,8 @@ void Viewer::draw()
 //this->camera()->center_ = this->sceneCenter();
     this->camera()->computeViewMatrix();
 
-    glm::mat4 mv = this->camera()->getViewMatrix();
-    glm::mat4 projection = this->camera()->getProjectionMatrix();
+    glm::mat4 mv = this->camera()->viewMatrix();
+    glm::mat4 projection = this->camera()->projectionMatrix();
     glm::mat4 mvp = projection * mv;
 
 

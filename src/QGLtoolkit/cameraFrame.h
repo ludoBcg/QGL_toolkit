@@ -37,29 +37,14 @@ namespace qgltoolkit
 
 /*!
 * \class CameraFrame
-* \brief A Frame that can be rotated and translated
-  using the mouse.
-  It converts the mouse motion into a translation and an orientation updates.
+* \brief A Frame that can be rotated and translated using the mouse.
+*  It converts the mouse motion into a translation and an orientation updates.
 *
- When the ManipulatedFrame is being manipulated using the mouse (mouse pressed
-  and not yet released), isManipulated() returns \c true. This might be used to
-  trigger a specific action or display (as is done with QGLViewer::fastDraw()).
-
-  The ManipulatedFrame also emits a manipulated() signal each time its state is
-  modified by the mouse. This signal is automatically connected to the
-  QGLViewer::update() slot when the ManipulatedFrame is attached to a viewer
-  using QGLViewer::setManipulatedFrame().
-
-    A ManipulatedCameraFrame is a specialization of a ManipulatedFrame, designed
-  to be set as the Camera::frame(). Mouse motions are basically interpreted in a
-  negated way: when the mouse goes to the right, the ManipulatedFrame
-  translation goes to the right, while the ManipulatedCameraFrame has to go to
-  the \e left, so that the \e scene seems to move to the right.
-
-  A ManipulatedCameraFrame rotates around its pivotPoint(), which corresponds to
-  the associated Camera::pivotPoint().
-
-
+* Emits a manipulated() signal each time its state is modified by the mouse. 
+* This signal is automatically connected to the QGLViewer::update() slot when the 
+* ManipulatedFrame is attached to a viewer using QGLViewer::setManipulatedFrame().
+*
+* A camera frame rotates around its pivotPoint(), which corresponds to the associated Camera::pivotPoint().
 */
 class CameraFrame : public qgltoolkit::Frame 
 {
@@ -159,22 +144,22 @@ class CameraFrame : public qgltoolkit::Frame
         * \fn operator=
         * \brief Equal operator.
         */
-        CameraFrame &operator=(const CameraFrame &mcf)
+        CameraFrame &operator=(const CameraFrame &_cf)
         {
-            Frame::operator=(mcf);
+            Frame::operator=(_cf);
 
-            setRotationSensitivity(mcf.rotationSensitivity());
-            setTranslationSensitivity(mcf.translationSensitivity());
-            setWheelSensitivity(mcf.wheelSensitivity());
-            setZoomSensitivity(mcf.zoomSensitivity());
+            setRotationSensitivity(_cf.rotationSensitivity());
+            setTranslationSensitivity(_cf.translationSensitivity());
+            setWheelSensitivity(_cf.wheelSensitivity());
+            setZoomSensitivity(_cf.zoomSensitivity());
 
             m_action = NO_MOUSE_ACTION;
 
-            setSceneUpVector(mcf.sceneUpVector());
-            setRotatesAroundUpVector(mcf.m_rotatesAroundUpVector);
-            setZoomsOnPivotPoint(mcf.m_zoomsOnPivotPoint);
+            setSceneUpVector(_cf.sceneUpVector());
+            setRotatesAroundUpVector(_cf.m_rotatesAroundUpVector);
+            setZoomsOnPivotPoint(_cf.m_zoomsOnPivotPoint);
 
-            setCamParam(mcf.m_screenWidth, mcf.m_screenHeight, mcf.m_fieldOfView, mcf.m_projType , mcf.m_sceneRadius, mcf.m_pivotPoint);
+            setCamParam(_cf.m_screenWidth, _cf.m_screenHeight, _cf.m_fieldOfView, _cf.m_projType , _cf.m_sceneRadius, _cf.m_pivotPoint);
 
             return *this;
         }
@@ -183,10 +168,10 @@ class CameraFrame : public qgltoolkit::Frame
         * \fn CameraFrame
         * \brief Copy constructor of CameraFrame.
         */
-        CameraFrame(const CameraFrame &mcf)
-        : Frame(mcf) 
+        CameraFrame(const CameraFrame &_cf)
+        : Frame(_cf) 
         {
-            (*this) = (mcf);
+            (*this) = (_cf);
         }
 
 
@@ -303,7 +288,7 @@ class CameraFrame : public qgltoolkit::Frame
 
 
         /*------------------------------------------------------------------------------------------------------------+
-        |                                      TRACKBALL / ZOOM TARNSFORMATIONS                                       |
+        |                                      TRACKBALL / ZOOM TRANSFORMATIONS                                       |
         +------------------------------------------------------------------------------------------------------------*/
 
         /*!
