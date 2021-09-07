@@ -124,7 +124,7 @@ class CameraFrame : public qgltoolkit::Frame
         * \brief Destructor of CameraFrame.
         */
         CameraFrame()
-        : m_sceneUpVector(0.0, 1.0, 0.0), m_rotatesAroundUpVector(false), m_zoomsOnPivotPoint(false) 
+        : m_sceneUpVector(0.0, 1.0, 0.0), m_rotatesAroundUpVector(false), m_zoomsOnPivotPoint(true) 
         {
             setRotationSensitivity(1.0f);
             setTranslationSensitivity(1.0f);
@@ -207,7 +207,7 @@ class CameraFrame : public qgltoolkit::Frame
         /*! \fn setZoomsOnPivotPoint
         * \brief Set zoomsOnPivotPoint flag.
         */
-        void setZoomsOnPivotPoint(bool enabled) { m_zoomsOnPivotPoint = enabled; }
+        void setZoomsOnPivotPoint(bool _enabled) { m_zoomsOnPivotPoint = _enabled; }
 
         /*! \fn sceneUpVector 
         * \brief Get up vector.

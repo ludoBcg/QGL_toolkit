@@ -34,10 +34,10 @@
 
 #include "camera.h"
 
-//class QTabWidget;
 
 
-namespace qgltoolkit {
+namespace qgltoolkit 
+{
 
     
 /*!
@@ -50,145 +50,104 @@ class QGLViewer : public QOpenGLWidget
 {
     Q_OBJECT
 
-    public:
 
- 
-    
 
     private :     
 
-        // M o u s e   a c t i o n s
-        //struct MouseActionPrivate 
-        //{
-        //    qgltoolkit::CameraFrame::MouseHandler handler;
-        //    qgltoolkit::CameraFrame::MouseAction action;
-        //    bool withConstraint;
-        //};
-
-        //// M o u s e   b i n d i n g s
-        //struct MouseBindingPrivate 
-        //{
-        //    const Qt::KeyboardModifiers modifiers;
-        //    const Qt::MouseButton button;
-        //    const Qt::Key key;
-
-        //    MouseBindingPrivate(Qt::KeyboardModifiers m, Qt::MouseButton b, Qt::Key k)
-        //    : modifiers(m), button(b), key(k) {}
-
-        //    // This sort order is used in mouseString() to display sorted mouse bindings
-        //    bool operator<(const MouseBindingPrivate &mbp) const 
-        //    {
-        //        if (key != mbp.key)
-        //            return key < mbp.key;
-        //        if (modifiers != mbp.modifiers)
-        //            return modifiers < mbp.modifiers;
-        //        return button < mbp.button;
-        //    }
-        //};
-
-        //// W h e e l   b i n d i n g s
-        //struct WheelBindingPrivate 
-        //{
-        //    const Qt::KeyboardModifiers modifiers;
-        //    const Qt::Key key;
-
-        //    WheelBindingPrivate(Qt::KeyboardModifiers m, Qt::Key k)
-        //    : modifiers(m), key(k) {}
-
-        //    // This sort order is used in mouseString() to display sorted wheel bindings
-        //    bool operator<(const WheelBindingPrivate &wbp) const 
-        //    {
-        //        if (key != wbp.key)
-        //            return key < wbp.key;
-        //        return modifiers < wbp.modifiers;
-        //    }
-        //};
-
-        //// C l i c k   b i n d i n g s
-        //struct ClickBindingPrivate 
-        //{
-        //    const Qt::KeyboardModifiers modifiers;
-        //    const Qt::MouseButton button;
-        //    const bool doubleClick;
-        //    const Qt::MouseButtons
-        //    buttonsBefore; // only defined when doubleClick is true
-        //    const Qt::Key key;
-
-        //    ClickBindingPrivate(Qt::KeyboardModifiers m, Qt::MouseButton b, bool dc, Qt::MouseButtons bb, Qt::Key k)
-        //    : modifiers(m), button(b), doubleClick(dc), buttonsBefore(bb), key(k) {}
-
-        //    // This sort order is used in mouseString() to display sorted mouse bindings
-        //    bool operator<(const ClickBindingPrivate &cbp) const 
-        //    {
-        //        if (key != cbp.key)
-        //            return key < cbp.key;
-        //        if (buttonsBefore != cbp.buttonsBefore)
-        //            return buttonsBefore < cbp.buttonsBefore;
-        //        if (modifiers != cbp.modifiers)
-        //            return modifiers < cbp.modifiers;
-        //        if (button != cbp.button)
-        //            return button < cbp.button;
-        //        return doubleClick != cbp.doubleClick;
-        //    }
-        //};
-
-        //QMap<MouseBindingPrivate, MouseActionPrivate> mouseBinding_;
-        //QMap<WheelBindingPrivate, MouseActionPrivate> wheelBinding_;
-        //QMap<ClickBindingPrivate, qgltoolkit::CameraFrame::ClickAction> clickBinding_;
-
-        Qt::Key currentlyPressedKey_;
-
-        // C a m e r a
-        qgltoolkit::Camera *camera_;
+     
+        qgltoolkit::Camera *m_camera;   /*!< window size in pixels */
 
 
 
     public:
   
-        // GETTERS ------------------------------------------------------------------
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                              GETTERS / SETTERS                                              |
+        +------------------------------------------------------------------------------------------------------------*/
 
-        qgltoolkit::Camera  *camera() const { return camera_; }
+        /*!
+        * \fn camera
+        * \brief Returns the camera.
+        */
+        qgltoolkit::Camera  *camera() const { return m_camera; }
+
+        /*!
+        * \fn sceneRadius
+        * \brief Returns the scene radius defined in the Camera.
+        */
         double sceneRadius() const { return camera()->sceneRadius(); }
+
+        /*!
+        * \fn sceneCenter
+        * \brief Returns the scene center defined in the Camera.
+        */
         glm::vec3 sceneCenter() const { return camera()->sceneCenter(); }
 
-
-
-        // SETTERS ------------------------------------------------------------------
-
-    public Q_SLOTS:
-
-        virtual void setSceneRadius(double radius) 
+        /*!
+        * \fn setSceneRadius
+        * \brief Set scene radius.
+        */
+        virtual void setSceneRadius(double _radius) 
         {
-            camera()->setSceneRadius(radius);
+            camera()->setSceneRadius(_radius);
         }
 
- 
-        virtual void setSceneCenter(const glm::vec3 &center) 
+        /*!
+        * \fn setSceneCenter
+        * \brief Set scene center.
+        */
+        virtual void setSceneCenter(const glm::vec3 &_center) 
         {
-            camera()->setSceneCenter(center);
+            camera()->setSceneCenter(_center);
         }
 
-  
-        void setSceneBoundingBox(const glm::vec3 &min, const glm::vec3 &max) 
+        /*!
+        * \fn setSceneBoundingBox
+        * \brief Set scene center and radius from bounding box.
+        * \param _min, _max: min amd max corners of the AABBox
+        */
+        void setSceneBoundingBox(const glm::vec3 &_min, const glm::vec3 &_max) 
         {
-            camera()->setSceneBoundingBox(min, max);
+            camera()->setSceneBoundingBox(_min, _max);
             
         }
 
 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                    MISC.                                                    |
+        +------------------------------------------------------------------------------------------------------------*/
+
+
+        virtual void help() {}
+
+        virtual void aboutQGLViewer() {}
+
+        /*!
+        * \fn showEntireScene
+        * \brief Move camera to show entire scene.
+        */
+        void showEntireScene() 
+        {
+            camera()->showEntireScene();
+            this->update();
+        }
+
 
     private:
 
-
-        void setCamera(qgltoolkit::Camera  *const camera) 
+        /*!
+        * \fn setCamera
+        * \brief Set a new camera.
+        */
+        void setCamera(qgltoolkit::Camera  *const _camera) 
         {
-            if (!camera)
+            if (!_camera)
                 return;
 
-            camera->setSceneRadius(this->sceneRadius());
-            camera->setSceneCenter(this->sceneCenter());
+            _camera->setSceneRadius(this->sceneRadius());
+            _camera->setSceneCenter(this->sceneCenter());
             std::cout<<" --------------------- screenWidth_ = "<< width() <<" screenHeight_ "<< height() <<std::endl; // wrong here
-            camera->setScreenWidthAndHeight(width(), height());
+            _camera->setScreenWidthAndHeight(width(), height());
 
             //// Disconnect current camera from this viewer.
             //disconnect(this->camera()->frame(), SIGNAL(manipulated()), this, SLOT(update()));
@@ -196,20 +155,24 @@ class QGLViewer : public QOpenGLWidget
             //// Connect camera frame to this viewer.
             //connect(camera->frame(), SIGNAL(manipulated()), SLOT(update()));
 
-            camera_ = camera;
+            m_camera = _camera;
 
         }
 
 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                 CONSTRUCTORS                                                |
+        +------------------------------------------------------------------------------------------------------------*/
 
-        // CONSTRUCTORS ------------------------------------------------------------------
-
-        // Set parameters to their default values. Called by the constructors.
+        /*!
+        * \fn defaultConstructor
+        * \brief Set parameters to their default values. Called by the constructors.
+        */
         void defaultConstructor() 
         { 
             setFocusPolicy(Qt::StrongFocus); 
 
-            camera_ = new qgltoolkit::Camera();
+            m_camera = new qgltoolkit::Camera();
             this->setSceneRadius(1.0);
             this->setSceneCenter( glm::vec3(0.0f) );
             showEntireScene();
@@ -221,71 +184,72 @@ class QGLViewer : public QOpenGLWidget
 
     public:
 
-        explicit QGLViewer(QWidget *parent = 0, Qt::WindowFlags flags = Qt::WindowFlags())
-        : QOpenGLWidget(parent, flags) 
+        /*!
+        * \fn QGLViewer
+        * \brief 
+        */
+        explicit QGLViewer(QWidget *_parent = 0, Qt::WindowFlags _flags = Qt::WindowFlags())
+        : QOpenGLWidget(_parent, _flags) 
         {
             defaultConstructor();
         }
 
-        explicit QGLViewer(QWidget *parent, const QGLWidget *shareWidget, Qt::WindowFlags flags = 0)
-        : QOpenGLWidget(parent, flags) 
+        /*!
+        * \fn QGLViewer
+        * \brief 
+        */
+        explicit QGLViewer(QWidget *_parent, const QGLWidget *_shareWidget, Qt::WindowFlags _flags = 0)
+        : QOpenGLWidget(_parent, _flags) 
         {
-            Q_UNUSED(shareWidget);
+            Q_UNUSED(_shareWidget);
             defaultConstructor();
         }
 
-        explicit QGLViewer(QGLContext *context, QWidget *parent = 0, const QGLWidget *shareWidget = 0, Qt::WindowFlags flags = 0)
-        : QOpenGLWidget(parent, flags) 
+        /*!
+        * \fn QGLViewer
+        * \brief 
+        */
+        explicit QGLViewer(QGLContext *_context, QWidget *_parent = 0, const QGLWidget *_shareWidget = 0, Qt::WindowFlags _flags = 0)
+        : QOpenGLWidget(_parent, _flags) 
         {
-            Q_UNUSED(context);
-            Q_UNUSED(shareWidget);
+            Q_UNUSED(_context);
+            Q_UNUSED(_shareWidget);
             defaultConstructor();
         }
 
-
-        explicit QGLViewer(const QGLFormat &format, QWidget *parent = 0, const QGLWidget *shareWidget = 0, Qt::WindowFlags flags = 0)
-        : QOpenGLWidget(parent, flags)
+        /*!
+        * \fn QGLViewer
+        * \brief 
+        */
+        explicit QGLViewer(const QGLFormat &_format, QWidget *_parent = 0, const QGLWidget *_shareWidget = 0, Qt::WindowFlags _flags = 0)
+        : QOpenGLWidget(_parent, _flags)
         {
-            Q_UNUSED(format);
-            Q_UNUSED(shareWidget);
+            Q_UNUSED(_format);
+            Q_UNUSED(_shareWidget);
             defaultConstructor();
         }
 
-
+        /*!
+        * \fn ~QGLViewer
+        * \brief QGLViewer destructor
+        */
         virtual ~QGLViewer(){}
-
-
-             
-
-      
-        // RENDER ------------------------------------------------------------------
-   
-    public:
-
-        //virtual void update() {}
-
-
-    public Q_SLOTS:
-
-        virtual void resize(int width, int height) {}
-        virtual void help() {}
-        virtual void aboutQGLViewer() {}
-
-        void showEntireScene() 
-        {
-            camera()->showEntireScene();
-            this->update();
-        }
-
+    
 
     protected:
 
-        virtual void resizeGL(int width, int height) 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                    MISC.                                                    |
+        +------------------------------------------------------------------------------------------------------------*/
+
+        virtual void resize(int _width, int _height) {}
+
+        virtual void resizeGL(int _width, int _height) 
         {
-            QOpenGLWidget::resizeGL(width, height);
+            QOpenGLWidget::resizeGL(_width, _height);
             std::cout<<" screenWidth_ = "<< this->width() <<" screenHeight_ "<< this->height() <<std::endl;
-            glViewport(0, 0, GLint(width), GLint(height));
-            camera()->setScreenWidthAndHeight(width, height);
+            glViewport(0, 0, GLint(_width), GLint(_height));
+            camera()->setScreenWidthAndHeight(_width, _height);
         }
 
         virtual void init() {}
@@ -298,34 +262,14 @@ class QGLViewer : public QOpenGLWidget
         virtual void paintGL() { draw(); }
 
 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                    EVENTS                                                   |
+        +------------------------------------------------------------------------------------------------------------*/
 
-        // EVENTS ------------------------------------------------------------------
- 
-    protected:
-
-        //virtual void mousePressEvent(QMouseEvent * _e)
-        //{
-        //    const MouseBindingPrivate mbp(_e->modifiers(), _e->button(), currentlyPressedKey_);
-
-        //    MouseActionPrivate map = mouseBinding_[mbp];
-
-        //    map.handler =  qgltoolkit::CameraFrame::MouseHandler::CAMERA;
-        //    if( _e->button()  == Qt::RightButton)
-        //        map.action = qgltoolkit::CameraFrame::MouseAction::TRANSLATE;
-        //    else if( _e->button()  == Qt::LeftButton)
-        //        map.action = qgltoolkit::CameraFrame::MouseAction::ROTATE;
-        //    else if( _e->button()  == Qt::MiddleButton)
-        //        map.action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
-        //    map.withConstraint = true;
-
-        //    camera()->frame()->startAction(map.action, map.withConstraint);
-        //    camera()->frame()->mousePressEvent(_e/*, camera()*/ );
-
-        //    update();
-
-        //}
-
-
+        /*!
+        * \fn mousePressEvent
+        * \brief Event handler for mouse button pressed.
+        */
         virtual void mousePressEvent(QMouseEvent * _e)
         {
             qgltoolkit::CameraFrame::MouseAction action;
@@ -344,8 +288,10 @@ class QGLViewer : public QOpenGLWidget
 
         }
 
-
-
+        /*!
+        * \fn mouseMoveEvent
+        * \brief Event handler for mouse movement.
+        */
         virtual void mouseMoveEvent(QMouseEvent *_e)
         {
 
@@ -357,40 +303,29 @@ class QGLViewer : public QOpenGLWidget
             this->update();
         }
 
-
-
+        /*!
+        * \fn mouseReleaseEvent
+        * \brief Event handler for mouse button released.
+        */
         virtual void mouseReleaseEvent(QMouseEvent *_e){ _e->ignore(); }
+
+        /*!
+        * \fn mouseDoubleClickEvent
+        * \brief Event handler for mouse button double click.
+        */
         virtual void mouseDoubleClickEvent(QMouseEvent *_e)
         { 
             //_e->ignore(); 
-            camera()->frame()->mouseDoubleClickEvent(_e/*, camera()*/, camera()->position(), camera()->viewDirection(), camera()->pivotPoint() , camera()->sceneCenter() );
+            camera()->frame()->mouseDoubleClickEvent(_e, camera()->position(), camera()->viewDirection(), camera()->pivotPoint() , camera()->sceneCenter() );
             this->update();
         }
 
-        //virtual void wheelEvent(QWheelEvent *_e)
-        //{
-        //    WheelBindingPrivate wbp(_e->modifiers(), currentlyPressedKey_);
-
-        //    MouseActionPrivate map = wheelBinding_[wbp];
-
-        //    map.handler =  qgltoolkit::CameraFrame::MouseHandler::CAMERA;
-        //    map.action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
-        //    map.withConstraint = true;
-
-
-        //    camera()->frame()->startAction(map.action, map.withConstraint);
-        //    camera()->frame()->wheelEvent(_e,  camera()->frame()->coordinatesOf(camera()->pivotPoint())  );
-   
-        //    this->update();
-        //}
-
+        /*!
+        * \fn wheelEvent
+        * \brief Event handler for mouse wheel rolled.
+        */
         virtual void wheelEvent(QWheelEvent *_e)
         {
-            //WheelBindingPrivate wbp(_e->modifiers(), currentlyPressedKey_);
-
-            //MouseActionPrivate map = wheelBinding_[wbp];
-
-            //map.handler =  qgltoolkit::CameraFrame::MouseHandler::CAMERA;
             qgltoolkit::CameraFrame::MouseAction action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
 
             camera()->frame()->startAction(action);
@@ -399,19 +334,36 @@ class QGLViewer : public QOpenGLWidget
             this->update();
         }
 
-
+        /*!
+        * \fn keyPressEvent
+        * \brief Event handler for keyboard key pressed.
+        */
         virtual void keyPressEvent(QKeyEvent *_e)
         {
             std::cout<<"pressed Key"<<std::endl;
         }
 
+        /*!
+        * \fn keyPressEvent
+        * \brief Event handler for keyboard key released.
+        */
         virtual void keyReleaseEvent(QKeyEvent *_e){ _e->ignore(); }
+
+        /*!
+        * \fn timerEvent
+        * \brief Event handler for timer.
+        */
         virtual void timerEvent(QTimerEvent *_e){ _e->ignore(); }
+
+        /*!
+        * \fn closeEvent
+        * \brief Event handler for window closed.
+        */
         virtual void closeEvent(QCloseEvent *_e){ _e->ignore(); }
   
 
-
     private:
+
         // Copy constructor and operator= are declared private and undefined
         // Prevents everyone from trying to use them
         QGLViewer(const QGLViewer &v);
