@@ -226,48 +226,48 @@ glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 +
 
 
 
-        glm::vec3 projectedCoordinatesOf(const glm::vec3 &src, const Frame *frame) const 
-        {
-            double x, y, z;
-            /*static GLint viewport[4];
-            getViewport(viewport);
+        //glm::vec3 projectedCoordinatesOf(const glm::vec3 &src, const Frame *frame) const 
+        //{
+        //    double x, y, z;
+        //    /*static GLint viewport[4];
+        //    getViewport(viewport);
 
-            if (frame) 
-            {
-                const Vec tmp = frame->inverseCoordinatesOf(src);
-                gluProject(tmp.x, tmp.y, tmp.z, modelViewMatrix_, projectionMatrix_, viewport, &x, &y, &z);
-            } 
-            else
-                gluProject(src.x, src.y, src.z, modelViewMatrix_, projectionMatrix_, viewport, &x, &y, &z);*/
+        //    if (frame) 
+        //    {
+        //        const Vec tmp = frame->inverseCoordinatesOf(src);
+        //        gluProject(tmp.x, tmp.y, tmp.z, modelViewMatrix_, projectionMatrix_, viewport, &x, &y, &z);
+        //    } 
+        //    else
+        //        gluProject(src.x, src.y, src.z, modelViewMatrix_, projectionMatrix_, viewport, &x, &y, &z);*/
 
-            return glm::vec3(x, y, z);
-        }
+        //    return glm::vec3(x, y, z);
+        //}
 
-        glm::vec3 unprojectedCoordinatesOf(const glm::vec3 &src, const Frame *frame) const 
-        {
-            double x, y, z;
-            /*static GLint viewport[4];
-            getViewport(viewport);
-            gluUnProject(src.x, src.y, src.z, modelViewMatrix_, projectionMatrix_, viewport, &x, &y, &z);
-            if (frame)
-                return frame->coordinatesOf(Vec(x, y, z));
-            else*/
-                return glm::vec3(x, y, z);
-        }
+        //glm::vec3 unprojectedCoordinatesOf(const glm::vec3 &src, const Frame *frame) const 
+        //{
+        //    double x, y, z;
+        //    /*static GLint viewport[4];
+        //    getViewport(viewport);
+        //    gluUnProject(src.x, src.y, src.z, modelViewMatrix_, projectionMatrix_, viewport, &x, &y, &z);
+        //    if (frame)
+        //        return frame->coordinatesOf(Vec(x, y, z));
+        //    else*/
+        //        return glm::vec3(x, y, z);
+        //}
 
-        void getProjectedCoordinatesOf(const glm::vec3 src, glm::vec3 &res, const Frame *frame) const 
-        {
-            glm::vec3 r = projectedCoordinatesOf(glm::vec3(src), frame);
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
+        //void getProjectedCoordinatesOf(const glm::vec3 src, glm::vec3 &res, const Frame *frame) const 
+        //{
+        //    glm::vec3 r = projectedCoordinatesOf(glm::vec3(src), frame);
+        //    for (int i = 0; i < 3; ++i)
+        //        res[i] = r[i];
+        //}
 
-        void getUnprojectedCoordinatesOf(const glm::vec3 src, glm::vec3 &res, const Frame *frame) const 
-        {
-            glm::vec3 r = unprojectedCoordinatesOf(glm::vec3(src), frame);
-            for (int i = 0; i < 3; ++i)
-                res[i] = r[i];
-        }
+        //void getUnprojectedCoordinatesOf(const glm::vec3 src, glm::vec3 &res, const Frame *frame) const 
+        //{
+        //    glm::vec3 r = unprojectedCoordinatesOf(glm::vec3(src), frame);
+        //    for (int i = 0; i < 3; ++i)
+        //        res[i] = r[i];
+        //}
 
 
         void mouseMoveEvent(QMouseEvent *const event)

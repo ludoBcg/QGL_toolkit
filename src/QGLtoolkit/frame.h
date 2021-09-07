@@ -30,7 +30,7 @@ namespace qgltoolkit
 
 /*!
 * \class Frame
-* \brief a coordinate system, defined by a position and an orientation.
+* \brief A coordinate system, defined by a position and an orientation.
 *
 * A Frame is a 3D coordinate system, represented by a position() and an
 * orientation(). The order of these transformations is important: 
@@ -85,10 +85,23 @@ class Frame : public QObject
         Frame(const glm::vec3 &_position, const Quaternion &_orientation)
         : m_t(_position), m_q(_orientation)
         {}
+                
+        /*!
+        * \fn operator=
+        * \brief Equal operator.
+        */
+        Frame &operator=(const Frame &frame)
+        {
+            // Automatic compiler generated version would not emit the modified() signals
+            // as is done in setTranslationAndRotation.
+            setTranslationAndRotation(frame.translation(), frame.rotation());
+
+            return *this;
+        }
 
         /*!
         * \fn Frame
-        * \brief Copy constructor of Quaternion.
+        * \brief Copy constructor of Frame.
         */
         Frame(const Frame &_frame) : QObject() { (*this) = _frame; }
 
@@ -322,24 +335,6 @@ class Frame : public QObject
         //    }
         //    setTranslationAndRotationWithConstraint(position, orientation);
         //}
-
-
-        /*------------------------------------------------------------------------------------------------------------+
-        |                                                 OPERATORS                                                   |
-        +------------------------------------------------------------------------------------------------------------*/
-
-        /*!
-        * \fn operator=
-        * \brief Equal operator.
-        */
-        Frame &operator=(const Frame &frame)
-        {
-            // Automatic compiler generated version would not emit the modified() signals
-            // as is done in setTranslationAndRotation.
-            setTranslationAndRotation(frame.translation(), frame.rotation());
-
-            return *this;
-        }
 
 
         /*------------------------------------------------------------------------------------------------------------+

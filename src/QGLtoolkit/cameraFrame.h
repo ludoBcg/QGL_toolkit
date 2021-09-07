@@ -35,139 +35,111 @@ namespace qgltoolkit
 {
 
 
-        
-class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
-{
+/*!
+* \class CameraFrame
+* \brief A Frame that can be rotated and translated
+  using the mouse.
+  It converts the mouse motion into a translation and an orientation updates.
+*
+ When the ManipulatedFrame is being manipulated using the mouse (mouse pressed
+  and not yet released), isManipulated() returns \c true. This might be used to
+  trigger a specific action or display (as is done with QGLViewer::fastDraw()).
 
-    //friend class Camera;
-    //friend class ::QGLViewer;
+  The ManipulatedFrame also emits a manipulated() signal each time its state is
+  modified by the mouse. This signal is automatically connected to the
+  QGLViewer::update() slot when the ManipulatedFrame is attached to a viewer
+  using QGLViewer::setManipulatedFrame().
+
+    A ManipulatedCameraFrame is a specialization of a ManipulatedFrame, designed
+  to be set as the Camera::frame(). Mouse motions are basically interpreted in a
+  negated way: when the mouse goes to the right, the ManipulatedFrame
+  translation goes to the right, while the ManipulatedCameraFrame has to go to
+  the \e left, so that the \e scene seems to move to the right.
+
+  A ManipulatedCameraFrame rotates around its pivotPoint(), which corresponds to
+  the associated Camera::pivotPoint().
+
+
+*/
+class CameraFrame : public qgltoolkit::Frame 
+{
 
     Q_OBJECT
 
 
     public:
+
+        // Camera projection type
         enum ProjectionType { PERSPECTIVE, ORTHOGRAPHIC };
 
-         /*enum KeyboardAction {
-            DRAW_AXIS,
-            DRAW_GRID,
-            DISPLAY_FPS,
-            ENABLE_TEXT,
-            EXIT_VIEWER,
-            SAVE_SCREENSHOT,
-            CAMERA_MODE,
-            FULL_SCREEN,
-            STEREO,
-            ANIMATION,
-            HELP,
-            EDIT_CAMERA,
-            MOVE_CAMERA_LEFT,
-            MOVE_CAMERA_RIGHT,
-            MOVE_CAMERA_UP,
-            MOVE_CAMERA_DOWN,
-            INCREASE_FLYSPEED,
-            DECREASE_FLYSPEED,
-            SNAPSHOT_TO_CLIPBOARD
-            };
-
-        enum MouseHandler { CAMERA, FRAME };
-
-
-        enum ClickAction {
-            NO_CLICK_ACTION,
-            ZOOM_ON_PIXEL,
-            ZOOM_TO_FIT,
-            SELECT,
-            RAP_FROM_PIXEL,
-            RAP_IS_CENTER,
-            CENTER_FRAME,
-            CENTER_SCENE,
-            SHOW_ENTIRE_SCENE,
-            ALIGN_FRAME,
-            ALIGN_CAMERA
-            };
-            */
-
+        // Mouse actions
         enum MouseAction {
             NO_MOUSE_ACTION,
             ROTATE,
             ZOOM,
-            TRANSLATE//,
-//            MOVE_FORWARD,
-//            LOOK_AROUND,
-//            MOVE_BACKWARD,
-//            SCREEN_ROTATE,
-//            ROLL,
-//            DRIVE,
-//            SCREEN_TRANSLATE,
-//            ZOOM_ON_REGION
+            TRANSLATE
             };
 
 
     private:
 
-        bool grabsMouse_;
+        // interactions sensitivity
+        double m_rotationSensitivity;       /*!< rotation sensitivity factor */
+        double m_translationSensitivity;    /*!< translation sensitivity factor */
+        double m_wheelSensitivity;          /*!< wheel sensitivity factor */
+        double m_zoomSensitivity;           /*!< zoom sensitivity factor */
 
-        // Sensitivity
-        double rotationSensitivity_;
-        double translationSensitivity_;
-        double spinningSensitivity_;
-        double wheelSensitivity_;
-        double zoomSensitivity_;
+        // flags
+        bool m_rotatesAroundUpVector;       /*!< rotates around pivot point if false (defaulf behavior) */
+        bool m_zoomsOnPivotPoint;           /*!< zoom on pivot point if true (defaulf behavior) */
 
-        // Mouse speed 
-        QTime last_move_time;
-        double mouseSpeed_;
-        int delay_;
+        // scene parameters
+        glm::vec3 m_sceneUpVector;          /*!< up direction vector */
+        glm::vec3 m_pivotPoint;             /*!< pivot point coords */
+        double m_sceneRadius;               /*!< scene radius */
 
-        bool dirIsFixed_;
-
-        // MouseGrabber
-        bool keepsGrabbingMouse_;
-
-
-
-        glm::vec3 sceneUpVector_;
-
-        bool rotatesAroundUpVector_;
-
-        bool constrainedRotationIsReversed_;
-
-        bool zoomsOnPivotPoint_;
-
-        glm::vec3 pivotPoint_;
-
+        // camera parameters
+        int m_screenWidth, m_screenHeight;  /*!< windows dims (in pixels) */
+        double m_fieldOfView;               /*!< fov angle (in radians) */
+        ProjectionType m_projType;          /*!< camera projection type */
         
-        // C a m e r a   p a r a m e t e r s
-        int screenWidth_, screenHeight_; // size of the window, in pixels
-        double fieldOfView_;              // in radians
-        ProjectionType projType_; 
-        double sceneRadius_;
+        // UI event
+        MouseAction m_action;               /*!< mouse action type */
+        QPoint m_prevPos;                   /*!< previous mouse cursor position */
 
-        
-
-
-    protected:
-            
-        /*QGLViewer::*/MouseAction action_;
-//        Constraint *previousConstraint_; 
-        QPoint prevPos_, pressPos_;
 
     public:
 
-        void setCamParam(int screenWidth, int  screenHeight, double fov, ProjectionType projType, double sceneRadius, glm::vec3 pivotPoint)
+
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                            CONSTRUCTORS/ SETTERS                                            |
+        +------------------------------------------------------------------------------------------------------------*/
+
+        /*!
+        * \fn setCamParam
+        * \brief Set up camera parameters.
+        * \param _screenWidth, m_screenHeight: windows dims (in pixels)
+        * \param _fov: fov angle (in radians)
+        * \param _projType: camera projection type
+        * \param _sceneRadius: scene radius
+        * \param _pivotPoint: pivot point coords
+        */
+        void setCamParam(int _screenWidth, int  _screenHeight, double _fov, ProjectionType _projType, double _sceneRadius, glm::vec3 _pivotPoint)
         { 
-            screenWidth_ = screenWidth;  
-            screenHeight_ = screenHeight;  
-            fieldOfView_ = fov;
-            projType_ = projType;
-            sceneRadius_ = sceneRadius;
-            pivotPoint_ = pivotPoint;
+            m_screenWidth = _screenWidth;  
+            m_screenHeight = _screenHeight;  
+            m_fieldOfView = _fov;
+            m_projType = _projType;
+            m_sceneRadius = _sceneRadius;
+            m_pivotPoint = _pivotPoint;
         }
 
-
+        /*!
+        * \fn CameraFrame
+        * \brief Destructor of CameraFrame.
+        */
         CameraFrame()
-        : sceneUpVector_(0.0, 1.0, 0.0), rotatesAroundUpVector_(false), zoomsOnPivotPoint_(false) 
+        : m_sceneUpVector(0.0, 1.0, 0.0), m_rotatesAroundUpVector(false), m_zoomsOnPivotPoint(false) 
         {
             setRotationSensitivity(1.0f);
             setTranslationSensitivity(1.0f);
@@ -175,13 +147,18 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
             setZoomSensitivity(1.0f);
 
             setCamParam(0, 0, 0, PERSPECTIVE, 0, glm::vec3(0.0) );
-
-//            previousConstraint_ = nullptr;
-            grabsMouse_ = false;
         }
 
+        /*!
+        * \fn ~CameraFrame
+        * \brief Destructor of CameraFrame.
+        */
         virtual ~CameraFrame() {}
 
+        /*!
+        * \fn operator=
+        * \brief Equal operator.
+        */
         CameraFrame &operator=(const CameraFrame &mcf)
         {
             Frame::operator=(mcf);
@@ -191,131 +168,176 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
             setWheelSensitivity(mcf.wheelSensitivity());
             setZoomSensitivity(mcf.zoomSensitivity());
 
-            mouseSpeed_ = 0.0f;
-            dirIsFixed_ = false;
-            keepsGrabbingMouse_ = false;
-            action_ = /*QGLViewer::*/NO_MOUSE_ACTION;
+            m_action = NO_MOUSE_ACTION;
 
             setSceneUpVector(mcf.sceneUpVector());
-            setRotatesAroundUpVector(mcf.rotatesAroundUpVector_);
-            setZoomsOnPivotPoint(mcf.zoomsOnPivotPoint_);
+            setRotatesAroundUpVector(mcf.m_rotatesAroundUpVector);
+            setZoomsOnPivotPoint(mcf.m_zoomsOnPivotPoint);
 
-            setCamParam(mcf.screenWidth_, mcf.screenHeight_, mcf.fieldOfView_, mcf.projType_ , mcf.sceneRadius_, mcf.pivotPoint_);
-            grabsMouse_ = mcf.grabsMouse_;
+            setCamParam(mcf.m_screenWidth, mcf.m_screenHeight, mcf.m_fieldOfView, mcf.m_projType , mcf.m_sceneRadius, mcf.m_pivotPoint);
 
             return *this;
         }
 
-
+        /*!
+        * \fn CameraFrame
+        * \brief Copy constructor of CameraFrame.
+        */
         CameraFrame(const CameraFrame &mcf)
         : Frame(mcf) 
         {
-           
             (*this) = (mcf);
         }
 
 
-        bool grabsMouse() const { return grabsMouse_; }
-        void setGrabsMouse(bool grabs) { grabsMouse_ = grabs; }
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                             GETTERS / SETTERS                                               |
+        +------------------------------------------------------------------------------------------------------------*/
 
-        glm::vec3 pivotPoint() const { return pivotPoint_; }
+        /*! \fn pivotPoint 
+        * \brief Get pivot point.
+        */
+        glm::vec3 pivotPoint() const { return m_pivotPoint; }
 
-        void setPivotPoint(const glm::vec3 &point) { pivotPoint_ = point; }
+        /*! \fn setPivotPoint 
+        * \brief Set pivot point.
+        */
+        void setPivotPoint(const glm::vec3 &point) { m_pivotPoint = point; }
 
+        /*! \fn rotatesAroundUpVector 
+        * \brief Get rotatesAroundUpVector flag.
+        */
+        bool rotatesAroundUpVector() const { return m_rotatesAroundUpVector; }
 
-        bool rotatesAroundUpVector() const { return rotatesAroundUpVector_; }
+        /*! \fn setRotatesAroundUpVector
+        * \brief Set rotatesAroundUpVector flag.
+        */
+        void setRotatesAroundUpVector(bool constrained) { m_rotatesAroundUpVector = constrained; }
 
-        void setRotatesAroundUpVector(bool constrained) { rotatesAroundUpVector_ = constrained; }
+        /*! \fn zoomsOnPivotPoint 
+        * \brief Get zoomsOnPivotPoint flag.
+        */
+        bool zoomsOnPivotPoint() const { return m_zoomsOnPivotPoint; }
 
+        /*! \fn setZoomsOnPivotPoint
+        * \brief Set zoomsOnPivotPoint flag.
+        */
+        void setZoomsOnPivotPoint(bool enabled) { m_zoomsOnPivotPoint = enabled; }
+
+        /*! \fn sceneUpVector 
+        * \brief Get up vector.
+        */
+        glm::vec3 sceneUpVector() const { return m_sceneUpVector; }
+
+        /*! \fn setSceneUpVector
+        * \brief Set up vector.
+        */
+        void setSceneUpVector(const glm::vec3 &up) { m_sceneUpVector = up; }
+
+        /*! \fn rotationSensitivity 
+        * \brief Get rotation sensitivity.
+        */
+        double rotationSensitivity() const { return m_rotationSensitivity; }
+
+        /*! \fn setRotationSensitivity
+        * \brief Set rotation sensitivity.
+        */
+        void setRotationSensitivity(double sensitivity) { m_rotationSensitivity = sensitivity; }
  
-        bool zoomsOnPivotPoint() const { return zoomsOnPivotPoint_; }
+        /*! \fn translationSensitivity 
+        * \brief Get translation sensitivity.
+        */
+        double translationSensitivity() const { return m_translationSensitivity; }
 
-        void setZoomsOnPivotPoint(bool enabled) { zoomsOnPivotPoint_ = enabled; }
+        /*! \fn setTranslationSensitivity
+        * \brief Set translation sensitivity.
+        */
+        void setTranslationSensitivity(double sensitivity) { m_translationSensitivity = sensitivity; }
+  
+        /*! \fn zoomSensitivity 
+        * \brief Get zoom sensitivity.
+        */
+        double zoomSensitivity() const { return m_zoomSensitivity; }
 
+        /*! \fn setZoomSensitivity
+        * \brief Set zoom sensitivity.
+        */
+        void setZoomSensitivity(double sensitivity) { m_zoomSensitivity = sensitivity; }
+  
+        /*! \fn wheelSensitivity 
+        * \brief Get wheel sensitivity.
+        */
+        double wheelSensitivity() const { return m_wheelSensitivity; }
 
-        glm::vec3 sceneUpVector() const { return sceneUpVector_; }
+        /*! \fn setWheelSensitivity
+        * \brief Set wheel sensitivity.
+        */
+        void setWheelSensitivity(double sensitivity) { m_wheelSensitivity = sensitivity; }
 
-        double rotationSensitivity() const { return rotationSensitivity_; }
+        /*! \fn currentMouseAction 
+        * \brief Get mouse action.
+        */
+        MouseAction currentMouseAction() const { return m_action; }
+
+        /*! \fn isManipulated 
+        * \brief Returns true if camera frame is being manupilated.
+        */
+        bool isManipulated() const { return m_action != NO_MOUSE_ACTION; }
  
-        double translationSensitivity() const { return translationSensitivity_; }
-  
-        double zoomSensitivity() const { return zoomSensitivity_; }
-  
-        double wheelSensitivity() const { return wheelSensitivity_; }
-
-
-        bool isManipulated() const { return action_ != /*QGLViewer::*/NO_MOUSE_ACTION; }
- 
-        /*QGLViewer::*/MouseAction currentMouseAction() const { return action_; }
-  
-        virtual void checkIfGrabsMouse(int x, int y, /*const Camera *const camera,*/ glm::vec3 projPos)
-        {
-            const int thresold = 10;
-            const glm::vec3 proj = projPos/*camera->projectedCoordinatesOf(position())*/;
-            setGrabsMouse(keepsGrabbingMouse_ || ((fabs(x - proj.x) < thresold) && (fabs(y - proj.y) < thresold)));
-        }
-
-    Q_SIGNALS:
-  
-        void manipulated();
-
-
-    public Q_SLOTS:
-
-        void setRotationSensitivity(double sensitivity) { rotationSensitivity_ = sensitivity; }
-
-        void setTranslationSensitivity(double sensitivity) { translationSensitivity_ = sensitivity; }
-
-        void setWheelSensitivity(double sensitivity) { wheelSensitivity_ = sensitivity; }
-
-        void setZoomSensitivity(double sensitivity) { zoomSensitivity_ = sensitivity; }
-
-        void setSceneUpVector(const glm::vec3 &up) { sceneUpVector_ = up; }
 
         void updateSceneUpVector()
         {
-            sceneUpVector_ = inverseTransformOf( glm::vec3(0.0, 1.0, 0.0) );
+            m_sceneUpVector = inverseTransformOf( glm::vec3(0.0, 1.0, 0.0) );
         }
+
+
+    Q_SIGNALS:
+  
+        /*! \fn manipulated 
+        * \brief Signal when camera frame is being manipulated.
+        */
+        void manipulated();
+
 
     private:
 
-        void zoom(double delta, /*const Camera *const camera*/ glm::vec3 CamCoordPivot)
+
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                      TRACKBALL / ZOOM TARNSFORMATIONS                                       |
+        +------------------------------------------------------------------------------------------------------------*/
+
+        /*!
+        * \fn zoom
+        * \brief Translates camera according to zoom delta
+        * \param 
+        */
+        void zoom(double _delta, glm::vec3 _camCoordPivot)
         {
-            const float sceneRadius = /*camera->sceneRadius()*/ sceneRadius_;
-            //if (zoomsOnPivotPoint_) 
+            const float sceneRadius = m_sceneRadius;
+            if ( m_zoomsOnPivotPoint ) 
             {
-                glm::vec3 direction = position() - /*camera->pivotPoint()*/pivotPoint_;
-                if ( ( glm::length(direction) > 0.1 * sceneRadius || delta > 0.0)  && ( glm::length(direction) < 10.0 * sceneRadius || delta < 0.0) )
-                    translate( (float)delta * direction);
+                glm::vec3 direction = position() - m_pivotPoint;
+                if ( ( glm::length(direction) > 0.1 * sceneRadius || _delta > 0.0)  && ( glm::length(direction) < 10.0 * sceneRadius || _delta < 0.0) )
+                    translate( (float)_delta * direction);
             } 
-            //else 
-            //{std::cout<<"zoom not on  pivot" << std::endl;
-            //    const float coef = std::max( std::abs(   /*(camera->frame()->coordinatesOf(camera->pivotPoint()))*/CamCoordPivot.z), 0.2f * sceneRadius);
-            //    glm::vec3 trans(0.0, 0.0, -coef * delta);
-            //    translate(inverseTransformOf(trans));
-            //}
+            else 
+            {std::cout<<"zoom not on  pivot" << std::endl;
+                const float coef = std::max( std::abs( _camCoordPivot.z), 0.2f * sceneRadius);
+                glm::vec3 trans(0.0, 0.0, -coef * _delta);
+                translate(inverseTransformOf(trans));
+            }
         }
 
-
-        //Quaternion turnQuaternion(int x/*, const Camera *const camera*/)
-        //{
-        //    return Quaternion( glm::vec3(0.0, 1.0, 0.0), rotationSensitivity() * (prevPos_.x() - x) / screenWidth_/*camera->screenWidth()*/);
-        //}
-
-
-        //Quaternion pitchYawQuaternion(int x, int y/*, const Camera *const camera*/)
-        //{
-        //    const Quaternion rotX( glm::vec3(1.0, 0.0, 0.0), rotationSensitivity() * (prevPos_.y() - y) / screenHeight_ /*camera->screenHeight()*/);
-        //    const Quaternion rotY(transformOf(sceneUpVector()), rotationSensitivity() * (prevPos_.x() - x) / screenWidth_ /*camera->screenWidth()*/);
-        //    return rotY * rotX;
-        //}
-        //
-
-
-    protected:
-
-
-        static double projectOnBall(double x, double y) 
+        /*!
+        * \fn projectOnBall
+        * \brief Returns "pseudo-distance" from (_x,_y) to unit ball.
+        * For a point inside the ball, it is proportional to the euclidean distance to the ball.
+        * For a point outside the ball, it is proportional to the inverse of this distance 
+        * (tends to zero) on the ball, the function is continuous.
+        * \param _x, _y: 2D coords of point to project
+        * \return distance to ball
+        */
+        static double projectOnBall(double _x, double _y) 
         {
             // If you change the size value, change angle computation in
             // deformedBallQuaternion().
@@ -323,18 +345,25 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
             const double size2 = size * size;
             const double size_limit = size2 * 0.5;
 
-            const double d = x * x + y * y;
+            const double d = _x * _x + _y * _y;
             return d < size_limit ? sqrt(size2 - d) : size_limit / sqrt(d);
         }
 
-
-        Quaternion deformedBallQuaternion(int x, int y, double cx, double cy/*, const Camera *const camera*/)
+        /*!
+        * \fn deformedBallQuaternion
+        * \brief Returns a quaternion computed according to the mouse motion. 
+        * Mouse positions are projected on a deformed ball, centered on (_cx, _cy).
+        * \param _x, _y: 2D coords of point on screen
+        * \param _cx, _cy: 2D coords of center point
+        * \return trackball rotation as quaternion
+        */
+        Quaternion deformedBallQuaternion(int _x, int _y, double _cx, double _cy)
         {
             // Points on the deformed ball
-            double px = rotationSensitivity() * (prevPos_.x() - cx) / screenWidth_ /*camera->screenWidth()*/;
-            double py = rotationSensitivity() * (cy - prevPos_.y()) / screenHeight_ /*camera->screenHeight()*/;
-            double dx = rotationSensitivity() * (x - cx) / screenWidth_ /*camera->screenWidth()*/;
-            double dy = rotationSensitivity() * (cy - y) / screenHeight_ /*camera->screenHeight()*/;
+            double px = rotationSensitivity() * (m_prevPos.x() - _cx) / m_screenWidth;
+            double py = rotationSensitivity() * (_cy - m_prevPos.y()) / m_screenHeight;
+            double dx = rotationSensitivity() * (_x - _cx) / m_screenWidth ;
+            double dy = rotationSensitivity() * (_cy - _y) / m_screenHeight ;
 
             const glm::vec3 p1(px, py, projectOnBall(px, py));
             const glm::vec3 p2(dx, dy, projectOnBall(dx, dy));
@@ -345,108 +374,88 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
             return Quaternion(axis, angle);
         }
 
-
-        void computeMouseSpeed(const QMouseEvent *const e)
+        /*!
+        * \fn deltaWithPrevPos
+        * \brief Returns a screen scaled delta from event's position to m_prevPos,
+        * along the X or Y direction, whichever has the largest magnitude.
+        * \param _event: UI event
+        */
+        double deltaWithPrevPos(QMouseEvent *const _event) const
         {
-            const QPoint delta = (e->pos() - prevPos_);
-            const double dist = sqrt( double(delta.x() * delta.x() + delta.y() * delta.y()));
-            delay_ = last_move_time.restart();
-            if (delay_ == 0)
-                mouseSpeed_ = dist;
-            else
-                mouseSpeed_ = dist / delay_;
-        }
-
-
-        //int mouseOriginalDirection(const QMouseEvent *const e)
-        //{
-        //    static bool horiz = true; // Two simultaneous manipulatedFrame require two mice !
-
-        //    if (!dirIsFixed_) 
-        //    {
-        //        const QPoint delta = e->pos() - pressPos_;
-        //        dirIsFixed_ = abs(delta.x()) != abs(delta.y());
-        //        horiz = abs(delta.x()) > abs(delta.y());
-        //    }
-
-        //    if (dirIsFixed_)
-        //    {
-        //        if (horiz)
-        //            return 1;
-        //        else
-        //            return -1;
-        //    }
-        //    else
-        //        return 0;
-        //}
-
-
-
-        double deltaWithPrevPos(QMouseEvent *const event/*, Camera *const camera*/) const
-        {
-            double dx = double(event->x() - prevPos_.x()) / screenWidth_ /*camera->screenWidth()*/;
-            double dy = double(event->y() - prevPos_.y()) / screenHeight_ /*_camera->screenHeight()*/;
+            double dx = double(_event->x() - m_prevPos.x()) / m_screenWidth ;
+            double dy = double(_event->y() - m_prevPos.y()) / m_screenHeight ;
 
             double value = std::abs(dx) > std::abs(dy) ? dx : dy;
             return value * zoomSensitivity();
         }
 
-
-        double wheelDelta(const QWheelEvent *event) const
+        /*!
+        * \fn wheelDelta
+        * \brief Returns a normalized wheel delta, proportionnal to wheelSensitivity().
+        * \param _event: UI event
+        */
+        double wheelDelta(const QWheelEvent *_event) const
         {
             static const double WHEEL_SENSITIVITY_COEF = 8E-4;
-            return event->delta() * wheelSensitivity() * WHEEL_SENSITIVITY_COEF;
+            return _event->delta() * wheelSensitivity() * WHEEL_SENSITIVITY_COEF;
         }
-
-
 
 
     public:
 
 
-        virtual void mousePressEvent(QMouseEvent *const event/*, Camera *const camera*/) 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                                   EVENTS                                                    |
+        +------------------------------------------------------------------------------------------------------------*/
+
+        /*!
+        * \fn mousePressEvent
+        * \brief Initiates the mouse manipulation.
+        * Previous mouse position is updated with current position.
+        * \param _event: UI event
+        */
+        virtual void mousePressEvent(QMouseEvent *const _event) 
         {
-            //Q_UNUSED(camera);
-
-            if (grabsMouse())
-                keepsGrabbingMouse_ = true;
-
-            prevPos_ = pressPos_ = event->pos();
-
+            m_prevPos = _event->pos();
         }
 
-        
-        virtual void mouseReleaseEvent(QMouseEvent *const event/*, Camera *const camera*/)
+        /*!
+        * \fn mouseReleaseEvent
+        * \brief Stops the mouse manipulation.
+        * \param _event: UI event
+        */
+        virtual void mouseReleaseEvent(QMouseEvent *const _event)
         {
-            Q_UNUSED(event);
-            //Q_UNUSED(camera);
+            Q_UNUSED(_event);
 
-            keepsGrabbingMouse_ = false;
-
-//            if (previousConstraint_)
-//                setConstraint(previousConstraint_);
-
-            action_ = /*QGLViewer::*/NO_MOUSE_ACTION;
+            m_action = NO_MOUSE_ACTION;
         }
         
-
-        
-        virtual void mouseMoveEvent(QMouseEvent *const event, /*Camera *const camera*/ glm::vec3 camPivotPoint, glm::vec3 &center )
+        /*!
+        * \fn mouseMoveEvent
+        * \brief Modifies the camera frame according to the mouse motion.
+        * Actual behavior depends on mouse action type.
+        * Emits the manipulated() signal.
+        * \param _event: UI event
+        * \param _camPivotPoint: 
+        * \param _center: 
+        */
+        virtual void mouseMoveEvent(QMouseEvent *const _event, glm::vec3 _camPivotPoint, glm::vec3 &_center )
         {
-            switch (action_) 
+            switch (m_action) 
             {
-                case /*QGLViewer::*/TRANSLATE: 
+                case TRANSLATE: 
                 {
                     //const QPoint delta = prevPos_ - event->pos();
-                    const QPoint delta = event->pos() - prevPos_;
+                    const QPoint delta = _event->pos() - m_prevPos;
                     glm::vec3 trans(delta.x(), -delta.y(), 0.0);
                     // Scale to fit the screen mouse displacement
-                    switch (/*camera->projType()*/projType_) 
+                    switch (m_projType) 
                     {
-                        case /*Camera::*/PERSPECTIVE:
-                            trans *= 2.0 * tan(/*camera->fieldOfView()*/fieldOfView_ / 2.0) * std::abs(( /*camera->frame()*/this->coordinatesOf(pivotPoint())).z) / screenHeight_/*camera->screenHeight()*/;
+                        case PERSPECTIVE:
+                            trans *= 2.0 * tan(m_fieldOfView / 2.0) * std::abs(( this->coordinatesOf(pivotPoint())).z) / m_screenHeight;
                             break;
-                        case /*Camera::*/ORTHOGRAPHIC: 
+                        case ORTHOGRAPHIC: 
                         {
                             std::cout<<"orthographics"<<std::endl;
                             //double w, h;
@@ -457,187 +466,114 @@ class CameraFrame : public qgltoolkit::Frame //, public MouseGrabber
                         }
                     }
                     translate(inverseTransformOf( (float)translationSensitivity() * -trans));
-                    center = center + inverseTransformOf( (float)translationSensitivity() * -trans);
+                    _center = _center + inverseTransformOf( (float)translationSensitivity() * -trans);
 
 
                     break;
                 }
 
-            
-                case /*QGLViewer::*/ZOOM: 
+                case ZOOM: 
                 {
-                    zoom(deltaWithPrevPos(event/*, camera*/), /*camera*/ camPivotPoint);
+                    zoom(deltaWithPrevPos(_event),  _camPivotPoint);
                     break;
                 }
 
-
-                case /*QGLViewer::*/ROTATE: 
+                case ROTATE: 
                 {
                     Quaternion rot;
-                    if (rotatesAroundUpVector_) 
+                    if (m_rotatesAroundUpVector) 
                     {
                         // Multiply by 2.0 to get on average about the same speed as with the
                         // deformed ball
-                        double dx = 2.0 * rotationSensitivity() * (prevPos_.x() - event->x()) / screenWidth_ /*camera->screenWidth()*/;
-                        double dy = 2.0 * rotationSensitivity() * (prevPos_.y() - event->y()) / screenHeight_ /*camera->screenHeight()*/;
-                        if (constrainedRotationIsReversed_)
-                            dx = -dx;
-                        glm::vec3 verticalAxis = transformOf(sceneUpVector_);
+                        double dx = 2.0 * rotationSensitivity() * (m_prevPos.x() - _event->x()) / m_screenWidth ;
+                        double dy = 2.0 * rotationSensitivity() * (m_prevPos.y() - _event->y()) / m_screenHeight ;
+                        dx = -dx;
+                        dy = -dy;
+                        glm::vec3 verticalAxis = transformOf(m_sceneUpVector);
                         rot = Quaternion(verticalAxis, dx) * Quaternion( glm::vec3(1.0, 0.0, 0.0), dy);
                         rotate(rot);
                     } 
                     else 
                     {   
-                        glm::vec3 trans = camPivotPoint;//camera->projectedCoordinatesOf(pivotPoint());
-                        rot = deformedBallQuaternion(event->x(), event->y(), trans[0], trans[1]/*, camera*/);
+                        glm::vec3 trans = _camPivotPoint; //camera->projectedCoordinatesOf(pivotPoint());
+                        rot = deformedBallQuaternion(_event->x(), _event->y(), trans[0], trans[1]);
                         
-                        rotateAroundPoint(rot, pivotPoint(), center); 
+                        rotateAroundPoint(rot, pivotPoint(), _center); 
                     }
-                    
-                    computeMouseSpeed(event);
-
-                    
 
                     break;
                 }
 
-            //    case /*QGLViewer::*/SCREEN_ROTATE: 
-            //    {
-            //        /*glm::vec3 trans = camera->projectedCoordinatesOf(pivotPoint());
-
-            //        const double angle = atan2(event->y() - trans[1], event->x() - trans[0]) - atan2(prevPos_.y() - trans[1], prevPos_.x() - trans[0]);
-
-            //        Quaternion rot( glm::vec3(0.0, 0.0, 1.0), angle);
-
-            //        computeMouseSpeed(event);
-
-            //        updateSceneUpVector();*/
-            //        break;
-            //    }
-
-            //    case /*QGLViewer::*/ROLL: 
-            //    {
-            //        const double angle = M_PI * (event->x() - prevPos_.x()) / screenWidth_ /*camera->screenWidth()*/;
-            //        Quaternion rot(glm::vec3(0.0, 0.0, 1.0), angle);
-            //        rotate(rot);
-            //        updateSceneUpVector();
-            //        break;
-            //    }
-
-            //    case /*QGLViewer::*/SCREEN_TRANSLATE: 
-            //    {
-            //        glm::vec3 trans;
-            //        int dir = mouseOriginalDirection(event);
-            //        if (dir == 1)
-            //            trans = glm::vec3(prevPos_.x() - event->x(), 0.0, 0.0);
-            //        else if (dir == -1)
-            //            trans = glm::vec3(0.0, event->y() - prevPos_.y(), 0.0);
-
-            //        switch (/*camera->projType()*/projType_) 
-            //        {
-            //            case /*Camera::*/PERSPECTIVE:
-            //                trans *= 2.0 * tan(/*camera->fieldOfView()*/ fieldOfView_ / 2.0) * std::abs((/*camera->frame()*/this->coordinatesOf(pivotPoint())).z) / screenHeight_/*camera->screenHeight()*/;
-            //                break;
-            //            case /*Camera::*/ORTHOGRAPHIC: 
-            //            {
-            //                /*double w, h;
-            //                camera->getOrthoWidthHeight(w, h);
-            //                trans[0] *= 2.0 * w / camera->screenWidth();
-            //                trans[1] *= 2.0 * h / camera->screenHeight();*/
-            //                break;
-            //            }
-            //        }
-
-            //        translate(inverseTransformOf( (float)translationSensitivity() * trans));
-            //        break;
-            //    }
-
-                case /*QGLViewer::*/NO_MOUSE_ACTION:
+                case NO_MOUSE_ACTION:
                     break;
             }
 
-            if (action_ != /*QGLViewer::*/NO_MOUSE_ACTION) 
+            if (m_action != NO_MOUSE_ACTION) 
             {
-                prevPos_ = event->pos();
-//                if (action_ != /*QGLViewer::*/ZOOM_ON_REGION)
-                {
-                    // ZOOM_ON_REGION should not emit manipulated().
-                    // prevPos_ is used to draw rectangle feedback.
-                    Q_EMIT manipulated();
-                }
+                m_prevPos = _event->pos();
+
+                Q_EMIT manipulated();
             }
         }
         
-
-        virtual void mouseDoubleClickEvent(QMouseEvent *const event/*, Camera *const camera*/, glm::vec3 camPos, glm::vec3 camViewDir, glm::vec3 camPivotPoint, glm::vec3 sceneCenter) 
+        /*!
+        * \fn mouseDoubleClickEvent
+        * \brief Modifies camera frame according to double click event.
+        * Left button double click aligns the camera frame with the camera axis (see alignWithFrame() ). 
+        * Right button projects the camera frame on the camera view direction.
+        * \param _event: UI event
+        * \param _camPos:
+        * \param _camViewDir:
+        * \param _camPivotPoint: 
+        * \param _sceneCenter: 
+        */
+        virtual void mouseDoubleClickEvent(QMouseEvent *const _event, glm::vec3 _camPos, glm::vec3 _camViewDir, glm::vec3 _camPivotPoint, glm::vec3 _sceneCenter) 
         {
             Frame *frame = new Frame();
-            frame->setTranslation(camPivotPoint);
+            frame->setTranslation(_camPivotPoint);
 
-            if (event->modifiers() == Qt::NoModifier)
-                switch (event->button()) 
+            if (_event->modifiers() == Qt::NoModifier)
+            {
+                switch (_event->button()) 
                 {
                     case Qt::LeftButton:
                         alignWithFrame(frame, true);
                         break;
                     case Qt::RightButton:
-                        projectOnLine(/*camera*/ /*this->position()*/ /*camPos*/ sceneCenter, /*camera->viewDirection()*/ camViewDir/*this->inverseTransformOf(glm::vec3(0.0f, 0.0f, -1.0f))*/ );
-
+                        projectOnLine( _sceneCenter, _camViewDir );
                         break;
                     default:
                         break;
                 }
+            }
         }
 
-
-        virtual void wheelEvent(QWheelEvent *const event, /*Camera *const camera*/ glm::vec3 camPivotPoint )
+        /*!
+        * \fn wheelEvent
+        * \brief Call zoom acording to wheel delta
+        * \param _event: UI event
+        * \param _camPivotPoint: 
+        */
+        virtual void wheelEvent(QWheelEvent *const _event,glm::vec3 _camPivotPoint )
         {
 
-            if (action_ == /*QGLViewer::*/ZOOM) 
+            if (m_action == ZOOM) 
             {
-                zoom(-wheelDelta(event), /*camera*/ camPivotPoint);
+                zoom(-wheelDelta(_event), _camPivotPoint);
                 Q_EMIT manipulated();
             }
 
-//            if (previousConstraint_)
-//                setConstraint(previousConstraint_);
-
-            action_ = /*QGLViewer::*/NO_MOUSE_ACTION;
+            m_action = NO_MOUSE_ACTION;
         }
 
-
-
-        virtual void startAction( int ma, bool withConstraint = true) // int is really a QGLViewer::MouseAction
+        /*!
+        * \fn startAction
+        * \brief Handles mouse events.
+        * \param _ma: type of mouse action
+        */
+        virtual void startAction( int _ma) // int is really a QGLViewer::MouseAction
         {
-
-            action_ = (/*QGLViewer::*/MouseAction)(ma);
-
-/*            if (withConstraint)
-                previousConstraint_ = nullptr;
-            else 
-            {
-                previousConstraint_ = constraint();
-                setConstraint(nullptr);
-            }
-*/
-            switch (action_) 
-            {
-               
-                //case /*QGLViewer::*/SCREEN_ROTATE:
-                //    mouseSpeed_ = 0.0;
-                //    break;
-
-                //case /*QGLViewer::*/SCREEN_TRANSLATE:
-                //    dirIsFixed_ = false;
-                //    break;
-
-                case /*QGLViewer::*/ROTATE:
-                    constrainedRotationIsReversed_ = transformOf(sceneUpVector_).y < 0.0;
-                    break;
-
-                default:
-                    break;
-            }
+            m_action = (MouseAction)(_ma);
         }
 
       

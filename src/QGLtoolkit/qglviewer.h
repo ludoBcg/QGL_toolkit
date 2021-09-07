@@ -331,7 +331,7 @@ class QGLViewer : public QOpenGLWidget
             else if( _e->button()  == Qt::MiddleButton)
                 action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
 
-            camera()->frame()->startAction(action, true);
+            camera()->frame()->startAction(action);
             camera()->frame()->mousePressEvent(_e/*, camera()*/ );
 
             update();
@@ -387,7 +387,7 @@ class QGLViewer : public QOpenGLWidget
             //map.handler =  qgltoolkit::CameraFrame::MouseHandler::CAMERA;
             qgltoolkit::CameraFrame::MouseAction action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
 
-            camera()->frame()->startAction(action, true);
+            camera()->frame()->startAction(action);
             camera()->frame()->wheelEvent(_e,  camera()->frame()->coordinatesOf(camera()->pivotPoint())  );
    
             this->update();
