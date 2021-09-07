@@ -11,17 +11,10 @@ DrawableMesh::DrawableMesh()
 
     m_specPow = 128.0f;
 
-    setAmbientFlag(true);
-    setDiffuseFlag(true);
-    setSpecularFlag(true);
-
     m_vertexProvided = false;
     m_normalProvided = false;
     m_colorProvided = false;
     m_indexProvided = false;
-
-    m_shadedRenderOn = true;
-
 }
 
 
@@ -151,51 +144,34 @@ void DrawableMesh::fillVAO(TriMesh* _triMesh, bool _create)
 
 void DrawableMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm::vec3 _lightCol)
 {
-    if(m_shadedRenderOn)
-    {
-        // Activate program
-        glUseProgram(m_program);
 
-        // ...
+    // Activate program
+    glUseProgram(m_program);
 
-        // Pass uniforms
-        glUniformMatrix4fv(glGetUniformLocation(m_program, "u_mv"), 1, GL_FALSE, &_mv[0][0]);
-        glUniformMatrix4fv(glGetUniformLocation(m_program, "u_mvp"), 1, GL_FALSE, &_mvp[0][0]);
-        glUniform3fv(glGetUniformLocation(m_program, "u_lightPosition"), 1, &_lightPos[0]);
+    // ...
 
-        glUniform3fv(glGetUniformLocation(m_program, "u_lightColor"), 1, &_lightCol[0]);
+    // Pass uniforms
+    glUniformMatrix4fv(glGetUniformLocation(m_program, "u_mv"), 1, GL_FALSE, &_mv[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(m_program, "u_mvp"), 1, GL_FALSE, &_mvp[0][0]);
+    glUniform3fv(glGetUniformLocation(m_program, "u_lightPosition"), 1, &_lightPos[0]);
 
-        glUniform3fv(glGetUniformLocation(m_program, "u_ambientColor"), 1, &m_ambientColor[0]);
-        glUniform3fv(glGetUniformLocation(m_program, "u_diffuseColor"), 1, &m_diffuseColor[0]);
-        glUniform3fv(glGetUniformLocation(m_program, "u_specularColor"), 1, &m_specularColor[0]);
-        glUniform1f(glGetUniformLocation(m_program, "u_specularPower"), m_specPow);
+    glUniform3fv(glGetUniformLocation(m_program, "u_lightColor"), 1, &_lightCol[0]);
+
+    glUniform3fv(glGetUniformLocation(m_program, "u_ambientColor"), 1, &m_ambientColor[0]);
+    glUniform3fv(glGetUniformLocation(m_program, "u_diffuseColor"), 1, &m_diffuseColor[0]);
+    glUniform3fv(glGetUniformLocation(m_program, "u_specularColor"), 1, &m_specularColor[0]);
+    glUniform1f(glGetUniformLocation(m_program, "u_specularPower"), m_specPow);
  
+    // ...
 
+    // Draw!
+    glBindVertexArray(m_meshVAO);                       // bind the VAO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVBO);  // do not forget to bind the index buffer AFTER !
 
-        if(m_useAmbient)
-            glUniform1i(glGetUniformLocation(m_program, "u_useAmbient"), 1);
-        else
-            glUniform1i(glGetUniformLocation(m_program, "u_useAmbient"), 0);
-        if(m_useDiffuse)
-            glUniform1i(glGetUniformLocation(m_program, "u_useDiffuse"), 1);
-        else
-            glUniform1i(glGetUniformLocation(m_program, "u_useDiffuse"), 0);
-        if(m_useSpecular)
-            glUniform1i(glGetUniformLocation(m_program, "u_useSpecular"), 1);
-        else
-            glUniform1i(glGetUniformLocation(m_program, "u_useSpecular"), 0);
-        // ...
+    glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
 
-        // Draw!
-        glBindVertexArray(m_meshVAO);                       // bind the VAO
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVBO);  // do not forget to bind the index buffer AFTER !
+    glBindVertexArray(m_defaultVAO);
 
-        glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
-
-        glBindVertexArray(m_defaultVAO);
-
-
-    }
 
 
     glUseProgram(0);

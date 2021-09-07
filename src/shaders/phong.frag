@@ -10,12 +10,6 @@ uniform vec3 u_specularColor;
 uniform float u_specularPower;
 
 
-uniform int u_useAmbient;
-uniform int u_useDiffuse;
-uniform int u_useSpecular;
-uniform int u_useGammaCorrec;
-
-	
 // INPUT	
 in vec3 vecN;
 in vec3 vecL;

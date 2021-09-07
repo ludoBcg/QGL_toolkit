@@ -64,21 +64,6 @@ class DrawableMesh
         /*! \fn setAmbientColor */
         inline void setSpecularColor(int _r, int _g, int _b) { m_specularColor = glm::vec3( (float)_r/255.0f, (float)_g/255.0f, (float)_b/255.0f ); }
 
-        /*! \fn setAmbientFlag */
-        inline void setAmbientFlag(bool _useAmbient) { m_useAmbient = _useAmbient; }
-        /*! \fn setDiffuseFlag */
-        inline void setDiffuseFlag(bool _useDiffuse) { m_useDiffuse = _useDiffuse; }
-        /*! \fn setSpecularFlag */
-        inline void setSpecularFlag(bool _useSpecular) { m_useSpecular = _useSpecular; }
-
-        /*! \fn getAmbientFlag */
-        inline bool getAmbientFlag() { return m_useAmbient; }
-        /*! \fn getDiffuseFlag */
-        inline bool getDiffuseFlag() { return m_useDiffuse; }
-        /*! \fn getSpecularFlag */
-        inline bool getSpecularFlag() { return m_useSpecular; }
-  
-
 
         /*------------------------------------------------------------------------------------------------------------+
         |                                               OTHER METHODS                                                 |
@@ -125,11 +110,6 @@ class DrawableMesh
         */
         GLuint loadShaderProgram(const std::string& _vertShaderFilename, const std::string& _fragShaderFilename);
 
-        /*! 
-        * \fn toggleShadedRenderFlag 
-        * \brief reverse shaded rendering flag
-        */
-        inline void toggleShadedRenderFlag() { m_shadedRenderOn = !m_shadedRenderOn; }
 
         
 
@@ -158,16 +138,10 @@ class DrawableMesh
         glm::vec3 m_diffuseColor;   /*!< diffuse color */
         glm::vec3 m_specularColor;  /*!< specular color */
 
-        bool m_useAmbient;          /*!< flag to use ambient shading or not */
-        bool m_useDiffuse;          /*!< flag to use diffuse shading or not */
-        bool m_useSpecular;         /*!< flag to use specular shading or not */
-
         bool m_vertexProvided;      /*!< flag to indicate if vertex coords are available or not */
         bool m_normalProvided;      /*!< flag to indicate if normals are available or not */
         bool m_colorProvided;       /*!< flag to indicate if colors are available or not */
         bool m_indexProvided;       /*!< flag to indicate if indices are available or not */
-
-        bool m_shadedRenderOn;      /*!< flag to indicate if shaded rendering is on */
 
 
         /*------------------------------------------------------------------------------------------------------------+

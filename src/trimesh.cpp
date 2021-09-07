@@ -95,7 +95,7 @@ bool TriMesh::readFile(std::string _filename)
     }
     else
     {
-        std::cerr << "[ERROR] TriMesh::readFile(): Invalid file extension: only .obj, .off, .ply, and .stl are supported" << std::endl;
+        std::cerr << "[ERROR] TriMesh::readFile(): Invalid file extension: only .obj are supported" << std::endl;
     }
     return false;
 }
