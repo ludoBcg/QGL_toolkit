@@ -1,13 +1,5 @@
 
-//#include <QMouseEvent>
-//#include <QTimer>
-//#include <QElapsedTimer>
-//#include <QImage>
 
-//#define QT_NO_OPENGL_ES_2
-//#include <GL/glew.h>
-
-#include "drawablemesh.h"
 #include "trimesh.h"
 
 #include "viewer.h"
@@ -27,7 +19,7 @@ Viewer::Viewer() : qgltoolkit::QGLViewer()
 
 Viewer::~Viewer()
 {
-    delete m_drawMesh;
+//    delete m_drawMesh;
     delete m_triMesh;
     std::cout << std::endl << "Bye!" << std::endl;
 }
@@ -55,19 +47,17 @@ void Viewer::init()
               << "Vendor: " << glGetString(GL_VENDOR) << std::endl << std::endl
               << "Log:" << std::endl;
               
-        glGenVertexArrays(1, &m_defaultVAO);
+    glGenVertexArrays(1, &m_defaultVAO);
     glBindVertexArray(m_defaultVAO);
 
 
   glViewport(0, 0, width(), height());
 
-    m_triMesh = new TriMesh(true, false, false);
+    m_triMesh = new TriMesh();
     m_triMesh->readFile("../../models/misc/teapot.obj");
     m_triMesh->computeAABB();
-
-    m_drawMesh = new DrawableMesh;
-    m_drawMesh->setProgram("../../src/shaders/phong.vert", "../../src/shaders/phong.frag");
-    m_drawMesh->createVAO(m_triMesh);
+    m_triMesh->setProgram("../../src/shaders/phong.vert", "../../src/shaders/phong.frag");
+    m_triMesh->createVAO();
 
 
     // scene setup
@@ -89,9 +79,7 @@ std::cout<<"center = "<<centerCoords.x<<" "<<centerCoords.y<<" "<<centerCoords.z
         this->camera()->setViewDirection(centerCoords - this->camera()->position() );
         this->camera()->setUpVector( glm::vec3(0.0f, 1.0f, 0.0f) );
 
-        //update();
     }
-
 
     m_lightCol = glm::vec3(1.0f, 1.0f, 1.0f);
 }
@@ -99,17 +87,11 @@ std::cout<<"center = "<<centerCoords.x<<" "<<centerCoords.y<<" "<<centerCoords.z
 
 void Viewer::draw()
 {
-    
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     glClearColor(0.0, 0.0, 0.0, 0.0);
-    //std::cout<<"draw"<<std::endl;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glEnable(GL_DEPTH_TEST); 
-    //glDepthFunc(GL_LESS); 
-
     
 
     this->camera()->computeProjectionMatrix();
@@ -121,13 +103,11 @@ void Viewer::draw()
     glm::mat4 mvp = projection * mv;
 
 
-
     // get camera position
     glm::vec3 cam_pos(this->camera()->position().x, this->camera()->position().y, this->camera()->position().z);
 
-    m_drawMesh->draw(mv, mvp, cam_pos /*glm::vec3(0,0,4)*/, m_lightCol);
+    m_triMesh->draw(mv, mvp, cam_pos , m_lightCol);
 
-    //update();
 }
 
 
@@ -159,8 +139,6 @@ void Viewer::mousePressEvent(QMouseEvent *e)
 void Viewer::mouseReleaseEvent(QMouseEvent *e)
 {
     QGLViewer::mouseReleaseEvent(e);
-    // avoid camera spinning
-    //camera()->frame()->stopSpinning();
 }
 
 
@@ -182,11 +160,10 @@ void Viewer::keyPressEvent(QKeyEvent *e)
     if (e->key() == Qt::Key_F)
     {
         std::cout<<"pressed F"<<std::endl;
-        std::cout<<this->width()<<std::endl;
-        std::cout<<this->height()<<std::endl;
     }
-     std::cout<<this->width()<<std::endl;
-        std::cout<<this->height()<<std::endl;
+
+    std::cout<<this->width()<<std::endl;
+    std::cout<<this->height()<<std::endl;
     QGLViewer::keyPressEvent(e);
 }
 

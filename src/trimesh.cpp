@@ -10,79 +10,24 @@ TriMesh::TriMesh()
 {
     m_bBoxMin = glm::vec3(0.0f, 0.0f, 0.0f);
     m_bBoxMax = glm::vec3(0.0f, 0.0f, 0.0f);
-}
 
+    m_ambientColor = glm::vec3(0.04f, 0.04f, 0.06f);
+    m_diffuseColor = glm::vec3(0.82f, 0.66f, 0.43f);
+    m_specularColor = glm::vec3(0.9f, 0.9f, 0.9f);
 
-TriMesh::TriMesh(bool _normals, bool _texCoords2D, bool _col)
-{
-    m_bBoxMin = glm::vec3(0.0f, 0.0f, 0.0f);
-    m_bBoxMax = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_specPow = 128.0f;
 }
 
 
 TriMesh::~TriMesh()
 {
     clear();
-}
 
-
-void TriMesh::getVertices(std::vector<glm::vec3>& _vertices)
-{
-    if(_vertices.size() != 0)
-        _vertices.clear();
-
-    if(m_vertices.size() != 0)
-    {
-        _vertices.assign(m_vertices.begin(), m_vertices.end()); // new data storage
-    }
-    else
-    {
-        std::cerr << "[WARNING] TriMesh::getVertices: Empty vertices array" << std::endl;
-    }
-}
-
-
-void TriMesh::getNormals(std::vector<glm::vec3>& _normals)
-{
-    if(_normals.size() != 0)
-        _normals.clear();
-
-    if(m_normals.size() != 0)
-    {
-        _normals.assign(m_normals.begin(), m_normals.end());
-    }
-    else
-    {
-        std::cerr << "[WARNING] TriMesh::getNormals: Empty normals array" << std::endl;
-    }
-}
-
-
-void TriMesh::getIndices(std::vector<uint32_t>& _indices)
-{
-    if(_indices.size() != 0)
-        _indices.clear();
-
-    if(m_indices.size() != 0)
-    {
-        _indices.assign(m_indices.begin(), m_indices.end());
-    }
-    else
-    {
-        std::cerr << "[WARNING] TriMesh::getIndices: Empty indices array" << std::endl;
-    }
-}
-
-
-void TriMesh::getColors(std::vector<glm::vec3>& _colors)
-{
-    if(_colors.size() != 0)
-        _colors.clear();
-
-    if(m_colors.size() != 0)
-    {
-        _colors.assign(m_colors.begin(), m_colors.end()); 
-    }
+    glDeleteBuffers(1, &(m_vertexVBO));
+    glDeleteBuffers(1, &(m_normalVBO));
+    glDeleteBuffers(1, &(m_colorVBO));
+    glDeleteBuffers(1, &(m_indexVBO));
+    glDeleteVertexArrays(1, &(m_meshVAO));
 }
 
 
@@ -164,6 +109,175 @@ void TriMesh::computeNormals()
     std::cout << "[INFO] TriMesh::computeNormals(): Normals computed" << std::endl;
 }
 
+
+void TriMesh::createVAO()
+{
+        
+    if(m_vertices.size() == 0)
+        std::cerr << "[WARNING] DrawableMesh::createVAO(): No vertex provided" << std::endl;
+    if(m_normals.size() == 0)
+        std::cerr << "[WARNING] DrawableMesh::createVAO(): No normal provided" << std::endl;
+    if(m_indices.size() == 0)
+        std::cerr << "[WARNING] DrawableMesh::createVAO(): No index provided" << std::endl;
+
+    // Generates and populates a VBO for vertex coords
+    glGenBuffers(1, &(m_vertexVBO));
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexVBO);
+    size_t verticesNBytes = m_vertices.size() * sizeof(m_vertices[0]);
+    glBufferData(GL_ARRAY_BUFFER, verticesNBytes, m_vertices.data(), GL_STATIC_DRAW);
+
+    // Generates and populates a VBO for vertex normals
+    glGenBuffers(1, &(m_normalVBO));
+    glBindBuffer(GL_ARRAY_BUFFER, m_normalVBO);
+    size_t normalsNBytes = m_normals.size() * sizeof(m_normals[0]);
+    glBufferData(GL_ARRAY_BUFFER, normalsNBytes, m_normals.data(), GL_STATIC_DRAW);
+
+    // Generates and populates a VBO for the element indices
+    glGenBuffers(1, &(m_indexVBO));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVBO);
+    auto indicesNBytes = m_indices.size() * sizeof(m_indices[0]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesNBytes, m_indices.data(), GL_STATIC_DRAW);
+
+
+    // Generates and populates a VBO for vertex colors
+    glGenBuffers(1, &(m_colorVBO));
+    glBindBuffer(GL_ARRAY_BUFFER, m_colorVBO);
+    if(m_colors.size() != 0)
+    {
+        size_t colorsNBytes = m_colors.size() * sizeof(m_colors[0]);
+        glBufferData(GL_ARRAY_BUFFER, colorsNBytes, m_colors.data(), GL_STATIC_DRAW);
+    }
+    else
+    {
+        size_t colorsNBytes = 1.0f * sizeof(m_colors[0]);
+        glBufferData(GL_ARRAY_BUFFER, colorsNBytes, nullptr, GL_STATIC_DRAW);
+    }
+
+
+    // Creates a vertex array object (VAO) for drawing the mesh
+    glGenVertexArrays(1, &(m_meshVAO));
+    glBindVertexArray(m_meshVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexVBO);
+    glEnableVertexAttribArray(POSITION);
+    glVertexAttribPointer(POSITION, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_normalVBO);
+    glEnableVertexAttribArray(NORMAL);
+    glVertexAttribPointer(NORMAL, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_colorVBO);
+    glEnableVertexAttribArray(COLOR);
+    glVertexAttribPointer(COLOR, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVBO);
+    glBindVertexArray(m_defaultVAO); // unbinds the VAO
+
+    // Additional information required by draw calls
+    m_numVertices = m_vertices.size();
+    m_numIndices = m_indices.size();
+}
+
+
+void TriMesh::draw(glm::mat4 _mv, glm::mat4 _mvp, glm::vec3 _lightPos, glm::vec3 _lightCol)
+{
+
+    // Activate program
+    glUseProgram(m_program);
+
+    // Pass uniforms
+    glUniformMatrix4fv(glGetUniformLocation(m_program, "u_mv"), 1, GL_FALSE, &_mv[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(m_program, "u_mvp"), 1, GL_FALSE, &_mvp[0][0]);
+    glUniform3fv(glGetUniformLocation(m_program, "u_lightPosition"), 1, &_lightPos[0]);
+
+    glUniform3fv(glGetUniformLocation(m_program, "u_lightColor"), 1, &_lightCol[0]);
+
+    glUniform3fv(glGetUniformLocation(m_program, "u_ambientColor"), 1, &m_ambientColor[0]);
+    glUniform3fv(glGetUniformLocation(m_program, "u_diffuseColor"), 1, &m_diffuseColor[0]);
+    glUniform3fv(glGetUniformLocation(m_program, "u_specularColor"), 1, &m_specularColor[0]);
+    glUniform1f(glGetUniformLocation(m_program, "u_specularPower"), m_specPow);
+ 
+
+    // Draw!
+    glBindVertexArray(m_meshVAO);                       // bind the VAO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexVBO);  // do not forget to bind the index buffer AFTER !
+
+    glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, 0);
+
+    glBindVertexArray(m_defaultVAO);
+
+
+    glUseProgram(0);
+}
+
+
+GLuint TriMesh::loadShaderProgram(const std::string& _vertShaderFilename, const std::string& _fragShaderFilename)
+{
+    // Load and compile vertex shader
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    std::string vertexShaderSource = readShaderSource(_vertShaderFilename);
+    const char *vertexShaderSourcePtr = vertexShaderSource.c_str();
+    glShaderSource(vertexShader, 1, &vertexShaderSourcePtr, nullptr);
+
+    glCompileShader(vertexShader);
+    GLint compiled = 0;
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compiled);
+    if (!compiled) 
+    {
+        std::cerr << "[ERROR] DrawableMesh::loadShaderProgram(): Vertex shader compilation failed:" << std::endl;
+        showShaderInfoLog(vertexShader);
+        glDeleteShader(vertexShader);
+        return 0;
+    }
+
+    // Load and compile fragment shader
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    std::string fragmentShaderSource = readShaderSource(_fragShaderFilename);
+    const char *fragmentShaderSourcePtr = fragmentShaderSource.c_str();
+    glShaderSource(fragmentShader, 1, &fragmentShaderSourcePtr, nullptr);
+
+    glCompileShader(fragmentShader);
+    compiled = 0;
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compiled);
+    if (!compiled) 
+    {
+        std::cerr << "[ERROR] DrawableMesh::loadShaderProgram(): Fragment shader compilation failed:" << std::endl;
+        showShaderInfoLog(fragmentShader);
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+        return 0;
+    }
+
+    // Create program object
+    GLuint program = glCreateProgram();
+
+    // Attach shaders to the program
+    glAttachShader(program, vertexShader);
+    glAttachShader(program, fragmentShader);
+
+    // Link program
+    glLinkProgram(program);
+
+    // Check linking status
+    GLint linked = 0;
+    glGetProgramiv(program, GL_LINK_STATUS, &linked);
+    if (!linked) 
+    {
+        std::cerr << "[ERROR] DrawableMesh::loadShaderProgram(): Linking failed:" << std::endl;
+        showProgramInfoLog(program);
+        glDeleteProgram(program);
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+        return 0;
+    }
+
+    // Clean up
+    glDetachShader(program, vertexShader);
+    glDetachShader(program, fragmentShader);
+
+    return program;
+}
 
 
 // Read an Mesh from an .obj file. This function can read texture
@@ -335,4 +449,36 @@ void TriMesh::clear()
     m_indices.clear();
 
     m_colors.clear();
+}
+
+
+std::string TriMesh::readShaderSource(const std::string& _filename)
+{
+    std::ifstream file(_filename);
+    std::stringstream stream;
+    stream << file.rdbuf();
+
+    return stream.str();
+}
+
+
+void TriMesh::showShaderInfoLog(GLuint _shader)
+{
+    GLint infoLogLength = 0;
+    glGetShaderiv(_shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+    std::vector<char> infoLog(infoLogLength);
+    glGetShaderInfoLog(_shader, infoLogLength, &infoLogLength, &infoLog[0]);
+    std::string infoLogStr(infoLog.begin(), infoLog.end());
+    std::cerr << infoLogStr << std::endl;
+}
+
+
+void TriMesh::showProgramInfoLog(GLuint _program)
+{
+    GLint infoLogLength = 0;
+    glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &infoLogLength);
+    std::vector<char> infoLog(infoLogLength);
+    glGetProgramInfoLog(_program, infoLogLength, &infoLogLength, &infoLog[0]);
+    std::string infoLogStr(infoLog.begin(), infoLog.end());
+    std::cerr << infoLogStr << std::endl;
 }

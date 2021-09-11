@@ -3,10 +3,10 @@
 #include <QMimeData>
 
 
-
 #include "window.h"
 
 #include "viewer.h"
+
 
 Window::Window() : QWidget()
 {
