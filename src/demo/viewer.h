@@ -35,7 +35,7 @@ class Viewer : public qgltoolkit::QGLViewer
         virtual void init();
         virtual void draw();
         void closeEvent(QCloseEvent *e);
-        virtual QString helpString() const;
+        virtual std::string helpString() const;
         void mousePressEvent(QMouseEvent *e);
         void mouseReleaseEvent(QMouseEvent *e);
         void mouseMoveEvent(QMouseEvent *e);

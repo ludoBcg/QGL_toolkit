@@ -6,16 +6,16 @@ project(QGL_toolkit)
 
 # add files
 set(SRCS
-	src/main.cpp
-	src/viewer.cpp
-	src/window.cpp
-	src/trimesh.cpp
+	src/demo/main.cpp
+	src/demo/viewer.cpp
+	src/demo/window.cpp
+	src/demo/trimesh.cpp
     )
     
 set(HEADERS
-	src/viewer.h
-	src/window.h
-	src/trimesh.h
+	src/demo/viewer.h
+	src/demo/window.h
+	src/demo/trimesh.h
 	src/QGLtoolkit/camera.h
 	src/QGLtoolkit/cameraFrame.h
 	src/QGLtoolkit/frame.h

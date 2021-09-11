@@ -32,6 +32,7 @@
 #include <QKeyEvent>
 
 
+
 #include "camera.h"
 
 
@@ -56,7 +57,6 @@ class QGLViewer : public QOpenGLWidget
 
      
         qgltoolkit::Camera *m_camera;   /*!< window size in pixels */
-
 
 
     public:
@@ -116,11 +116,6 @@ class QGLViewer : public QOpenGLWidget
         /*------------------------------------------------------------------------------------------------------------+
         |                                                    MISC.                                                    |
         +------------------------------------------------------------------------------------------------------------*/
-
-
-        virtual void help() {}
-
-        virtual void aboutQGLViewer() {}
 
         /*!
         * \fn showEntireScene
@@ -234,6 +229,7 @@ class QGLViewer : public QOpenGLWidget
         * \brief QGLViewer destructor
         */
         virtual ~QGLViewer(){}
+
     
 
     protected:
@@ -260,6 +256,17 @@ class QGLViewer : public QOpenGLWidget
         virtual void draw() {}
 
         virtual void paintGL() { draw(); }
+
+        virtual std::string helpString() const 
+        {
+            std::string text(" \n HELP: \n");
+                        text += " Left mouse button: rotates camera round the scene \n";
+                        text += " Right mouse button: translates camera in image plane \n";
+                        text += " Middle mouse button / wheel: translates camera toward scene center (zoom) \n";
+                        text += " Double click left: aligns the closer axis with the camera (if close enough) \n";
+                        text += " Double click right : re-centers the scene \n";
+            return text;
+        }
 
 
         /*------------------------------------------------------------------------------------------------------------+
@@ -361,6 +368,12 @@ class QGLViewer : public QOpenGLWidget
         */
         virtual void closeEvent(QCloseEvent *_e){ _e->ignore(); }
   
+        /*!
+        * \fn help
+        * \brief Print-out the help() string.
+        * Override for different behavior.
+        */
+        virtual void help() { std::cout << helpString() << std::endl; }
 
     private:
 

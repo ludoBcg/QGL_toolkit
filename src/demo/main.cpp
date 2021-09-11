@@ -1,7 +1,6 @@
 #include <qapplication.h>
 
 #include "window.h"
-//#include "viewer.h"
 
 
 

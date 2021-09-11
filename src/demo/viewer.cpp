@@ -56,7 +56,7 @@ void Viewer::init()
     m_triMesh = new TriMesh();
     m_triMesh->readFile("../../models/misc/teapot.obj");
     m_triMesh->computeAABB();
-    m_triMesh->setProgram("../../src/shaders/phong.vert", "../../src/shaders/phong.frag");
+    m_triMesh->setProgram("../../src/demo/shaders/phong.vert", "../../src/demo/shaders/phong.frag");
     m_triMesh->createVAO();
 
 
@@ -118,15 +118,9 @@ void Viewer::closeEvent(QCloseEvent *e)
 }
 
 
-QString Viewer::helpString() const
+std::string Viewer::helpString() const
 {
-    QString text("<h2>S i m p l e V i e w e r</h2>");
-    text += "Use the mouse to move the camera around the object. ";
-    text += "You can respectively revolve around, zoom and translate with the three mouse buttons. ";
-    text += "Double clicks automates single click actions: A left button double click aligns the closer axis with the camera (if close enough). ";
-    text += "A middle button double click fits the zoom of the camera and the right button re-centers the scene.<br><br>";
-    text += "Press <b>Escape</b> to exit the viewer.";
-    return text;
+    return QGLViewer::helpString();
 }
 
 
@@ -160,6 +154,10 @@ void Viewer::keyPressEvent(QKeyEvent *e)
     if (e->key() == Qt::Key_F)
     {
         std::cout<<"pressed F"<<std::endl;
+    }
+    if (e->key() == Qt::Key_H)
+    {
+        help();
     }
 
     std::cout<<this->width()<<std::endl;
