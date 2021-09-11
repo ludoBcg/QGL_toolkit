@@ -424,8 +424,8 @@ glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 +
 
             // If frame's RAP is set directly, projectionMatrixIsUpToDate_ should also be
             // set to false to ensure proper recomputation of the ORTHO projection matrix.
-            //frame()->setPivotPoint(_point);
-
+            frame()->setPivotPoint(_point);
+std::cout<<"Camera::frame()->pivotPoint() = "<<this->frame()->pivotPoint().x<<" "<<this->frame()->pivotPoint().y<<" "<<this->frame()->pivotPoint().z<<std::endl;
             // orthoCoef_ is used to compensate for changes of the pivotPoint, so that the
             // image does not change when the pivotPoint is changed in ORTHOGRAPHIC mode.
             const float newDist = std::abs(cameraCoordinatesOf(pivotPoint()).z);
@@ -722,13 +722,13 @@ glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 +
         * \brief Modifies the camera frame according to the mouse motion.
         * \param _event: UI event
         */
-        void mouseMoveEvent(QMouseEvent *const _event)
-        {
-            glm::vec3 centerTranslat(0.0f);
-            frame()->mouseMoveEvent(_event, frame()->coordinatesOf(pivotPoint()), m_center );
-
-        }
-
+//        void mouseMoveEvent(QMouseEvent *const _event)
+//        {
+//            glm::vec3 centerTranslat(0.0f);
+//            frame()->mouseMoveEvent(_event, /*frame()->coordinatesOf(pivotPoint()),*/ m_center );
+//std::cout<<"Camera::frame()->coordinatesOf(pivotPoint()) = "<<frame()->coordinatesOf(pivotPoint()).x<<" "<<frame()->coordinatesOf(pivotPoint()).y<<" "<<frame()->coordinatesOf(pivotPoint()).z<<std::endl;
+//        }
+//
 
 };
 

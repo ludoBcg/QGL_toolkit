@@ -51,7 +51,7 @@ void Viewer::init()
     glBindVertexArray(m_defaultVAO);
 
 
-  glViewport(0, 0, width(), height());
+    glViewport(0, 0, width(), height());
 
     m_triMesh = new TriMesh();
     m_triMesh->readFile("../../models/misc/teapot.obj");
@@ -72,8 +72,12 @@ void Viewer::init()
         glm::vec3 centerCoords( (bBoxMin.x + bBoxMax.x) * 0.5f, (bBoxMin.y + bBoxMax.y) * 0.5f, (bBoxMin.z + bBoxMax.z) * 0.5f );
 std::cout<<"center = "<<centerCoords.x<<" "<<centerCoords.y<<" "<<centerCoords.z<<std::endl;
 
+        // Set scene radius and center from AABBox.
+        // Pivot point is set to scene center by default, 
+        // use camera()->setPivotPoint() to change it.
         this->setSceneBoundingBox(min, max);
-
+std::cout<<"this->camera()->sceneCenter() = "<<this->camera()->sceneCenter().x<<" "<<this->camera()->sceneCenter().y<<" "<<this->camera()->sceneCenter().z<<std::endl;
+std::cout<<"this->camera()->pivotPoint() = "<<this->camera()->pivotPoint().x<<" "<<this->camera()->pivotPoint().y<<" "<<this->camera()->pivotPoint().z<<std::endl;
         // camera setup
         this->camera()->setPosition( centerCoords + glm::vec3(0.0f, 0.0f, this->sceneRadius()*2.5f) );
         this->camera()->setViewDirection(centerCoords - this->camera()->position() );

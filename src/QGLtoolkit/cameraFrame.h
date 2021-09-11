@@ -29,8 +29,6 @@
 
 
 
-
-
 namespace qgltoolkit 
 {
 
@@ -425,8 +423,12 @@ class CameraFrame : public qgltoolkit::Frame
         * \param _camPivotPoint: 
         * \param _center: 
         */
-        virtual void mouseMoveEvent(QMouseEvent *const _event, glm::vec3 _camPivotPoint, glm::vec3 &_center )
+        virtual void mouseMoveEvent(QMouseEvent *const _event/*, glm::vec3 _camPivotPoint*/, glm::vec3 &_center )
         {
+std::cout<<"CameraFrame::pivotPoint() = "<<pivotPoint().x<<" "<<pivotPoint().y<<" "<<pivotPoint().z<<std::endl;
+
+//std::cout<<"CameraFrame::_camPivotPoint = "<<_camPivotPoint.x<<" "<<_camPivotPoint.y<<" "<<_camPivotPoint.z<<std::endl;
+std::cout<<"CameraFrame::this->coordinatesOf(pivotPoint()) = "<<this->coordinatesOf(pivotPoint()).x<<" "<<this->coordinatesOf(pivotPoint()).y<<" "<<this->coordinatesOf(pivotPoint()).z<<std::endl<<std::endl<<std::endl;
             switch (m_action) 
             {
                 case TRANSLATE: 
@@ -459,7 +461,7 @@ class CameraFrame : public qgltoolkit::Frame
 
                 case ZOOM: 
                 {
-                    zoom(deltaWithPrevPos(_event),  _camPivotPoint);
+                    zoom(deltaWithPrevPos(_event),  /*_camPivotPoint*/ this->coordinatesOf(pivotPoint()) );
                     break;
                 }
 
@@ -480,7 +482,7 @@ class CameraFrame : public qgltoolkit::Frame
                     } 
                     else 
                     {   
-                        glm::vec3 trans = _camPivotPoint; //camera->projectedCoordinatesOf(pivotPoint());
+                        glm::vec3 trans = /*_camPivotPoint*/ this->coordinatesOf(pivotPoint()); //camera->projectedCoordinatesOf(pivotPoint());
                         rot = deformedBallQuaternion(_event->x(), _event->y(), trans[0], trans[1]);
                         
                         rotateAroundPoint(rot, pivotPoint(), _center); 
@@ -512,10 +514,10 @@ class CameraFrame : public qgltoolkit::Frame
         * \param _camPivotPoint: 
         * \param _sceneCenter: 
         */
-        virtual void mouseDoubleClickEvent(QMouseEvent *const _event, glm::vec3 _camPos, glm::vec3 _camViewDir, glm::vec3 _camPivotPoint, glm::vec3 _sceneCenter) 
+        virtual void mouseDoubleClickEvent(QMouseEvent *const _event, glm::vec3 _camPos, glm::vec3 _camViewDir/*, glm::vec3 _camPivotPoint*/, glm::vec3 _sceneCenter) 
         {
             Frame *frame = new Frame();
-            frame->setTranslation(_camPivotPoint);
+            frame->setTranslation(/*_camPivotPoint*/ pivotPoint() );
 
             if (_event->modifiers() == Qt::NoModifier)
             {
@@ -539,12 +541,12 @@ class CameraFrame : public qgltoolkit::Frame
         * \param _event: UI event
         * \param _camPivotPoint: 
         */
-        virtual void wheelEvent(QWheelEvent *const _event,glm::vec3 _camPivotPoint )
+        virtual void wheelEvent(QWheelEvent *const _event/*,glm::vec3 _camPivotPoint*/ )
         {
 
             if (m_action == ZOOM) 
             {
-                zoom(-wheelDelta(_event), _camPivotPoint);
+                zoom(-wheelDelta(_event), /*_camPivotPoint*/this->coordinatesOf(pivotPoint()) );
                 Q_EMIT manipulated();
             }
 

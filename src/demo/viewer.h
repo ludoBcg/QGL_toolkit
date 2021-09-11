@@ -43,5 +43,4 @@ class Viewer : public qgltoolkit::QGLViewer
         void keyPressEvent(QKeyEvent *e);
 
 
-
 };
