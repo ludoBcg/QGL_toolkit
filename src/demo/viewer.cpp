@@ -60,7 +60,7 @@ void Viewer::init()
     m_triMesh->createVAO();
 
 
-    // scene setup
+    // scene AABBox
     glm::vec3 bBoxMin = m_triMesh->getBBoxMin();
     glm::vec3 bBoxMax = m_triMesh->getBBoxMax();
 
@@ -70,14 +70,12 @@ void Viewer::init()
         glm::vec3 min(bBoxMin.x, bBoxMin.y, bBoxMin.z);
         glm::vec3 max(bBoxMax.x, bBoxMax.y, bBoxMax.z);
         glm::vec3 centerCoords( (bBoxMin.x + bBoxMax.x) * 0.5f, (bBoxMin.y + bBoxMax.y) * 0.5f, (bBoxMin.z + bBoxMax.z) * 0.5f );
-std::cout<<"center = "<<centerCoords.x<<" "<<centerCoords.y<<" "<<centerCoords.z<<std::endl;
 
         // Set scene radius and center from AABBox.
         // Pivot point is set to scene center by default, 
         // use camera()->setPivotPoint() to change it.
         this->setSceneBoundingBox(min, max);
-std::cout<<"this->camera()->sceneCenter() = "<<this->camera()->sceneCenter().x<<" "<<this->camera()->sceneCenter().y<<" "<<this->camera()->sceneCenter().z<<std::endl;
-std::cout<<"this->camera()->pivotPoint() = "<<this->camera()->pivotPoint().x<<" "<<this->camera()->pivotPoint().y<<" "<<this->camera()->pivotPoint().z<<std::endl;
+
         // camera setup
         this->camera()->setPosition( centerCoords + glm::vec3(0.0f, 0.0f, this->sceneRadius()*2.5f) );
         this->camera()->setViewDirection(centerCoords - this->camera()->position() );
@@ -99,7 +97,6 @@ void Viewer::draw()
     
 
     this->camera()->computeProjectionMatrix();
-//this->camera()->center_ = this->sceneCenter();
     this->camera()->computeViewMatrix();
 
     glm::mat4 mv = this->camera()->viewMatrix();
@@ -117,14 +114,16 @@ void Viewer::draw()
 
 void Viewer::closeEvent(QCloseEvent *e)
 {
-    // Removed: saveStateToFile(); (caused crashing when closing window)
 	QOpenGLWidget::closeEvent(e);
 }
 
 
 std::string Viewer::helpString() const
 {
-    return QGLViewer::helpString();
+    std::string text = QGLViewer::helpString();
+                text += " R key : reset camera \n";
+
+    return text;
 }
 
 
@@ -155,17 +154,23 @@ void Viewer::resizeGL(int width, int height)
 
 void Viewer::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() == Qt::Key_F)
-    {
-        std::cout<<"pressed F"<<std::endl;
-    }
     if (e->key() == Qt::Key_H)
     {
         help();
     }
+    if (e->key() == Qt::Key_R)
+    {
+        // reset camera setup
+        camera()->setPosition( sceneCenter() + glm::vec3(0.0f, 0.0f, sceneRadius()*2.5f) );
+        camera()->setViewDirection( sceneCenter() - camera()->position() );
+        camera()->setUpVector( glm::vec3(0.0f, 1.0f, 0.0f) );  // @@ to fix
+    }
+     
 
     std::cout<<this->width()<<std::endl;
     std::cout<<this->height()<<std::endl;
     QGLViewer::keyPressEvent(e);
+
+    update();
 }
 

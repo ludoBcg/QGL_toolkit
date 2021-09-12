@@ -109,7 +109,6 @@ class QGLViewer : public QOpenGLWidget
         void setSceneBoundingBox(const glm::vec3 &_min, const glm::vec3 &_max) 
         {
             camera()->setSceneBoundingBox(_min, _max);
-            
         }
 
 
@@ -306,7 +305,7 @@ class QGLViewer : public QOpenGLWidget
             //{
             //    camera()->mouseMoveEvent(_e );
             //} 
-             camera()->frame()->mouseMoveEvent(_e, /*frame()->coordinatesOf(pivotPoint()),*/ camera()->sceneCenter() );
+             camera()->frame()->mouseMoveEvent(_e, camera()->sceneCenter() );
 
             this->update();
         }
@@ -324,7 +323,7 @@ class QGLViewer : public QOpenGLWidget
         virtual void mouseDoubleClickEvent(QMouseEvent *_e)
         { 
             //_e->ignore(); 
-            camera()->frame()->mouseDoubleClickEvent(_e, camera()->position(), camera()->viewDirection(), /*camera()->pivotPoint() ,*/ camera()->sceneCenter() );
+            camera()->frame()->mouseDoubleClickEvent(_e, camera()->sceneCenter() );
             this->update();
         }
 
@@ -337,7 +336,7 @@ class QGLViewer : public QOpenGLWidget
             qgltoolkit::CameraFrame::MouseAction action = qgltoolkit::CameraFrame::MouseAction::ZOOM;
 
             camera()->frame()->startAction(action);
-            camera()->frame()->wheelEvent(_e/*,  camera()->frame()->coordinatesOf(camera()->pivotPoint()) */ );
+            camera()->frame()->wheelEvent(_e);
    
             this->update();
         }

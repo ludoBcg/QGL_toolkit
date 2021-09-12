@@ -177,6 +177,14 @@ class CameraFrame : public qgltoolkit::Frame
         |                                             GETTERS / SETTERS                                               |
         +------------------------------------------------------------------------------------------------------------*/
 
+        /*!
+        * \fn viewDirection
+        * \brief Returns the normalized view direction of the Camera, 
+        * defined in the world coordinate system.
+        * This corresponds to the negative Z axis of the frame().
+        */
+        glm::vec3 viewDirection() const { return inverseTransformOf(glm::vec3(0.0f, 0.0f, -1.0f)); } 
+
         /*! \fn pivotPoint 
         * \brief Get pivot point.
         */
@@ -420,15 +428,10 @@ class CameraFrame : public qgltoolkit::Frame
         * Actual behavior depends on mouse action type.
         * Emits the manipulated() signal.
         * \param _event: UI event
-        * \param _camPivotPoint: 
-        * \param _center: 
+        * \param _sceneCenter: scene center coords
         */
-        virtual void mouseMoveEvent(QMouseEvent *const _event/*, glm::vec3 _camPivotPoint*/, glm::vec3 &_center )
+        virtual void mouseMoveEvent(QMouseEvent *const _event, glm::vec3 &_sceneCenter )
         {
-std::cout<<"CameraFrame::pivotPoint() = "<<pivotPoint().x<<" "<<pivotPoint().y<<" "<<pivotPoint().z<<std::endl;
-
-//std::cout<<"CameraFrame::_camPivotPoint = "<<_camPivotPoint.x<<" "<<_camPivotPoint.y<<" "<<_camPivotPoint.z<<std::endl;
-std::cout<<"CameraFrame::this->coordinatesOf(pivotPoint()) = "<<this->coordinatesOf(pivotPoint()).x<<" "<<this->coordinatesOf(pivotPoint()).y<<" "<<this->coordinatesOf(pivotPoint()).z<<std::endl<<std::endl<<std::endl;
             switch (m_action) 
             {
                 case TRANSLATE: 
@@ -453,7 +456,7 @@ std::cout<<"CameraFrame::this->coordinatesOf(pivotPoint()) = "<<this->coordinate
                         }
                     }
                     translate(inverseTransformOf( (float)translationSensitivity() * -trans));
-                    _center = _center + inverseTransformOf( (float)translationSensitivity() * -trans);
+                    //_sceneCenter = _sceneCenter + inverseTransformOf( (float)translationSensitivity() * -trans);  // @@@ 
 
 
                     break;
@@ -461,7 +464,7 @@ std::cout<<"CameraFrame::this->coordinatesOf(pivotPoint()) = "<<this->coordinate
 
                 case ZOOM: 
                 {
-                    zoom(deltaWithPrevPos(_event),  /*_camPivotPoint*/ this->coordinatesOf(pivotPoint()) );
+                    zoom(deltaWithPrevPos(_event),  this->coordinatesOf(pivotPoint()) );
                     break;
                 }
 
@@ -482,10 +485,10 @@ std::cout<<"CameraFrame::this->coordinatesOf(pivotPoint()) = "<<this->coordinate
                     } 
                     else 
                     {   
-                        glm::vec3 trans = /*_camPivotPoint*/ this->coordinatesOf(pivotPoint()); //camera->projectedCoordinatesOf(pivotPoint());
+                        glm::vec3 trans = this->coordinatesOf(pivotPoint()); //camera->projectedCoordinatesOf(pivotPoint());
                         rot = deformedBallQuaternion(_event->x(), _event->y(), trans[0], trans[1]);
                         
-                        rotateAroundPoint(rot, pivotPoint(), _center); 
+                        rotateAroundPoint(rot, pivotPoint(), _sceneCenter);  // @@@ center ?
                     }
 
                     break;
@@ -509,15 +512,13 @@ std::cout<<"CameraFrame::this->coordinatesOf(pivotPoint()) = "<<this->coordinate
         * Left button double click aligns the camera frame with the camera axis (see alignWithFrame() ). 
         * Right button projects the camera frame on the camera view direction.
         * \param _event: UI event
-        * \param _camPos:
-        * \param _camViewDir:
-        * \param _camPivotPoint: 
-        * \param _sceneCenter: 
+        * \param _sceneCenter: scene center coords
         */
-        virtual void mouseDoubleClickEvent(QMouseEvent *const _event, glm::vec3 _camPos, glm::vec3 _camViewDir/*, glm::vec3 _camPivotPoint*/, glm::vec3 _sceneCenter) 
+        virtual void mouseDoubleClickEvent(QMouseEvent *const _event, glm::vec3 _sceneCenter) 
         {
+
             Frame *frame = new Frame();
-            frame->setTranslation(/*_camPivotPoint*/ pivotPoint() );
+            frame->setTranslation( pivotPoint() );
 
             if (_event->modifiers() == Qt::NoModifier)
             {
@@ -527,7 +528,7 @@ std::cout<<"CameraFrame::this->coordinatesOf(pivotPoint()) = "<<this->coordinate
                         alignWithFrame(frame, true);
                         break;
                     case Qt::RightButton:
-                        projectOnLine( _sceneCenter, _camViewDir );
+                        projectOnLine( _sceneCenter, viewDirection() );
                         break;
                     default:
                         break;
@@ -539,14 +540,13 @@ std::cout<<"CameraFrame::this->coordinatesOf(pivotPoint()) = "<<this->coordinate
         * \fn wheelEvent
         * \brief Call zoom acording to wheel delta
         * \param _event: UI event
-        * \param _camPivotPoint: 
         */
-        virtual void wheelEvent(QWheelEvent *const _event/*,glm::vec3 _camPivotPoint*/ )
+        virtual void wheelEvent(QWheelEvent *const _event )
         {
 
             if (m_action == ZOOM) 
             {
-                zoom(-wheelDelta(_event), /*_camPivotPoint*/this->coordinatesOf(pivotPoint()) );
+                zoom(-wheelDelta(_event), this->coordinatesOf(pivotPoint()) );
                 Q_EMIT manipulated();
             }
 

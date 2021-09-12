@@ -440,7 +440,7 @@ class Frame : public QObject
         * is defined in the Frame coordinate system.
         * \param _rotation: rotation quaternion
         * \param _point: rotation quaternion
-        * \param _center: rotation quaternion
+        * \param _center: scene center
         */
         void rotateAroundPoint(Quaternion &_rotation, const glm::vec3 &_point, glm::vec3 &_center) // @@@ center ?
         {
@@ -449,7 +449,7 @@ class Frame : public QObject
             glm::vec3 trans = _point + Quaternion(inverseTransformOf(_rotation.axis()), _rotation.angle()).rotate(position() - _point) - m_t;
 
 glm::vec3 trans2 = _point + Quaternion(inverseTransformOf(_rotation.axis()), _rotation.angle()).rotate(_center - _point) - _center;
-_center = _center + trans2;
+//_center = _center + trans2;  // @@@ 
 
 
             m_t += trans;

@@ -193,7 +193,7 @@ class Camera : public QObject
         * \fn viewDirection
         * \brief Returns view direction.
         */
-        glm::vec3 viewDirection() const { return frame()->inverseTransformOf(glm::vec3(0.0f, 0.0f, -1.0f)); } 
+        glm::vec3 viewDirection() const { return frame()->viewDirection(); } 
 
         /*!
         * \fn orientation
@@ -712,23 +712,6 @@ std::cout<<"Camera::frame()->pivotPoint() = "<<this->frame()->pivotPoint().x<<" 
             (*this) = _camera;
         }
 
-        
-        /*------------------------------------------------------------------------------------------------------------+
-        |                                                   EVENTS                                                    |
-        +------------------------------------------------------------------------------------------------------------*/
-
-        /*!
-        * \fn mouseMoveEvent
-        * \brief Modifies the camera frame according to the mouse motion.
-        * \param _event: UI event
-        */
-//        void mouseMoveEvent(QMouseEvent *const _event)
-//        {
-//            glm::vec3 centerTranslat(0.0f);
-//            frame()->mouseMoveEvent(_event, /*frame()->coordinatesOf(pivotPoint()),*/ m_center );
-//std::cout<<"Camera::frame()->coordinatesOf(pivotPoint()) = "<<frame()->coordinatesOf(pivotPoint()).x<<" "<<frame()->coordinatesOf(pivotPoint()).y<<" "<<frame()->coordinatesOf(pivotPoint()).z<<std::endl;
-//        }
-//
 
 };
 
