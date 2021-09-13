@@ -562,15 +562,15 @@ std::cout<<"Camera::frame()->pivotPoint() = "<<this->frame()->pivotPoint().x<<" 
         */
         void setUpVector(const glm::vec3 &_up, bool _noMove = true)
         {
-           /* Quaternion q( glm::vec3(0.0, 1.0, 0.0), frame()->transformOf(_up));
+            Quaternion q( glm::vec3(0.0, 1.0, 0.0), frame()->transformOf(_up));
 
             if (!_noMove)
                 frame()->setPosition(pivotPoint() - (frame()->orientation() * q).rotate(frame()->coordinatesOf(pivotPoint())));
 
-            frame()->rotate(q);*/
+            frame()->rotate(q);
 
             // Useful in fly mode to keep the horizontal direction.
-            frame()->updateSceneUpVector();
+            //frame()->updateSceneUpVector();
         }
 
 

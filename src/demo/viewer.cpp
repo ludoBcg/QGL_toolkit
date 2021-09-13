@@ -163,7 +163,7 @@ void Viewer::keyPressEvent(QKeyEvent *e)
         // reset camera setup
         camera()->setPosition( sceneCenter() + glm::vec3(0.0f, 0.0f, sceneRadius()*2.5f) );
         camera()->setViewDirection( sceneCenter() - camera()->position() );
-        camera()->setUpVector( glm::vec3(0.0f, 1.0f, 0.0f) );  // @@ to fix
+        camera()->setUpVector( glm::vec3(0.0f, 1.0f, 0.0f) );
     }
      
 

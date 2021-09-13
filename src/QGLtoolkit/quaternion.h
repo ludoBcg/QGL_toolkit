@@ -31,6 +31,7 @@ namespace qgltoolkit
 {
 
 
+
 /*!
 * \fn squaredNorm
 * \brief Squared norm of a glm::vec3
@@ -50,6 +51,20 @@ static glm::vec3 projectOnAxis(glm::vec3 _vec, const glm::vec3 &direction)
     return  (  glm::dot(_vec , direction)  / squaredNorm(direction) ) * direction;
 }
 
+/*!
+* \fn orthogonalVec
+* \brief Builds and returns a new 3D vector orthogonal to _vec.
+*/
+static glm::vec3 orthogonalVec(glm::vec3 _vec) 
+{
+    // Find smallest component. Keep equal case for null values.
+    if ((fabs(_vec.y) >= 0.9 * fabs(_vec.x)) && (fabs(_vec.z) >= 0.9 * fabs(_vec.x)))
+        return glm::vec3(0.0, -_vec.z, _vec.y);
+    else if ((fabs(_vec.x) >= 0.9 * fabs(_vec.y)) && (fabs(_vec.z) >= 0.9 * fabs(_vec.y)))
+        return glm::vec3(-_vec.z, 0.0, _vec.x);
+    else
+        return glm::vec3(-_vec.y, _vec.x, 0.0);
+}
 
 
 /*!
@@ -134,6 +149,45 @@ class  Quaternion
         * \param _angle : angle in radians
         */
         Quaternion(const glm::vec3 &_axis, double _angle) { setAxisAngle(_axis, _angle); }
+
+        /*!
+        * \fn Quaternion
+        * \brief Constructor of Quaternion that will rotate from the _from direction to the _to direction.
+        * Note that this rotation is not uniquely defined. 
+        * The selected axis is usually orthogonal to _from and _to, minimizing the rotation angle. 
+        * This method is robust and can handle small or almost identical vectors.
+        * \param _from : initial position before rotation
+        * \param _to : final position after rotation
+        */
+        Quaternion::Quaternion(const glm::vec3 _from, const glm::vec3 _to) 
+        {
+            const qreal epsilon = 1E-10;
+
+            const qreal fromSqNorm = squaredNorm(_from);
+            const qreal toSqNorm = squaredNorm(_to);
+            // Identity Quaternion when one vector is null
+            if ((fromSqNorm < epsilon) || (toSqNorm < epsilon)) 
+            {
+                m_q[0] = m_q[1] = m_q[2] = 0.0;
+                m_q[3] = 1.0;
+            } 
+            else 
+            {
+                glm::vec3  axis = glm::cross(_from, _to);
+                const qreal axisSqNorm = squaredNorm(axis);
+
+                // Aligned vectors, pick any axis, not aligned with from or to
+                if (axisSqNorm < epsilon)
+                axis = orthogonalVec(_from);
+
+                qreal angle = asin(sqrt(axisSqNorm / (fromSqNorm * toSqNorm)));
+
+                if ( glm::dot(_from , _to ) < 0.0)
+                angle = M_PI - angle;
+
+                setAxisAngle(axis, angle);
+            }
+        }
 
         /*!
         * \fn setValue
