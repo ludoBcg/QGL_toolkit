@@ -54,7 +54,7 @@ void Viewer::init()
     glViewport(0, 0, width(), height());
 
     m_triMesh = new TriMesh();
-    m_triMesh->readFile("../../models/misc/teapot.obj");
+    m_triMesh->readFile("../../models/teapot.obj");
     m_triMesh->computeAABB();
     m_triMesh->setProgram("../../src/demo/shaders/phong.vert", "../../src/demo/shaders/phong.frag");
     m_triMesh->createVAO();

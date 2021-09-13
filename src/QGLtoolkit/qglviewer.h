@@ -140,7 +140,7 @@ class QGLViewer : public QOpenGLWidget
 
             _camera->setSceneRadius(this->sceneRadius());
             _camera->setSceneCenter(this->sceneCenter());
-            std::cout<<" --------------------- screenWidth_ = "<< width() <<" screenHeight_ "<< height() <<std::endl; // wrong here
+
             _camera->setScreenWidthAndHeight(width(), height());
 
             //// Disconnect current camera from this viewer.
@@ -242,7 +242,6 @@ class QGLViewer : public QOpenGLWidget
         virtual void resizeGL(int _width, int _height) 
         {
             QOpenGLWidget::resizeGL(_width, _height);
-            std::cout<<" screenWidth_ = "<< this->width() <<" screenHeight_ "<< this->height() <<std::endl;
             glViewport(0, 0, GLint(_width), GLint(_height));
             camera()->setScreenWidthAndHeight(_width, _height);
         }

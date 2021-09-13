@@ -312,7 +312,7 @@ class CameraFrame : public qgltoolkit::Frame
                     translate( (float)_delta * direction);
             } 
             else 
-            {std::cout<<"zoom not on  pivot" << std::endl;
+            {
                 const float coef = std::max( std::abs( _camCoordPivot.z), 0.2f * sceneRadius);
                 glm::vec3 trans(0.0, 0.0, -coef * _delta);
                 translate(inverseTransformOf(trans));

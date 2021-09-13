@@ -216,9 +216,9 @@ class Camera : public QObject
             double zNear = distanceToSceneCenter() - zClippingCoefficient() * sceneRadius();
 
             // Prevents negative or null zNear values.
-            const double zMin = 0.0f;
-            if (zNear < 0.0f)
-                zNear = 0.0f;
+            const double zMin = 0.1f;
+            if (zNear < zMin)
+                zNear = zMin;
 
             return zNear;
         }
@@ -651,7 +651,7 @@ std::cout<<"Camera::frame()->pivotPoint() = "<<this->frame()->pivotPoint().x<<" 
 
             setProjType(CameraFrame::PERSPECTIVE);
 
-            setZClippingCoefficient(sqrt(3.0));
+            setZClippingCoefficient(/*sqrt(3.0)*/1.25);
 
             setScreenWidthAndHeight(600, 400);
 
