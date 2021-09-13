@@ -167,15 +167,6 @@ class Frame : public QObject
             setTranslation( glm::vec3(_x, _y, _z) );
         }
 
-//        void setTranslationWithConstraint(glm::vec3 &translation) //@@@
-//        {
-//            glm::vec3 deltaT = translation - this->translation();
-////            if (constraint())
-////                constraint()->constrainTranslation(deltaT/*, this*/); 
-//
-//            setTranslation(this->translation() + deltaT);
-//            translation = this->translation();
-//        }
 
         /*!
         * \fn setRotation
@@ -200,19 +191,6 @@ class Frame : public QObject
             setRotation(Quaternion(_q0, _q1, _q2, _q3));
         }
 
-//        void setRotationWithConstraint(Quaternion &rotation) //@@@
-//        {
-//            Quaternion deltaQ = this->rotation().inverse() * rotation;
-////            if (constraint())
-////                constraint()->constrainRotation(deltaQ/*, this*/); 
-//
-//            // Prevent numerical drift
-//            deltaQ.normalize();
-//
-//            setRotation(this->rotation() * deltaQ);
-//            m_q.normalize();
-//            rotation = this->rotation();
-//        }
 
 
         /*!
@@ -228,24 +206,6 @@ class Frame : public QObject
             m_q = _rotation;
             Q_EMIT modified();
         }
-
-//        void setTranslationAndRotationWithConstraint(glm::vec3 &translation, Quaternion &rotation) //@@@
-//        {
-//            glm::vec3 deltaT = translation - this->translation();
-//            Quaternion deltaQ = this->rotation().inverse() * rotation;
-//
-//            // Prevent numerical drift
-//            deltaQ.normalize();
-//
-//            m_t += deltaT;
-//            m_q *= deltaQ;
-//            m_q.normalize();
-//
-//            translation = this->translation();
-//            rotation = this->rotation();
-//
-//            Q_EMIT modified();
-//        }
 
 
         /*!
@@ -270,13 +230,6 @@ class Frame : public QObject
             setPosition( glm::vec3(_x, _y, _z) );
         }
 
-        //void Frame::setPositionWithConstraint(glm::vec3 &position)  //@@@
-        //{
-        //    if (referenceFrame())
-        //        position = referenceFrame()->coordinatesOf(position);
-
-        //    setTranslationWithConstraint(position);
-        //}
 
         /*!
         * \fn setOrientation
@@ -300,13 +253,6 @@ class Frame : public QObject
             setOrientation(Quaternion(_q0, _q1, _q2, _q3));
         }
 
-        //void setOrientationWithConstraint(Quaternion &orientation) //@@@
-        //{
-        //    if (referenceFrame())
-        //        orientation = referenceFrame()->orientation().inverse() * orientation;
-
-        //    setRotationWithConstraint(orientation);
-        //}
 
         /*!
         * \fn setPositionAndOrientation
@@ -323,16 +269,6 @@ class Frame : public QObject
 
             Q_EMIT modified();
         }
-
-        //void setPositionAndOrientationWithConstraint(glm::vec3 &position, Quaternion &orientation) //@@@
-        //{
-        //    if (referenceFrame()) 
-        //    {
-        //        position = referenceFrame()->coordinatesOf(position);
-        //        orientation = referenceFrame()->orientation().inverse() * orientation;
-        //    }
-        //    setTranslationAndRotationWithConstraint(position, orientation);
-        //}
 
 
         /*------------------------------------------------------------------------------------------------------------+
@@ -439,21 +375,15 @@ class Frame : public QObject
         * _point is defined in the world coordinate system, while the _rotation axis
         * is defined in the Frame coordinate system.
         * \param _rotation: rotation quaternion
-        * \param _point: rotation quaternion
-        * \param _center: scene center
+        * \param _point: rotation center
         */
-        void rotateAroundPoint(Quaternion &_rotation, const glm::vec3 &_point, glm::vec3 &_center) // @@@ center ?
+        void rotateAroundPoint(Quaternion &_rotation, const glm::vec3 &_point)
         {
             m_q *= _rotation;
             m_q.normalize(); // Prevents numerical drift
             glm::vec3 trans = _point + Quaternion(inverseTransformOf(_rotation.axis()), _rotation.angle()).rotate(position() - _point) - m_t;
 
-glm::vec3 trans2 = _point + Quaternion(inverseTransformOf(_rotation.axis()), _rotation.angle()).rotate(_center - _point) - _center;
-//_center = _center + trans2;  // @@@ 
-
-
             m_t += trans;
-
             
             Q_EMIT modified();
         }

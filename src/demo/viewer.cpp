@@ -1,4 +1,13 @@
-
+/*********************************************************************************************************************
+ *
+ * viewer.cpp
+ *
+ * 3D viewer widget for Qt, based on QGLViewer
+ * 
+ * QGL_toolkit demo
+ * Ludovic Blache
+ *
+ *********************************************************************************************************************/
 
 #include "trimesh.h"
 
@@ -10,7 +19,6 @@ using namespace std;
 
 
 
-
 Viewer::Viewer(QWidget *parent) : qgltoolkit::QGLViewer(parent)
 { }
 
@@ -19,12 +27,9 @@ Viewer::Viewer() : qgltoolkit::QGLViewer()
 
 Viewer::~Viewer()
 {
-//    delete m_drawMesh;
     delete m_triMesh;
     std::cout << std::endl << "Bye!" << std::endl;
 }
-
-
 
 
 
@@ -166,9 +171,6 @@ void Viewer::keyPressEvent(QKeyEvent *e)
         camera()->setUpVector( glm::vec3(0.0f, 1.0f, 0.0f) );
     }
      
-
-    std::cout<<this->width()<<std::endl;
-    std::cout<<this->height()<<std::endl;
     QGLViewer::keyPressEvent(e);
 
     update();

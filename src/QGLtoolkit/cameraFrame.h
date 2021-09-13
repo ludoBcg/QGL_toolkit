@@ -1,6 +1,6 @@
 /*********************************************************************************************************************
  *
- * camera.h
+ * cameraFrame.h
  *
  * A Frame with Camera specific mouse bindings
  * 
@@ -95,87 +95,72 @@ class CameraFrame : public qgltoolkit::Frame
 
 
         /*------------------------------------------------------------------------------------------------------------+
-        |                                            CONSTRUCTORS/ SETTERS                                            |
-        +------------------------------------------------------------------------------------------------------------*/
-
-        /*!
-        * \fn setCamParam
-        * \brief Set up camera parameters.
-        * \param _screenWidth, m_screenHeight: windows dims (in pixels)
-        * \param _fov: fov angle (in radians)
-        * \param _projType: camera projection type
-        * \param _sceneRadius: scene radius
-        * \param _pivotPoint: pivot point coords
-        */
-        void setCamParam(int _screenWidth, int  _screenHeight, double _fov, ProjectionType _projType, double _sceneRadius, glm::vec3 _pivotPoint)
-        { 
-            m_screenWidth = _screenWidth;  
-            m_screenHeight = _screenHeight;  
-            m_fieldOfView = _fov;
-            m_projType = _projType;
-            m_sceneRadius = _sceneRadius;
-            m_pivotPoint = _pivotPoint;
-        }
-
-        /*!
-        * \fn CameraFrame
-        * \brief Destructor of CameraFrame.
-        */
-        CameraFrame()
-        : m_sceneUpVector(0.0, 1.0, 0.0), m_rotatesAroundUpVector(false), m_zoomsOnPivotPoint(true) 
-        {
-            setRotationSensitivity(1.0f);
-            setTranslationSensitivity(1.0f);
-            setWheelSensitivity(1.0f);
-            setZoomSensitivity(1.0f);
-
-            setCamParam(0, 0, 0, PERSPECTIVE, 0, glm::vec3(0.0) );
-        }
-
-        /*!
-        * \fn ~CameraFrame
-        * \brief Destructor of CameraFrame.
-        */
-        virtual ~CameraFrame() {}
-
-        /*!
-        * \fn operator=
-        * \brief Equal operator.
-        */
-        CameraFrame &operator=(const CameraFrame &_cf)
-        {
-            Frame::operator=(_cf);
-
-            setRotationSensitivity(_cf.rotationSensitivity());
-            setTranslationSensitivity(_cf.translationSensitivity());
-            setWheelSensitivity(_cf.wheelSensitivity());
-            setZoomSensitivity(_cf.zoomSensitivity());
-
-            m_action = NO_MOUSE_ACTION;
-
-            setSceneUpVector(_cf.sceneUpVector());
-            setRotatesAroundUpVector(_cf.m_rotatesAroundUpVector);
-            setZoomsOnPivotPoint(_cf.m_zoomsOnPivotPoint);
-
-            setCamParam(_cf.m_screenWidth, _cf.m_screenHeight, _cf.m_fieldOfView, _cf.m_projType , _cf.m_sceneRadius, _cf.m_pivotPoint);
-
-            return *this;
-        }
-
-        /*!
-        * \fn CameraFrame
-        * \brief Copy constructor of CameraFrame.
-        */
-        CameraFrame(const CameraFrame &_cf)
-        : Frame(_cf) 
-        {
-            (*this) = (_cf);
-        }
-
-
-        /*------------------------------------------------------------------------------------------------------------+
         |                                             GETTERS / SETTERS                                               |
         +------------------------------------------------------------------------------------------------------------*/
+
+        /*!
+        * \fn screenWidth
+        * \brief Returns screen width.
+        */
+        int screenWidth() const { return m_screenWidth; }
+
+        /*!
+        * \fn screenHeight
+        * \brief Returns screen height.
+        */
+        int screenHeight() const { return m_screenHeight; }
+
+        /*!
+        * \fn setScreenWidthAndHeight
+        * \brief Set windows' dimensions.
+        */
+        void setScreenWidthAndHeight(int _width, int _height) 
+        {
+            // Prevent negative and zero dimensions that would cause divisions by zero.
+            m_screenWidth = _width > 0 ? _width : 1;
+            m_screenHeight = _height > 0 ? _height : 1;
+        }
+
+        /*!
+        * \fn sceneRadius
+        * \brief Returns scene radius.
+        */
+        double sceneRadius() const { return m_sceneRadius; }
+
+        /*! \fn setSceneRadius 
+        * \brief Set scene radius.
+        */
+        void setSceneRadius(double _radius)
+        {
+            if (_radius <= 0.0) 
+            {
+                std::cerr<<"Scene radius must be positive - Ignoring value"<<std::endl;
+                return;
+            }
+            m_sceneRadius = _radius;
+        }
+
+        /*!
+        * \fn projType
+        * \brief Returns projection type.
+        */
+        CameraFrame::ProjectionType projType() const { return m_projType; }
+
+        /*! \fn setProjType 
+        * \brief Set type of projection.
+        */
+        void setProjType(CameraFrame::ProjectionType _type) { m_projType = _type; }
+
+        /*!
+        * \fn fieldOfView
+        * \brief Returns FOV.
+        */
+        double fieldOfView() const { return m_fieldOfView; }
+
+        /*! \fn setFieldOfView 
+        * \brief Set FOV.
+        */
+        void setFieldOfView(double _fov) { m_fieldOfView = _fov; }
 
         /*!
         * \fn viewDirection
@@ -282,6 +267,76 @@ class CameraFrame : public qgltoolkit::Frame
         }
 
 
+        /*------------------------------------------------------------------------------------------------------------+
+        |                                            CONSTRUCTORS/ SETTERS                                            |
+        +------------------------------------------------------------------------------------------------------------*/
+
+        /*!
+        * \fn CameraFrame
+        * \brief Destructor of CameraFrame.
+        */
+        CameraFrame()
+        : m_sceneUpVector(0.0, 1.0, 0.0), m_rotatesAroundUpVector(false), m_zoomsOnPivotPoint(true) 
+        {
+            setRotationSensitivity(1.0f);
+            setTranslationSensitivity(1.0f);
+            setWheelSensitivity(1.0f);
+            setZoomSensitivity(1.0f);
+            setScreenWidthAndHeight(0, 0);
+            setProjType(PERSPECTIVE);
+            setPivotPoint( glm::vec3(0.0) );
+            setSceneRadius(0);
+            setFieldOfView(0.0f);
+        }
+
+        /*!
+        * \fn ~CameraFrame
+        * \brief Destructor of CameraFrame.
+        */
+        virtual ~CameraFrame() {}
+
+        /*!
+        * \fn operator=
+        * \brief Equal operator.
+        */
+        CameraFrame &operator=(const CameraFrame &_cf)
+        {
+            Frame::operator=(_cf);
+
+            setRotationSensitivity(_cf.rotationSensitivity());
+            setTranslationSensitivity(_cf.translationSensitivity());
+            setWheelSensitivity(_cf.wheelSensitivity());
+            setZoomSensitivity(_cf.zoomSensitivity());
+
+            m_action = NO_MOUSE_ACTION;
+
+            setSceneUpVector(_cf.sceneUpVector());
+            setRotatesAroundUpVector(_cf.m_rotatesAroundUpVector);
+            setZoomsOnPivotPoint(_cf.m_zoomsOnPivotPoint);
+
+            setScreenWidthAndHeight(_cf.m_screenWidth, _cf.m_screenHeight);
+            setProjType(_cf.m_projType);
+            setPivotPoint(_cf.m_pivotPoint);
+            setSceneRadius(_cf.m_sceneRadius);
+            setFieldOfView(_cf.m_fieldOfView);
+
+            return *this;
+        }
+
+        /*!
+        * \fn CameraFrame
+        * \brief Copy constructor of CameraFrame.
+        */
+        CameraFrame(const CameraFrame &_cf)
+        : Frame(_cf) 
+        {
+            (*this) = (_cf);
+        }
+
+
+        
+
+
     Q_SIGNALS:
   
         /*! \fn manipulated 
@@ -302,18 +357,17 @@ class CameraFrame : public qgltoolkit::Frame
         * \brief Translates camera according to zoom delta
         * \param 
         */
-        void zoom(double _delta, glm::vec3 _camCoordPivot)
+        void zoom(double _delta)
         {
-            const float sceneRadius = m_sceneRadius;
             if ( m_zoomsOnPivotPoint ) 
             {
                 glm::vec3 direction = position() - m_pivotPoint;
-                if ( ( glm::length(direction) > 0.1 * sceneRadius || _delta > 0.0)  && ( glm::length(direction) < 10.0 * sceneRadius || _delta < 0.0) )
+                if ( ( glm::length(direction) > 0.1 * m_sceneRadius || _delta > 0.0)  && ( glm::length(direction) < 10.0 * m_sceneRadius || _delta < 0.0) )
                     translate( (float)_delta * direction);
             } 
             else 
             {
-                const float coef = std::max( std::abs( _camCoordPivot.z), 0.2f * sceneRadius);
+                const float coef = std::max( std::abs( this->coordinatesOf(pivotPoint()).z), 0.2f * (float)m_sceneRadius);
                 glm::vec3 trans(0.0, 0.0, -coef * _delta);
                 translate(inverseTransformOf(trans));
             }
@@ -351,10 +405,10 @@ class CameraFrame : public qgltoolkit::Frame
         Quaternion deformedBallQuaternion(int _x, int _y, double _cx, double _cy)
         {
             // Points on the deformed ball
-            double px = rotationSensitivity() * (m_prevPos.x() - _cx) / m_screenWidth;
-            double py = rotationSensitivity() * (_cy - m_prevPos.y()) / m_screenHeight;
-            double dx = rotationSensitivity() * (_x - _cx) / m_screenWidth ;
-            double dy = rotationSensitivity() * (_cy - _y) / m_screenHeight ;
+            double px = rotationSensitivity() * (m_prevPos.x() - _cx) / screenWidth();
+            double py = rotationSensitivity() * (_cy - m_prevPos.y()) / screenHeight();
+            double dx = rotationSensitivity() * (_x - _cx) / screenWidth() ;
+            double dy = rotationSensitivity() * (_cy - _y) / screenHeight() ;
 
             const glm::vec3 p1(px, py, projectOnBall(px, py));
             const glm::vec3 p2(dx, dy, projectOnBall(dx, dy));
@@ -373,8 +427,8 @@ class CameraFrame : public qgltoolkit::Frame
         */
         double deltaWithPrevPos(QMouseEvent *const _event) const
         {
-            double dx = double(_event->x() - m_prevPos.x()) / m_screenWidth ;
-            double dy = double(_event->y() - m_prevPos.y()) / m_screenHeight ;
+            double dx = double(_event->x() - m_prevPos.x()) / screenWidth() ;
+            double dy = double(_event->y() - m_prevPos.y()) / screenHeight() ;
 
             double value = std::abs(dx) > std::abs(dy) ? dx : dy;
             return value * zoomSensitivity();
@@ -443,7 +497,7 @@ class CameraFrame : public qgltoolkit::Frame
                     switch (m_projType) 
                     {
                         case PERSPECTIVE:
-                            trans *= 2.0 * tan(m_fieldOfView / 2.0) * std::abs(( this->coordinatesOf(pivotPoint())).z) / m_screenHeight;
+                            trans *= 2.0 * tan( fieldOfView() / 2.0 ) * std::abs(( this->coordinatesOf(pivotPoint())).z) / screenHeight();
                             break;
                         case ORTHOGRAPHIC: 
                         {
@@ -456,15 +510,13 @@ class CameraFrame : public qgltoolkit::Frame
                         }
                     }
                     translate(inverseTransformOf( (float)translationSensitivity() * -trans));
-                    //_sceneCenter = _sceneCenter + inverseTransformOf( (float)translationSensitivity() * -trans);  // @@@ 
-
 
                     break;
                 }
 
                 case ZOOM: 
                 {
-                    zoom(deltaWithPrevPos(_event),  this->coordinatesOf(pivotPoint()) );
+                    zoom(deltaWithPrevPos(_event) );
                     break;
                 }
 
@@ -475,8 +527,8 @@ class CameraFrame : public qgltoolkit::Frame
                     {
                         // Multiply by 2.0 to get on average about the same speed as with the
                         // deformed ball
-                        double dx = 2.0 * rotationSensitivity() * (m_prevPos.x() - _event->x()) / m_screenWidth ;
-                        double dy = 2.0 * rotationSensitivity() * (m_prevPos.y() - _event->y()) / m_screenHeight ;
+                        double dx = 2.0 * rotationSensitivity() * (m_prevPos.x() - _event->x()) / screenWidth() ;
+                        double dy = 2.0 * rotationSensitivity() * (m_prevPos.y() - _event->y()) / screenHeight() ;
                         dx = -dx;
                         dy = -dy;
                         glm::vec3 verticalAxis = transformOf(m_sceneUpVector);
@@ -488,7 +540,7 @@ class CameraFrame : public qgltoolkit::Frame
                         glm::vec3 trans = this->coordinatesOf(pivotPoint()); //camera->projectedCoordinatesOf(pivotPoint());
                         rot = deformedBallQuaternion(_event->x(), _event->y(), trans[0], trans[1]);
                         
-                        rotateAroundPoint(rot, pivotPoint(), _sceneCenter);  // @@@ center ?
+                        rotateAroundPoint(rot, pivotPoint());
                     }
 
                     break;
@@ -546,7 +598,7 @@ class CameraFrame : public qgltoolkit::Frame
 
             if (m_action == ZOOM) 
             {
-                zoom(-wheelDelta(_event), this->coordinatesOf(pivotPoint()) );
+                zoom(-wheelDelta(_event) );
                 Q_EMIT manipulated();
             }
 

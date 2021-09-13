@@ -45,19 +45,15 @@ class Camera : public QObject
 
         CameraFrame *m_frame;
 
-        int m_screenWidth, m_screenHeight;          /*!< window size in pixels */ 
-        double m_fieldOfView;                       /*!< FOV angle in radisn */
-        CameraFrame::ProjectionType m_projType;        
-
         // mutable: can be modfied in a function foo() const
         mutable glm::mat4 m_viewMatrix;             /*!< view matrix */
         mutable bool m_viewMatrixIsUpToDate;        /*!< false if view matrix has been modified */
         mutable glm::mat4 m_projectionMatrix;       /*!< projection matrix */
         mutable bool m_projectionMatrixIsUpToDate;  /*!< false if projection matrix has been modified*/
+
         glm::vec3 m_sceneCenter;                    /*!< coords of scene center */
-        double m_sceneRadius;                       /*!< scene radius */
         double m_zClippingCoef;                     /*!< defines margin between scene radius and frustum borders  */
-        double m_orthoCoef;                         /*!< defines dimesnions for orthogonal projection */
+        double m_orthoCoef;                         /*!< defines dimensions for orthogonal projection */
        
 
 
@@ -103,31 +99,31 @@ class Camera : public QObject
         * \fn screenWidth
         * \brief Returns screen width.
         */
-        int screenWidth() const { return m_screenWidth; }
+        int screenWidth() const { return frame()->screenWidth(); }
 
         /*!
         * \fn screenHeight
         * \brief Returns screen height.
         */
-        int screenHeight() const { return m_screenHeight; }
+        int screenHeight() const { return frame()->screenHeight(); }
 
         /*!
         * \fn aspectRatio
         * \brief Calculates and returns aspect ratio.
         */
-        double aspectRatio() const { return static_cast<double>(m_screenWidth) / static_cast<double>(m_screenHeight); }
+        double aspectRatio() const { return static_cast<double>( screenWidth() ) / static_cast<double>( screenHeight() ); }
 
         /*!
         * \fn fieldOfView
         * \brief Returns FOV.
         */
-        double fieldOfView() const { return m_fieldOfView; }
+        double fieldOfView() const { return frame()->fieldOfView(); }
 
         /*!
         * \fn projType
         * \brief Returns projection type.
         */
-        CameraFrame::ProjectionType projType() const { return m_projType; }
+        CameraFrame::ProjectionType projType() const { return frame()->projType(); }
 
         /*!
         * \fn projectionMatrix
@@ -157,7 +153,7 @@ class Camera : public QObject
         * \fn sceneRadius
         * \brief Returns scene radius.
         */
-        double sceneRadius() const { return m_sceneRadius; }
+        double sceneRadius() const { return frame()->sceneRadius(); }
 
         /*!
         * \fn distanceToSceneCenter
@@ -279,28 +275,23 @@ class Camera : public QObject
             const Quaternion q = frame()->orientation();
             const glm::vec3 t = q.inverseRotate(frame()->position());
         
-//std::cout<<"center_  "<<center_.x<< " " << center_.y << " " << center_.z << std::endl;     
+            glm::vec3 diff = glm::normalize(m_center - position());
+            glm::vec3 axis = glm::normalize(frame()->orientation().axis());
 
-glm::vec3 diff = glm::normalize(m_center - position());
-glm::vec3 axis = glm::normalize(frame()->orientation().axis());
-//std::cout<<"(center_ - position() )  "<<diff.x<< " " << diff.y << " " << diff.z << std::endl;  
-//std::cout<<"axis  "<<axis.x<< " " << axis.y << " " << axis.z << std::endl;  
-//std::cout<<"quat  "<<q[0]<< " " << q[1] << " " << q[2] << std::endl; 
-const float q00 = 2.0 * q[0] * q[0];
-const float q11 = 2.0 * q[1] * q[1];
-const float q22 = 2.0 * q[2] * q[2];
+            const float q00 = 2.0 * q[0] * q[0];
+            const float q11 = 2.0 * q[1] * q[1];
+            const float q22 = 2.0 * q[2] * q[2];
 
-const float q01 = 2.0 * q[0] * q[1];
-const float q02 = 2.0 * q[0] * q[2];
-const float q03 = 2.0 * q[0] * q[3];
+            const float q01 = 2.0 * q[0] * q[1];
+            const float q02 = 2.0 * q[0] * q[2];
+            const float q03 = 2.0 * q[0] * q[3];
 
-const float q12 = 2.0 * q[1] * q[2];
-const float q13 = 2.0 * q[1] * q[3];
+            const float q12 = 2.0 * q[1] * q[2];
+            const float q13 = 2.0 * q[1] * q[3];
 
-const float q23 = 2.0 * q[2] * q[3];
-glm::vec3 quatZ = glm::normalize( glm::vec3( q02 + q13 , q12 - q03 , 1.0f - q11 - q00 ) );
-glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 + q03 ) );
-//std::cout<<"quat Z  "<< quatZ.x << " " << quatZ.y << " " << quatZ.z << std::endl;  
+            const float q23 = 2.0 * q[2] * q[3];
+            glm::vec3 quatZ = glm::normalize( glm::vec3( q02 + q13 , q12 - q03 , 1.0f - q11 - q00 ) );
+            glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 + q03 ) );
 
             m_viewMatrix = glm::lookAt(position(),  position() - quatZ , quatU );
 
@@ -313,13 +304,8 @@ glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 +
         */
         void setScreenWidthAndHeight(int _width, int _height) 
         {
-            // Prevent negative and zero dimensions that would cause divisions by zero.
-            m_screenWidth = _width > 0 ? _width : 1;
-            m_screenHeight = _height > 0 ? _height : 1;
+            frame()->setScreenWidthAndHeight(_width, _height);
 
-            
-            frame()->setCamParam(m_screenWidth, m_screenHeight, fieldOfView(), projType(), sceneRadius(), pivotPoint() ); //@@
-            
             m_projectionMatrixIsUpToDate = false;
         }
 
@@ -344,7 +330,7 @@ glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 +
 
             Quaternion q;
             q.setFromRotatedBasis(xAxis, glm::cross(xAxis, _direction), -_direction);
-            //frame()->setOrientationWithConstraint(q);
+
             frame()->setOrientation(q);
         }
 
@@ -425,7 +411,7 @@ glm::vec3 quatU = glm::normalize( glm::vec3( q01 - q23 , 1.0 - q22 - q00 , q12 +
             // If frame's RAP is set directly, projectionMatrixIsUpToDate_ should also be
             // set to false to ensure proper recomputation of the ORTHO projection matrix.
             frame()->setPivotPoint(_point);
-std::cout<<"Camera::frame()->pivotPoint() = "<<this->frame()->pivotPoint().x<<" "<<this->frame()->pivotPoint().y<<" "<<this->frame()->pivotPoint().z<<std::endl;
+
             // orthoCoef_ is used to compensate for changes of the pivotPoint, so that the
             // image does not change when the pivotPoint is changed in ORTHOGRAPHIC mode.
             const float newDist = std::abs(cameraCoordinatesOf(pivotPoint()).z);
@@ -449,7 +435,8 @@ std::cout<<"Camera::frame()->pivotPoint() = "<<this->frame()->pivotPoint().x<<" 
         */
         void setFieldOfView(double _fov)
         {
-            m_fieldOfView = _fov;
+            //m_fieldOfView = _fov;
+            frame()->setFieldOfView(_fov);
             m_projectionMatrixIsUpToDate = false;
         }
 
@@ -469,10 +456,11 @@ std::cout<<"Camera::frame()->pivotPoint() = "<<this->frame()->pivotPoint().x<<" 
         */
         void setProjType(CameraFrame::ProjectionType _type)
         {
-            if ((_type == CameraFrame::ORTHOGRAPHIC) && (m_projType == CameraFrame::PERSPECTIVE))
+            if ((_type == CameraFrame::ORTHOGRAPHIC) && (projType() == CameraFrame::PERSPECTIVE))
                 m_orthoCoef = tan(fieldOfView() / 2.0);
-
-            m_projType = _type;
+                
+            //m_projType = _type;
+            frame()->setProjType(_type);
             m_projectionMatrixIsUpToDate = false;
         }
 
@@ -491,12 +479,7 @@ std::cout<<"Camera::frame()->pivotPoint() = "<<this->frame()->pivotPoint().x<<" 
         */
         void setSceneRadius(double _radius)
         {
-            if (_radius <= 0.0) 
-            {
-                std::cerr<<"Scene radius must be positive - Ignoring value"<<std::endl;
-                return;
-            }
-            m_sceneRadius = _radius;
+            frame()->setSceneRadius(_radius);
             m_projectionMatrixIsUpToDate = false;
         }
 
@@ -601,7 +584,7 @@ std::cout<<"Camera::frame()->pivotPoint() = "<<this->frame()->pivotPoint().x<<" 
                 }
             }
             glm::vec3 newPos(_center - (viewDirection() * distance) );
-            //frame()->setPositionWithConstraint(newPos);
+
             frame()->setPosition(newPos);
         }
 
@@ -641,7 +624,7 @@ std::cout<<"Camera::frame()->pivotPoint() = "<<this->frame()->pivotPoint().x<<" 
         * \brief Destructor of Camera.
         */
         Camera() 
-        : m_frame(NULL), m_fieldOfView(M_PI / 4.0), m_viewMatrixIsUpToDate(false), m_projectionMatrixIsUpToDate(false)
+        : m_frame(NULL), m_viewMatrixIsUpToDate(false), m_projectionMatrixIsUpToDate(false)
         {
             setFrame(new CameraFrame());
             setSceneRadius(1.0);
@@ -651,9 +634,11 @@ std::cout<<"Camera::frame()->pivotPoint() = "<<this->frame()->pivotPoint().x<<" 
 
             setProjType(CameraFrame::PERSPECTIVE);
 
-            setZClippingCoefficient(/*sqrt(3.0)*/1.25);
+            setZClippingCoefficient(sqrt(3.0));
 
             setScreenWidthAndHeight(600, 400);
+
+            setFieldOfView( M_PI / 4.0 );
 
             m_viewMatrix = glm::mat4(1.0f);
             m_projectionMatrix = glm::mat4(1.0f);
@@ -690,7 +675,12 @@ std::cout<<"Camera::frame()->pivotPoint() = "<<this->frame()->pivotPoint().x<<" 
             m_frame->setPosition(_camera.position());
             m_frame->setOrientation(_camera.orientation());
 
-            m_frame->setCamParam(_camera.screenWidth(), _camera.screenHeight(), _camera.fieldOfView(), _camera.projType(), _camera.sceneRadius(), _camera.pivotPoint() );
+            m_frame->setScreenWidthAndHeight(_camera.screenWidth(), _camera.screenHeight() );
+            m_frame->setProjType(_camera.projType() );
+            m_frame->setPivotPoint(_camera.pivotPoint() );
+            m_frame->setSceneRadius(_camera.sceneRadius() );
+            m_frame->setFieldOfView(_camera.fieldOfView() );
+
       
             computeProjectionMatrix();
             computeViewMatrix();

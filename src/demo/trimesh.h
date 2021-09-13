@@ -1,3 +1,14 @@
+/*********************************************************************************************************************
+ *
+ * trimesh.h
+ *
+ * Triangle mesh class
+ * 
+ * QGL_toolkit demo
+ * Ludovic Blache
+ *
+ *********************************************************************************************************************/
+
 #ifndef TRIMESHSOUP_H
 #define TRIMESHSOUP_H
 
@@ -56,16 +67,6 @@ class TriMesh
         /*------------------------------------------------------------------------------------------------------------+
         |                                              GETTERS/SETTERS                                                |
         +-------------------------------------------------------------------------------------------------------------*/
-
-        ///*! \fn getVertices */
-        //void getVertices(std::vector<glm::vec3>& _vertices);
-        ///*! \fn getNormals */
-        //void getNormals(std::vector<glm::vec3>& _normals);
-        ///*! \fn getIndices */
-        //void getIndices(std::vector<uint32_t>& _indices);
-
-        ///*! \fn getColors */
-        //void getColors(std::vector<glm::vec3>& _colors);
 
         /*!
         * \fn getBBoxMin
@@ -166,29 +167,25 @@ class TriMesh
         glm::vec3 m_bBoxMax;                    /*!< 3D coordinates of the max corner of the bounding box */
 
 
-GLuint m_program;           /*!< handle of the program object (i.e. shaders) for shaded surface rendering */
+        GLuint m_program;                       /*!< handle of the program object (i.e. shaders) for shaded surface rendering */
 
-GLuint m_meshVAO;           /*!< mesh VAO (i.e. array in which the generated vertex array object names are stored) */
-GLuint m_defaultVAO;        /*!< default VAO */
+        GLuint m_meshVAO;                       /*!< mesh VAO (i.e. array in which the generated vertex array object names are stored) */
+        GLuint m_defaultVAO;                    /*!< default VAO */
 
-GLuint m_vertexVBO;         /*!< name of vertex 3D coords VBO */
-GLuint m_normalVBO;         /*!< name of normal vector VBO */
-GLuint m_colorVBO;          /*!< name of rgb color VBO */
-GLuint m_indexVBO;          /*!< name of index VBO */
+        GLuint m_vertexVBO;                     /*!< name of vertex 3D coords VBO */
+        GLuint m_normalVBO;                     /*!< name of normal vector VBO */
+        GLuint m_colorVBO;                      /*!< name of rgb color VBO */
+        GLuint m_indexVBO;                      /*!< name of index VBO */
 
-int m_numVertices;          /*!< number of vertices in the VBOs */
-int m_numIndices;           /*!< number of indices in the index VBO */
+        int m_numVertices;                      /*!< number of vertices in the VBOs */
+        int m_numIndices;                       /*!< number of indices in the index VBO */
 
-float m_specPow;            /*!< specular power */
+        float m_specPow;                        /*!< specular power */
 
-glm::vec3 m_ambientColor;   /*!< ambient color */
-glm::vec3 m_diffuseColor;   /*!< diffuse color */
-glm::vec3 m_specularColor;  /*!< specular color */
+        glm::vec3 m_ambientColor;               /*!< ambient color */
+        glm::vec3 m_diffuseColor;               /*!< diffuse color */
+        glm::vec3 m_specularColor;              /*!< specular color */
 
-//bool m_vertexProvided;      /*!< flag to indicate if vertex coords are available or not */
-//bool m_normalProvided;      /*!< flag to indicate if normals are available or not */
-//bool m_colorProvided;       /*!< flag to indicate if colors are available or not */
-//bool m_indexProvided;       /*!< flag to indicate if indices are available or not */
 
         /*------------------------------------------------------------------------------------------------------------+
         |                                                    MISC.                                                    |

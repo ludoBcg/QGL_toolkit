@@ -344,10 +344,7 @@ class QGLViewer : public QOpenGLWidget
         * \fn keyPressEvent
         * \brief Event handler for keyboard key pressed.
         */
-        virtual void keyPressEvent(QKeyEvent *_e)
-        {
-            std::cout<<"pressed Key"<<std::endl;
-        }
+        virtual void keyPressEvent(QKeyEvent *_e) { }
 
         /*!
         * \fn keyPressEvent

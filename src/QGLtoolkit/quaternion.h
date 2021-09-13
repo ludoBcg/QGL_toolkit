@@ -46,7 +46,7 @@ static glm::vec3 projectOnAxis(glm::vec3 _vec, const glm::vec3 &direction)
 {
 
     if ( squaredNorm(direction) < 1.0E-10)
-        std::cout << "Vec::projectOnAxis: axis direction is not normalized " <<std::endl;
+        std::cout << "Quaternion::projectOnAxis: axis direction is not normalized " <<std::endl;
 
     return  (  glm::dot(_vec , direction)  / squaredNorm(direction) ) * direction;
 }

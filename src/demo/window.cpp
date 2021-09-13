@@ -1,3 +1,14 @@
+/*********************************************************************************************************************
+ *
+ * window.cpp
+ *
+ * Qt window
+ * 
+ * QGL_toolkit demo
+ * Ludovic Blache
+ *
+ *********************************************************************************************************************/
+
 #include <QFileDialog>
 #include <QColorDialog>
 #include <QMimeData>
@@ -12,7 +23,7 @@ Window::Window() : QWidget()
 {
 
 
-    this->setWindowTitle("Mesh_viewer");
+    this->setWindowTitle("QGL_toolkit demo");
     this->move(300,100);
 
     /*******************************************************************************************/
