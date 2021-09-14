@@ -46,7 +46,7 @@ void Viewer::init()
     }
 
     std::cout << std::endl
-              << "Welcome to Mesh_viewer" << std::endl << std::endl 
+              << "Welcome to QGL_toolkit demo" << std::endl << std::endl 
               << "Press H for help" << std::endl
               << "OpenGL version: " << glGetString(GL_VERSION) << std::endl
               << "Vendor: " << glGetString(GL_VENDOR) << std::endl << std::endl

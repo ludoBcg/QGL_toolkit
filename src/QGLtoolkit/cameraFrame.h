@@ -134,7 +134,7 @@ class CameraFrame : public qgltoolkit::Frame
         {
             if (_radius <= 0.0) 
             {
-                std::cerr<<"Scene radius must be positive - Ignoring value"<<std::endl;
+                std::cerr<<"Scene radius must be positive - Ignoring value: "<< _radius <<std::endl;
                 return;
             }
             m_sceneRadius = _radius;
@@ -285,7 +285,7 @@ class CameraFrame : public qgltoolkit::Frame
             setScreenWidthAndHeight(0, 0);
             setProjType(PERSPECTIVE);
             setPivotPoint( glm::vec3(0.0) );
-            setSceneRadius(0);
+            setSceneRadius(1.0f);
             setFieldOfView(0.0f);
         }
 

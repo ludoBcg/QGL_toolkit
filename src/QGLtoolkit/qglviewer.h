@@ -56,7 +56,7 @@ class QGLViewer : public QOpenGLWidget
     private :     
 
      
-        qgltoolkit::Camera *m_camera;   /*!< window size in pixels */
+        qgltoolkit::Camera *m_camera;   /*!< camera */
 
 
     public:
@@ -104,7 +104,7 @@ class QGLViewer : public QOpenGLWidget
         /*!
         * \fn setSceneBoundingBox
         * \brief Set scene center and radius from bounding box.
-        * \param _min, _max: min amd max corners of the AABBox
+        * \param _min, _max: min and max corners of the AABBox
         */
         void setSceneBoundingBox(const glm::vec3 &_min, const glm::vec3 &_max) 
         {
